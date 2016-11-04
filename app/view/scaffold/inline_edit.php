@@ -1,0 +1,71 @@
+<?php /*
+<fusedoc>
+	<io>
+		<in>
+			<structure name="$scaffold">
+				<string name="beanType" />
+				<string name="editMode" comments="inline|modal" />
+				<array name="listField" comments="key is pipe-delimited column list; value is column width">
+					<string name="~column-list~" comments="column width" />
+				</array>
+				<structure name="editField">
+					<structure name="~column~">
+						<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
+						<array name="options" comments="show dropdown when specified">
+							<string name="~key is option-value~" comments="value is option-text" />
+						</array>
+						<boolean name="readonly" comments="output does not pass value; readonly does" />
+						<string name="placeholder" default="column display name" />
+						<string name="help" />
+						<boolean name="required" />
+					</structure>
+				</structure>
+			</structure>
+		</in>
+		<out />
+	</io>
+</fusedoc>
+*/ ?>
+<?php $recordID = empty($bean->id) ? uniqid() : $bean->id; ?>
+<div id="<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"  class="<?php echo $scaffold['beanType']; ?>-inline-edit scaffold-inline-edit">
+	<form class="form-horizontal" method="post" action="<?php echo F::url($xfa['submit']); ?>"
+	      data-toggle="ajax-submit" data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>">
+		<table class="table table-hover table-condensed" style="margin-bottom: 0;">
+			<tr>
+				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
+					<?php $cols = explode('|', is_numeric($key) ? $val : $key); ?>
+					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
+					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
+						<?php foreach ( $cols as $i => $col ) : ?>
+							<div class="form-group <?php echo $col; ?>" style="margin-bottom: 5px;">
+								<div class="col-sm-12">
+									<?php
+										$field = $scaffold['editField'][$col];
+										$field['name'] = $col;
+										include 'input.php';
+									?>
+								</div>
+							</div>
+						<?php endforeach; ?>
+					</td>
+				<?php endforeach; ?>
+				<td class="col-button" style="white-space: nowrap;">
+					<div class="pull-right">
+						<?php if ( isset($xfa['submit']) ) : ?>
+							<button type="submit" class="btn btn-xs btn-primary">
+								<i class="fa fa-download"></i> Save
+							</button>
+						<?php endif; ?>
+						<?php if ( isset($xfa['cancel']) ) : ?>
+							<a href="<?php echo F::url($xfa['cancel']); ?>"
+							   class="btn btn-xs btn-default"
+							   data-toggle="ajax-load"
+							   data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+							   >Cancel</a>
+						<?php endif; ?>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>

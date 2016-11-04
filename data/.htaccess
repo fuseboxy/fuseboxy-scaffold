@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteRule ^(.*).db$ 403.html [R=403,L]
+RewriteRule ^(.*).sql$ 403.html [R=403,L]
+RewriteRule ^(.*).sqlite$ 403.html [R=403,L]
