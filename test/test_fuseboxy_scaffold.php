@@ -36,7 +36,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
-		$this->assertFalse( stripos($output, 'PHP error') );
+		$this->assertNoPattern('/php error/i', $output);
 		$this->assertTrue( $scaffold['allowNew'] );
 		$this->assertTrue( $scaffold['allowEdit'] );
 		$this->assertTrue( $scaffold['allowToggle'] );
@@ -92,7 +92,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$output = $e->getMessage();
 		}
 		$this->assertTrue( $hasRun );
-		$this->assertTrue( stripos($output, 'data were not submitted') !== false );
+		$this->assertPattern('/data were not submitted/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
 		$arguments['data'] = null;
 		// check create record
@@ -138,7 +138,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$output = $e->getMessage();
 		}
 		$this->assertTrue( $hasRun );
-		$this->assertTrue( stripos($output, 'create record not allowed') !== false );
+		$this->assertPattern('/create record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		$arguments['data'] = null;
 		// check not allow update
@@ -158,7 +158,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$output = $e->getMessage();
 		}
 		$this->assertTrue( $hasRun );
-		$this->assertTrue( stripos($output, 'update record not allowed') !== false );
+		$this->assertPattern('/update record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		$this->assertTrue( $bean->alias != 'aaa-bbb-ccc' and $bean->name != 'XXX YYY ZZZ' and $bean->seq != 222 );
 		$arguments['data'] = null;
