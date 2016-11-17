@@ -14,7 +14,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
 		$fusebox->config['autoLoad'] = array(
 			dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php',
-			dirname(dirname(__FILE__)).'/app/config/rb_config.php',
+			dirname(__FILE__).'/utility-scaffold/config/rb_config.php',
 		);
 		framework__autoLoad();
 		$fusebox->controller = 'unitTest';
