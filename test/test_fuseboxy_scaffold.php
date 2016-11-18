@@ -9,16 +9,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		include dirname(__FILE__).'/utility-scaffold/framework/1.0/F.php';
 		// run essential process
 		global $fusebox;
-		framework__setFuseboxAPI();
-		framework__loadDefaultConfig();
+		Framework::createAPIObject();
+		Framework::loadDefaultConfig();
 		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
 		$fusebox->config['autoLoad'] = array(
 			dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php',
 			dirname(__FILE__).'/utility-scaffold/config/rb_config.php',
 		);
-		framework__autoLoad();
+		Framework::autoLoad();
 		$fusebox->controller = 'unitTest';
-		framework__setMyself();
+		Framework::setMyself();
 		// define scaffold default config
 		global $scaffold;
 		$scaffold = array(
