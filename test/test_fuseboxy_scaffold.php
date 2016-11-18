@@ -5,8 +5,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 	function __construct() {
 		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
 		// load library
-		include dirname(__FILE__).'/utility-scaffold/framework/1.0/fuseboxy.php';
-		include dirname(__FILE__).'/utility-scaffold/framework/1.0/F.php';
+		if ( !class_exists('Framework') ) {
+			include dirname(__FILE__).'/utility-scaffold/framework/1.0/fuseboxy.php';
+		}
+		if ( !class_exists('F') ) {
+			include dirname(__FILE__).'/utility-scaffold/framework/1.0/F.php';
+		}
 		// run essential process
 		global $fusebox;
 		Framework::createAPIObject();
