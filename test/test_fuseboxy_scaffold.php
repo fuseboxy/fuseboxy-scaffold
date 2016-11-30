@@ -3,6 +3,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	function __construct() {
+		global $fusebox;
+		// unit test mode
 		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
 		// load library
 		if ( !class_exists('Framework') ) {
@@ -12,17 +14,20 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			include dirname(__FILE__).'/utility-scaffold/framework/1.0.1/F.php';
 		}
 		// run essential process
-		global $fusebox;
 		Framework::createAPIObject();
 		Framework::loadDefaultConfig();
 		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
 		$fusebox->controller = 'unitTest';
 		Framework::setMyself();
-		// load database library
+		// load library
+		include dirname(__FILE__).'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
 		include dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php';
 		R::setup('sqlite:'.dirname(dirname(dirname(__FILE__))).'/unit_test.db');
 		R::freeze(false);
-		// define scaffold default config
+	}
+
+
+	function resetScaffoldConfig() {
 		global $scaffold;
 		$scaffold = array(
 			'beanType' => 'unittestbean',
@@ -36,6 +41,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'emptyRow';
 		// check default permission
+		self::resetScaffoldConfig();
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -45,8 +51,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $scaffold['allowToggle'] );
 		$this->assertFalse( $scaffold['allowDelete'] );
 		$this->assertFalse( $scaffold['allowSort'] );
+		unset($arguments);
 		// clean-up
-		unset($fusebox, $arguments);
 		R::wipe($scaffold['beanType']);
 	}
 
@@ -57,12 +63,286 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	function test__row() {
-		/***** (UNDER CONSTRUCTION) *****/
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'row';
+		// create dummy record
+		self::resetScaffoldConfig();
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+			'seq' => 999
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// missing parameter
+		self::resetScaffoldConfig();
+		$arguments['id'] = null;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/id was not specified/i', $output);
+		unset($arguments);
+		// existing record
+		self::resetScaffoldConfig();
+		$arguments['id'] = $id;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-row')->length == 1 );
+		unset($arguments);
+		// non-existing record
+		self::resetScaffoldConfig();
+		$arguments['id'] = -1;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-row')->length );
+		unset($arguments);
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case instead
+	function test__row__allowEditDeleteToggle() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'row';
+		// create dummy record
+		self::resetScaffoldConfig();
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+			'seq' => 999
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// allow {edit|delete|toggle}
+		self::resetScaffoldConfig();
+		$arguments['id'] = $id;
+		$scaffold['allowEdit'] = true;
+		$scaffold['allowDelete'] = true;
+		$scaffold['allowToggle'] = true;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-btn-edit')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-delete')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-disable')->length == 1 );
+		unset($arguments);
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case instead
+	function test__row__notAllowEditDeleteToggle() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'row';
+		// create dummy record
+		self::resetScaffoldConfig();
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+			'seq' => 999
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// not allow {edit|delete|toggle}
+		self::resetScaffoldConfig();
+		$arguments['id'] = $id;
+		$scaffold['allowEdit'] = false;
+		$scaffold['allowDelete'] = false;
+		$scaffold['allowToggle'] = false;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-btn-edit')->length );
+		$this->assertFalse( pq('.scaffold-btn-delete')->length );
+		$this->assertFalse( pq('.scaffold-btn-disable')->length );
+		unset($arguments);
+		// clean-up
+		R::wipe($scaffold['beanType']);
 	}
 
 
 	function test__edit() {
-		/***** (UNDER CONSTRUCTION) *****/
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'edit';
+		// create dummy record
+		self::resetScaffoldConfig();
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+			'seq' => 999
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// missing parameter
+		self::resetScaffoldConfig();
+		$arguments['id'] = null;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/id was not specified/i', $output);
+		unset($arguments);
+		// inline edit
+		// ===> must be ajax-request
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['editMode'] = 'inline';
+		$arguments['id'] = $id;
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertTrue( pq('.scaffold-inline-edit')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( pq("[name='data[id]']")->val() == $bean->id );
+		$this->assertTrue( pq("[name='data[name]']")->val() == $bean->name );
+		$this->assertTrue( pq("[name='data[seq]']")->val() == $bean->seq );
+		$this->assertTrue( pq("[name='data[disabled]']")->val() == $bean->disabled );
+		unset($arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
+		// modal edit
+		// ===> must be ajax-request
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['editMode'] = 'modal';
+		$arguments['id'] = $id;
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-close')->length == 1 );
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( pq("[name='data[id]']")->val() == $bean->id );
+		$this->assertTrue( pq("[name='data[name]']")->val() == $bean->name );
+		$this->assertTrue( pq("[name='data[seq]']")->val() == $bean->seq );
+		$this->assertTrue( pq("[name='data[disabled]']")->val() == $bean->disabled );
+		unset($arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
+		// classic edit (in separate page)
+		// ===> non-ajax-request
+		self::resetScaffoldConfig();
+		$scaffold['editMode'] = 'classic';
+		$arguments['id'] = $id;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq("form[data-toggle='ajax-submit']")->length );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( pq("[name='data[id]']")->val() == $bean->id );
+		$this->assertTrue( pq("[name='data[name]']")->val() == $bean->name );
+		$this->assertTrue( pq("[name='data[seq]']")->val() == $bean->seq );
+		$this->assertTrue( pq("[name='data[disabled]']")->val() == $bean->disabled );
+		unset($arguments);
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case instead
+	function test__edit__notAllowSave() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'edit';
+		// create dummy record
+		self::resetScaffoldConfig();
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+			'seq' => 999
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// inline edit : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		$scaffold['editMode'] = 'inline';
+		$arguments['id'] = $id;
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq("[name='data[id]']")->val() == $id );
+		unset($arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
+		// modal edit : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		$scaffold['editMode'] = 'modal';
+		$arguments['id'] = $id;
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq("[name='data[id]']")->val() == $id );
+		unset($arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
+		// classic edit : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		$scaffold['editMode'] = 'classic';
+		$arguments['id'] = $id;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq("[name='data[id]']")->val() == $id );
+		unset($arguments);
+		// clean-up
+		R::wipe($scaffold['beanType']);
 	}
 
 
@@ -81,6 +361,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'toggle';
 		// create dummy record
+		self::resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -89,6 +370,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// not allow toggle
+		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = false;
 		try {
 			$hasRun = false;
@@ -103,8 +385,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/toggle is not allowed/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertFalse( $bean->disabled );
-		unset($scaffold['allowToggle']);
 		// missing parameter : no [id] specified
+		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = null;
 		$arguments['disabled'] = null;
@@ -121,7 +403,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/id was not specified/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertFalse( $bean->disabled );
+		unset($arguments);
 		// missing parameter : no [disabled] specified
+		self::resetScaffoldConfig();
 		$arguments['id'] = $id;
 		try {
 			$hasRun = false;
@@ -136,8 +420,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/argument \[disabled\] is required/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertFalse( $bean->disabled );
-		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		unset($arguments);
 		// successfully disable
+		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 1;
@@ -155,8 +440,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRedirect );
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertTrue( $bean->disabled );
-		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		unset($arguments);
 		// successfully enable
+		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 0;
@@ -174,9 +460,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRedirect );
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertFalse( $bean->disabled );
-		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		unset($arguments);
 		// clean-up
-		unset($fusebox, $arguments);
 		R::wipe($scaffold['beanType']);
 	}
 
@@ -186,6 +471,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'save';
 		// check no data
+		self::resetScaffoldConfig();
 		$arguments['data'] = array();
 		try {
 			$hasRun = false;
@@ -199,8 +485,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/data were not submitted/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );  // no record created
-		$arguments['data'] = null;
+		unset($arguments);
 		// check create record
+		self::resetScaffoldConfig();
 		$scaffold['allowNew'] = true;
 		$arguments['data'] = array(
 			'alias' => 'foobar',
@@ -222,8 +509,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$bean = R::findOne($scaffold['beanType']);
 		$this->assertTrue( !empty($bean->id) );
 		$this->assertTrue( $bean->alias == 'foobar' and $bean->name == 'Foo BAR' and $bean->seq == 999 );
-		$arguments['data'] = null;
+		unset($arguments);
 		// check update record
+		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$arguments['data'] = array(
 			'id' => $bean->id,
@@ -247,8 +535,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $arguments['data']['id'] == $bean->id );
 		$this->assertTrue( $bean->alias == 'XYZ' and $bean->name == 'Ab Cd, Efg' );
 		$this->assertTrue( empty($bean->seq) );
-		$arguments['data'] = null;
+		unset($arguments);
 		// check not allow create
+		self::resetScaffoldConfig();
 		$scaffold['allowNew'] = false;
 		$arguments['data'] = array(
 			'alias' => 'abc',
@@ -267,8 +556,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/create record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
-		$arguments['data'] = null;
+		unset($arguments);
 		// check not allow update
+		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$bean = R::findOne($scaffold['beanType']);
 		$arguments['data'] = array(
@@ -290,7 +580,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/update record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		$this->assertTrue( $bean->alias != 'aaa-bbb-ccc' and $bean->name != 'XXX YYY ZZZ' and $bean->seq != 222 );
-		$arguments['data'] = null;
+		unset($arguments);
 		// check saving one-to-many
 		/***** (UNDER CONSTRUCTION) *****/
 
@@ -298,7 +588,6 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		/***** (UNDER CONSTRUCTION) *****/
 
 		// clean-up
-		unset($fusebox, $arguments);
 		R::wipe($scaffold['beanType']);
 	}
 
@@ -308,11 +597,13 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'delete';
 		// create dummy record
+		self::resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean['name'] = 'foo bar';
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// not allow delete
+		self::resetScaffoldConfig();
 		$scaffold['allowDelete'] = false;
 		try {
 			$hasRun = false;
@@ -326,8 +617,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/delete is not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
-		unset($scaffold['allowDelete']);
 		// no id specified
+		self::resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = null;
 		try {
@@ -342,8 +633,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/id was not specified/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
-		unset($scaffold['allowDelete'], $arguments['id']);
+		unset($arguments);
 		// successfully delete
+		self::resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = $id;
 		try {
@@ -360,12 +652,13 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertTrue( $hasRedirect );
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
-		unset($scaffold['allowDelete'], $arguments['id']);
+		unset($arguments);
 		// delete non-existing record
 		// ===> nothing happen (no error)
 		// ===> redirect to index page (when normal request)
+		self::resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
-		$arguments['id'] = 999;
+		$arguments['id'] = -1;
 		try {
 			$hasRun = false;
 			$hasRedirect = false;
@@ -380,9 +673,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertTrue( $hasRedirect );
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
-		unset($scaffold['allowDelete'], $arguments['id']);
+		unset($arguments);
 		// delete in ajax-request
 		// ===> no redirect & show nothing
+		self::resetScaffoldConfig();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = 999;
@@ -397,9 +691,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		}
 		$this->assertFalse( $hasRedirect );
 		$this->assertTrue( trim($output) == '' );
-		unset($scaffold['allowDelete'], $arguments['id'], $_SERVER['HTTP_X_REQUESTED_WITH']);
+		unset($arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// clean-up
-		unset($fusebox, $arguments);
 		R::wipe($scaffold['beanType']);
 	}
 

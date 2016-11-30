@@ -34,9 +34,11 @@
 <form
 	id="<?php echo $scaffold['beanType']; ?>-edit"
 	class="scaffold-edit form-horizontal"
-	method="post"
-	action="<?php echo F::url($xfa['submit']); ?>"
-	<?php if ( $scaffold['editMode'] != 'classic' ) : ?>
+	<?php if ( isset($xfa['submit']) ) : ?>
+		method="post"
+		action="<?php echo F::url($xfa['submit']); ?>"
+	<?php endif; ?>
+	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<?php if ( !empty($bean->id) ) : ?>
 			data-toggle-mode="replace"
 			data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $recordID; ?>"
@@ -50,10 +52,10 @@
 >
 
     <!-- title -->
-    <?php if ( $scaffold['editMode'] != 'classic' ) : ?>
+    <?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			<h4 class="modal-title"><?php echo ucfirst(F::fuseaction('action')); ?></h4>
+			<h4 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h4>
 		</div>
 	<?php endif; ?>
 
@@ -105,17 +107,21 @@
 	</div>
 
 	<!-- button -->
-	<?php if ( $scaffold['editMode'] != 'classic' ) : ?>
+	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			<button type="submit" class="btn btn-primary">Save changes</button>
+			<button type="button" class="btn btn-default scaffold-btn-close" data-dismiss="modal">Close</button>
+			<?php if ( isset($xfa['submit']) ) : ?>
+				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
+			<?php endif; ?>
 		</div>
-	<?php else : ?>
+	<?php elseif ( $scaffold['editMode'] == 'classic' ) : ?>
 		<br />
 		<div class="container-fluid">
 			<div class="col-md-9 col-md-offset-3">
-				<button type="submit" class="btn btn-primary btn-lg">Save changes</button>
-				<a href="javascript:history.back();" class="btn btn-default btn-lg">Cancel</a>
+				<?php if ( isset($xfa['submit']) ) : ?>
+					<button type="submit" class="btn btn-primary btn-lg scaffold-btn-save">Save changes</button>
+				<?php endif; ?>
+				<a href="javascript:history.back();" class="btn btn-default btn-lg scaffold-btn-cancel">Cancel</a>
 			</div>
 		</div>
 	<?php endif; ?>

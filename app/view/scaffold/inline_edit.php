@@ -27,9 +27,21 @@
 </fusedoc>
 */ ?>
 <?php $recordID = empty($bean->id) ? uniqid() : $bean->id; ?>
-<div id="<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"  class="<?php echo $scaffold['beanType']; ?>-inline-edit scaffold-inline-edit">
-	<form class="form-horizontal" method="post" action="<?php echo F::url($xfa['submit']); ?>"
-	      data-toggle="ajax-submit" data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>">
+<div
+	id="<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+	class="<?php echo $scaffold['beanType']; ?>-inline-edit scaffold-inline-edit"
+>
+	<form
+		class="form-horizontal"
+		<?php if ( isset($xfa['submit']) ) : ?>
+			method="post"
+			action="<?php echo F::url($xfa['submit']); ?>"
+		<?php endif; ?>
+		<?php if ( $scaffold['editMode'] == 'inline' ) : ?>
+			data-toggle="ajax-submit"
+			data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+		<?php endif; ?>
+	>
 		<table class="table table-hover table-condensed" style="margin-bottom: 0;">
 			<tr>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
@@ -49,19 +61,21 @@
 						<?php endforeach; ?>
 					</td>
 				<?php endforeach; ?>
-				<td class="col-button" style="white-space: nowrap;">
+				<td class="col-button text-nowrap">
 					<div class="pull-right">
 						<?php if ( isset($xfa['submit']) ) : ?>
-							<button type="submit" class="btn btn-xs btn-primary">
-								<i class="fa fa-download"></i> Save
-							</button>
+							<button
+								type="submit"
+								class="btn btn-xs btn-primary scaffold-btn-save"
+							><i class="fa fa-download"></i> Save</button>
 						<?php endif; ?>
 						<?php if ( isset($xfa['cancel']) ) : ?>
-							<a href="<?php echo F::url($xfa['cancel']); ?>"
-							   class="btn btn-xs btn-default"
-							   data-toggle="ajax-load"
-							   data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
-							   >Cancel</a>
+							<a
+								href="<?php echo F::url($xfa['cancel']); ?>"
+								class="btn btn-xs btn-default scaffold-btn-cancel"
+								data-toggle="ajax-load"
+								data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+						   >Cancel</a>
 						<?php endif; ?>
 					</div>
 				</td>

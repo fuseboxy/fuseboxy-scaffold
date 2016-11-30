@@ -48,7 +48,7 @@
 								if ( $colIndex > 0 and !empty($headerText) ) {
 									$headerText = "<small class='text-muted'>/ {$headerText}</small>";
 								}
-								$headerText = "<span class='col-{$col}' style='white-space: nowrap;'>{$headerText}</span>";
+								$headerText = "<span class='col-{$col} text-nowrap'>{$headerText}</span>";
 							?>
 							<?php if ( isset($xfa['sort']) ) : ?>
 								<a href="<?php echo F::url($sortUrl); ?>"><?php echo $headerText; ?></a>

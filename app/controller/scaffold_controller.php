@@ -1,8 +1,10 @@
 <?php /*
 <fusedoc>
 	<history version="1.4.2">
-		- make {$scaffold} config be global
 		- rename {F::fuseaction} to {F::command}
+		- fix {editMode=classic} when not ajax-request
+		- fix {editMode=inline} when invalid mode was specified
+		- no delete button in edit form (only available in listing)
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -247,6 +249,13 @@ if ( isset($scaffold['uploadBaseUrl']) and !in_array(substr($scaffold['uploadBas
 	$scaffold['uploadBaseUrl'] .= '/';
 }
 
+// param fix : edit mode
+if ( !F::ajaxRequest() ) {
+	$scaffold['editMode'] = 'classic';
+} elseif ( !in_array($scaffold['editMode'], array('inline','modal','classic')) ) {
+	$scaffold['editMode'] = 'inline';
+}
+
 // param fix : file size (string to number)
 foreach ( $scaffold['editField'] as $itemName => $item ) {
 	if ( !empty($item['filesize']) ) {
@@ -342,8 +351,10 @@ switch ( $fusebox->action ) :
 			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
 			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
 		}
-		// display
-		include $scaffold['scriptPath']['row'];
+		// display (when necessary)
+		if ( !empty($bean->id) ) {
+			include $scaffold['scriptPath']['row'];
+		}
 		break;
 	case 'emptyRow':
 		break;
@@ -353,6 +364,7 @@ switch ( $fusebox->action ) :
 	case 'edit':
 		F::error('id was not specified', empty($arguments['id']));
 		$bean = R::load($scaffold['beanType'], $arguments['id']);
+		F::error("record not found (id={$arguments['id']})", empty($bean->id));
 		/***** do not case-break to re-use 'new' action *****/
 	// create empty record (when necessary)
 	case 'new':
@@ -363,17 +375,14 @@ switch ( $fusebox->action ) :
 			$xfa['submit'] = "{$fusebox->controller}.save";
 		}
 		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.emptyRow" : "{$fusebox->controller}.row&id={$bean->id}";
-		if ( $scaffold['allowDelete'] and F::command('action') == 'edit' ) {
-			$xfa['delete'] = "{$fusebox->controller}.delete";
-		}
 		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
 		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		ob_start();
-		if ( ( $scaffold['editMode'] == 'modal' or !F::ajaxRequest() ) and !F::is('*.quick_new') ) {
-			include $scaffold['scriptPath']['edit'];
-		} else {
+		if ( F::is('*.quick_new') or $scaffold['editMode'] == 'inline' ) {
 			include $scaffold['scriptPath']['inline_edit'];
+		} else {
+			include $scaffold['scriptPath']['edit'];
 		}
 		$layout['content'] = ob_get_clean();
 		// show with layout (when necessary)
