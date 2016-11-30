@@ -51,9 +51,9 @@
 								$headerText = "<span class='col-{$col} text-nowrap'>{$headerText}</span>";
 							?>
 							<?php if ( isset($xfa['sort']) ) : ?>
-								<a href="<?php echo F::url($sortUrl); ?>"><?php echo $headerText; ?></a>
+								<a href="<?php echo F::url($sortUrl); ?>" class="scaffold-btn-sort"><?php echo $headerText; ?></a>
 							<?php else : ?>
-								<?php echo $headerText; ?></span>
+								<?php echo $headerText; ?>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					</th>
@@ -63,7 +63,7 @@
 						<?php if ( isset($xfa['quick']) ) : ?>
 							<a
 								href="<?php echo F::url($xfa['quick']); ?>"
-								class="btn btn-xs btn-default"
+								class="btn btn-xs btn-default scaffold-btn-quick-new"
 								data-toggle="ajax-load"
 								data-toggle-loading="none"
 								data-toggle-mode="after"
@@ -73,7 +73,7 @@
 						<?php if ( isset($xfa['new']) ) : ?>
 							<a
 								href="<?php echo F::url($xfa['new']); ?>"
-								class="btn btn-xs btn-info"
+								class="btn btn-xs btn-info scaffold-btn-new"
 								<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 									data-toggle="modal"
 									data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"

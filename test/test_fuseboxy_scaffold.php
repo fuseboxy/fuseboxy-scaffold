@@ -36,7 +36,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 	}
 
 
-	function test__config() {
+	function test__defaultConfig() {
 		global $fusebox;
 		global $scaffold;
 		$fusebox->action = 'emptyRow';
@@ -45,13 +45,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
-		$this->assertNoPattern('/php error/i', $output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( $scaffold['allowNew'] );
 		$this->assertTrue( $scaffold['allowEdit'] );
 		$this->assertTrue( $scaffold['allowToggle'] );
 		$this->assertFalse( $scaffold['allowDelete'] );
 		$this->assertFalse( $scaffold['allowSort'] );
-		unset($arguments);
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
@@ -67,8 +66,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$bean = R::dispense($scaffold['beanType']);
 			$bean->import(array(
 				'name' => "FooBar #{$i}",
-				'disabled' => 0,
-				'seq' => ( $i*10 )
+				'disabled' => ($i%2),
+				'seq' => ($i*10)
 			));
 			$this->assertTrue( R::store($bean) );
 		}
@@ -91,8 +90,109 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][1]) and $arguments['breadcrumb'][1] == 'Listing' );
 		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == 'All' );
 		unset($arguments);
+		// check number of rows
+		self::resetScaffoldConfig();
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-header')->length == 1 );
+		$this->assertTrue( pq('.scaffold-row')->length == 10 );
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
 
 
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case to avoid it
+	function test__index__enableAllFeatures() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'index';
+		// create dummy records
+		self::resetScaffoldConfig();
+		for ($i=0; $i<10; $i++) {
+			$bean = R::dispense($scaffold['beanType']);
+			$bean->import(array(
+				'name' => "FooBar #{$i}",
+				'disabled' => ($i%2),
+				'seq' => ($i*10)
+			));
+			$this->assertTrue( R::store($bean) );
+		}
+		// enable all features
+		self::resetScaffoldConfig();
+		$scaffold['editMode'] = 'inline';
+		$scaffold['allowNew'] = true;
+		$scaffold['allowEdit'] = true;
+		$scaffold['allowDelete'] = true;
+		$scaffold['allowToggle'] = true;
+		$scaffold['allowSort'] = true;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-btn-new')->length );
+		$this->assertTrue( pq('.scaffold-btn-edit')->length );
+		$this->assertTrue( pq('.scaffold-btn-delete')->length );
+		$this->assertTrue( pq('.scaffold-btn-enable')->length );
+		$this->assertTrue( pq('.scaffold-btn-disable')->length );
+		$this->assertTrue( pq('.scaffold-btn-sort')->length );
+		$this->assertFalse( pq('.scaffold-btn-quick-new')->length );
+		// quick new button
+		self::resetScaffoldConfig();
+		$scaffold['editMode'] = 'modal';
+		$scaffold['allowNew'] = true;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-btn-new')->length );
+		$this->assertTrue( pq('.scaffold-btn-quick-new')->length );
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case to avoid it
+	function test__index__disableAllFeatures() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'index';
+		// create dummy records
+		self::resetScaffoldConfig();
+		for ($i=0; $i<10; $i++) {
+			$bean = R::dispense($scaffold['beanType']);
+			$bean->import(array(
+				'name' => "FooBar #{$i}",
+				'disabled' => ($i%2),
+				'seq' => ($i*10)
+			));
+			$this->assertTrue( R::store($bean) );
+		}
+		// disable all features
+		self::resetScaffoldConfig();
+		$scaffold['allowNew'] = false;
+		$scaffold['allowEdit'] = false;
+		$scaffold['allowDelete'] = false;
+		$scaffold['allowToggle'] = false;
+		$scaffold['allowSort'] = false;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-btn-new')->length );
+		$this->assertFalse( pq('.scaffold-btn-edit')->length );
+		$this->assertFalse( pq('.scaffold-btn-delete')->length );
+		$this->assertFalse( pq('.scaffold-btn-enable')->length );
+		$this->assertFalse( pq('.scaffold-btn-disable')->length );
+		$this->assertFalse( pq('.scaffold-btn-sort')->length );
+		$this->assertFalse( pq('.scaffold-btn-quick-new')->length );
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
@@ -153,7 +253,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	// php bug : scaffold config cannot reset clearly
-	// ===> create another test case instead
+	// ===> create another test case to avoid it
 	function test__row__allowEditDeleteToggle() {
 		global $fusebox;
 		global $scaffold;
@@ -189,7 +289,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	// php bug : scaffold config cannot reset clearly
-	// ===> create another test case instead
+	// ===> create another test case to avoid it
 	function test__row__notAllowEditDeleteToggle() {
 		global $fusebox;
 		global $scaffold;
@@ -343,7 +443,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	// php bug : scaffold config cannot reset clearly
-	// ===> create another test case instead
+	// ===> create another test case to avoid it
 	function test__edit__notAllowSave() {
 		global $fusebox;
 		global $scaffold;
@@ -482,7 +582,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	// php bug : scaffold config cannot reset clearly
-	// ===> create another test case instead
+	// ===> create another test case to avoid it
 	function test__new__notAllowSave() {
 		global $fusebox;
 		global $scaffold;
@@ -563,7 +663,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	// php bug : scaffold config cannot reset clearly
-	// ===> create another test case instead
+	// ===> create another test case to avoid it
 	function test__quickNew__notAllowSave() {
 		global $fusebox;
 		global $scaffold;
