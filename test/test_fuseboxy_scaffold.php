@@ -347,12 +347,164 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	function test__new() {
-		/***** (UNDER CONSTRUCTION) *****/
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'new';
+		// classic : allow save (no parameter is required)
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-edit")->length == 1 );
+		$this->assertTrue( pq("form[action]")->length == 1 );
+		$this->assertFalse( pq("form[data-toggle='ajax-submit']")->length );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		// inline : allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['editMode'] = 'inline';
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-inline-edit")->length == 1 );
+		$this->assertTrue( pq("form[action]")->length == 1 );
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		// modal : allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['editMode'] = 'modal';
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-edit")->length == 1 );
+		$this->assertTrue( pq("form[action]")->length == 1 );
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-close')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case instead
+	function test__new__notAllowSave() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'new';
+		// classic : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-edit")->length == 1 );
+		$this->assertFalse( pq("form[action]")->length );
+		$this->assertFalse( pq("form[data-toggle='ajax-submit']")->length );
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		// inline : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		$scaffold['editMode'] = 'inline';
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-inline-edit")->length == 1 );
+		$this->assertFalse( pq("form[action]")->length );
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		// modal : not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		$scaffold['editMode'] = 'modal';
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq(".scaffold-edit")->length == 1 );
+		$this->assertFalse( pq("form[action]")->length );
+		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		$this->assertTrue( pq('.scaffold-btn-close')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		// clean-up
+		R::wipe($scaffold['beanType']);
 	}
 
 
 	function test__quickNew() {
-		/***** (UNDER CONSTRUCTION) *****/
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'quick_new';
+		// allow save (no parameter is required)
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq("form[action]")->length == 1 );
+		$this->assertTrue( pq('.scaffold-inline-edit')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-save')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	// php bug : scaffold config cannot reset clearly
+	// ===> create another test case instead
+	function test__quickNew__notAllowSave() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'quick_new';
+		// not allow save
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = false;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq("form[action]")->length );
+		$this->assertTrue( pq('.scaffold-inline-edit')->length == 1 );
+		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
+		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
+		$this->assertFalse( pq('.scaffold-btn-save')->length );
+		// clean-up
+		R::wipe($scaffold['beanType']);
 	}
 
 
