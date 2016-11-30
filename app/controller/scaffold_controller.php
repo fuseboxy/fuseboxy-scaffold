@@ -252,9 +252,10 @@ if ( isset($scaffold['uploadBaseUrl']) and !in_array(substr($scaffold['uploadBas
 }
 
 // param fix : edit mode
-if ( !F::ajaxRequest() ) {
+if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
 	$scaffold['editMode'] = 'classic';
-} elseif ( !in_array($scaffold['editMode'], array('inline','modal','classic')) ) {
+}
+if ( !in_array($scaffold['editMode'], array('inline','modal','classic')) ) {
 	$scaffold['editMode'] = 'inline';
 }
 
