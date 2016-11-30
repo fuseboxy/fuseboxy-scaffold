@@ -1,10 +1,11 @@
-[prerequisite]
+[dependencies]
 
 redbeanphp (included)
 bootstrap-extend
 simple-ajax-uploader (included)
 ckeditor (cdn)
 jquery.validate (cdn)
+formUrl2arguments (enabled)
 
 
 

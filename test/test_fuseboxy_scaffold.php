@@ -6,23 +6,22 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
 		// load library
 		if ( !class_exists('Framework') ) {
-			include dirname(__FILE__).'/utility-scaffold/framework/1.0/fuseboxy.php';
+			include dirname(__FILE__).'/utility-scaffold/framework/1.0.1/fuseboxy.php';
 		}
 		if ( !class_exists('F') ) {
-			include dirname(__FILE__).'/utility-scaffold/framework/1.0/F.php';
+			include dirname(__FILE__).'/utility-scaffold/framework/1.0.1/F.php';
 		}
 		// run essential process
 		global $fusebox;
 		Framework::createAPIObject();
 		Framework::loadDefaultConfig();
 		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
-		$fusebox->config['autoLoad'] = array(
-			dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php',
-			dirname(__FILE__).'/utility-scaffold/config/rb_config.php',
-		);
-		Framework::autoLoad();
 		$fusebox->controller = 'unitTest';
 		Framework::setMyself();
+		// load database library
+		include dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php';
+		R::setup('sqlite:'.dirname(dirname(dirname(__FILE__))).'/unit_test.db');
+		R::freeze(false);
 		// define scaffold default config
 		global $scaffold;
 		$scaffold = array(
@@ -47,38 +46,138 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertFalse( $scaffold['allowDelete'] );
 		$this->assertFalse( $scaffold['allowSort'] );
 		// clean-up
-		unset($fusebox->action, $arguments);
-		R::exec('DROP TABLE '.$scaffold['beanType']);
+		unset($fusebox, $arguments);
+		R::wipe($scaffold['beanType']);
 	}
 
 
 	function test__index() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__row() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__edit() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__new() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__quickNew() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__toggle() {
-		$this->assertTrue(true);
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'toggle';
+		// create dummy record
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'name' => 'foo bar',
+			'disabled' => 0,
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// not allow toggle
+		$scaffold['allowToggle'] = false;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/toggle is not allowed/i', $output);
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertFalse( $bean->disabled );
+		unset($scaffold['allowToggle']);
+		// missing parameter : no [id] specified
+		$scaffold['allowToggle'] = true;
+		$arguments['id'] = null;
+		$arguments['disabled'] = null;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/id was not specified/i', $output);
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertFalse( $bean->disabled );
+		// missing parameter : no [disabled] specified
+		$arguments['id'] = $id;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/argument \[disabled\] is required/i', $output);
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertFalse( $bean->disabled );
+		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		// successfully disable
+		$scaffold['allowToggle'] = true;
+		$arguments['id'] = $id;
+		$arguments['disabled'] = 1;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertTrue( $hasRedirect );
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( $bean->disabled );
+		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		// successfully enable
+		$scaffold['allowToggle'] = true;
+		$arguments['id'] = $id;
+		$arguments['disabled'] = 0;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertTrue( $hasRedirect );
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertFalse( $bean->disabled );
+		unset($scaffold['allowToggle'], $arguments['id'], $arguments['disabled']);
+		// clean-up
+		unset($fusebox, $arguments);
+		R::wipe($scaffold['beanType']);
 	}
 
 
@@ -90,14 +189,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['data'] = array();
 		try {
 			$hasRun = false;
+			ob_start();
 			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRun = true;
 			$output = $e->getMessage();
 		}
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/data were not submitted/i', $output);
-		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
+		$this->assertTrue( R::count($scaffold['beanType']) == 0 );  // no record created
 		$arguments['data'] = null;
 		// check create record
 		$scaffold['allowNew'] = true;
@@ -106,8 +207,18 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'name' => 'Foo BAR',
 			'seq' => 999,
 		);
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
-		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/FUSEBOX-REDIRECT/i', $output);
+		$this->assertTrue( R::count($scaffold['beanType']) == 1 );  // new record created
 		$bean = R::findOne($scaffold['beanType']);
 		$this->assertTrue( !empty($bean->id) );
 		$this->assertTrue( $bean->alias == 'foobar' and $bean->name == 'Foo BAR' and $bean->seq == 999 );
@@ -120,8 +231,18 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'name' => 'Ab Cd, Efg',
 			'seq' => null,
 		);
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
-		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/FUSEBOX-REDIRECT/i', $output);
+		$this->assertTrue( R::count($scaffold['beanType']) == 1 );  // no new record
 		$bean = R::load($scaffold['beanType'], $arguments['data']['id']);
 		$this->assertTrue( $arguments['data']['id'] == $bean->id );
 		$this->assertTrue( $bean->alias == 'XYZ' and $bean->name == 'Ab Cd, Efg' );
@@ -136,7 +257,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		);
 		try {
 			$hasRun = false;
+			ob_start();
 			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRun = true;
 			$output = $e->getMessage();
@@ -156,7 +279,9 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		);
 		try {
 			$hasRun = false;
+			ob_start();
 			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$hasRun = true;
 			$output = $e->getMessage();
@@ -167,29 +292,125 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $bean->alias != 'aaa-bbb-ccc' and $bean->name != 'XXX YYY ZZZ' and $bean->seq != 222 );
 		$arguments['data'] = null;
 		// check saving one-to-many
-
+		/***** (UNDER CONSTRUCTION) *****/
 
 		// check saving many-to-many
-
+		/***** (UNDER CONSTRUCTION) *****/
 
 		// clean-up
-		unset($fusebox->action, $arguments);
-		R::exec('DROP TABLE '.$scaffold['beanType']);
+		unset($fusebox, $arguments);
+		R::wipe($scaffold['beanType']);
 	}
 
 
 	function test__delete() {
-		$this->assertTrue(true);
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'delete';
+		// create dummy record
+		$bean = R::dispense($scaffold['beanType']);
+		$bean['name'] = 'foo bar';
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// not allow delete
+		$scaffold['allowDelete'] = false;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/delete is not allowed/i', $output);
+		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
+		unset($scaffold['allowDelete']);
+		// no id specified
+		$scaffold['allowDelete'] = true;
+		$arguments['id'] = null;
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertPattern('/id was not specified/i', $output);
+		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
+		unset($scaffold['allowDelete'], $arguments['id']);
+		// successfully delete
+		$scaffold['allowDelete'] = true;
+		$arguments['id'] = $id;
+		try {
+			$hasRun = false;
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertTrue( $hasRedirect );
+		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
+		unset($scaffold['allowDelete'], $arguments['id']);
+		// delete non-existing record
+		// ===> nothing happen (no error)
+		// ===> redirect to index page (when normal request)
+		$scaffold['allowDelete'] = true;
+		$arguments['id'] = 999;
+		try {
+			$hasRun = false;
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		$this->assertTrue( $hasRun );
+		$this->assertTrue( $hasRedirect );
+		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
+		unset($scaffold['allowDelete'], $arguments['id']);
+		// delete in ajax-request
+		// ===> no redirect & show nothing
+		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
+		$scaffold['allowDelete'] = true;
+		$arguments['id'] = 999;
+		try {
+			$hasRedirect = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		$this->assertFalse( $hasRedirect );
+		$this->assertTrue( trim($output) == '' );
+		unset($scaffold['allowDelete'], $arguments['id'], $_SERVER['HTTP_X_REQUESTED_WITH']);
+		// clean-up
+		unset($fusebox, $arguments);
+		R::wipe($scaffold['beanType']);
 	}
 
 
 	function test__uploadFile() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
 	function test__uploadFileProgress() {
-		$this->assertTrue(true);
+		/***** (UNDER CONSTRUCTION) *****/
 	}
 
 
