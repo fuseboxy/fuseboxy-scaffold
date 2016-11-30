@@ -5,6 +5,7 @@
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
+		- allow custom breadcrumb
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -100,6 +101,7 @@
 				<!-- settings for log -->
 				<boolean name="writeLog" optional="yes" comments="simply true to log all actions" />
 			</structure>
+			<array name="$arguments" optional="yes" comments="custom breadcrumb" />
 		</in>
 		<out />
 	</io>
@@ -327,7 +329,9 @@ switch ( $fusebox->action ) :
 		}
 		$layout['content'] = ob_get_clean();
 		// breadcrumb
-		$arguments['breadcrumb'] = array( ucfirst($scaffold['beanType']) );
+		if ( !isset($arguments['breadcrumb']) ) {
+			$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']));
+		}
 		// layout
 		include $scaffold['layoutPath'];
 		break;
@@ -389,7 +393,11 @@ switch ( $fusebox->action ) :
 		if ( F::ajaxRequest() ) {
 			echo $layout['content'];
 		} else {
-			$arguments['breadcrumb'] = array($scaffold['beanType']);
+			// breadcrumb
+			if ( !isset($arguments['breadcrumb']) ) {
+				$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']), F::is('*.edit') ? 'Edit' : 'New');
+			}
+			// layout
 			include $scaffold['layoutPath'];
 		}
 		break;

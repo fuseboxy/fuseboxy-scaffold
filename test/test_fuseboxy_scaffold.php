@@ -58,7 +58,43 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	function test__index() {
-		/***** (UNDER CONSTRUCTION) *****/
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'index';
+		// create dummy records
+		self::resetScaffoldConfig();
+		for ($i=0; $i<10; $i++) {
+			$bean = R::dispense($scaffold['beanType']);
+			$bean->import(array(
+				'name' => "FooBar #{$i}",
+				'disabled' => 0,
+				'seq' => ( $i*10 )
+			));
+			$this->assertTrue( R::store($bean) );
+		}
+		// default breadcrumb
+		self::resetScaffoldConfig();
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
+		unset($arguments);
+		// custom breadcrumb
+		self::resetScaffoldConfig();
+		$arguments['breadcrumb'] = array('Unit Test', 'Listing', 'All');
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'Unit Test' );
+		$this->assertTrue( isset($arguments['breadcrumb'][1]) and $arguments['breadcrumb'][1] == 'Listing' );
+		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == 'All' );
+		unset($arguments);
+
+
+		// clean-up
+		R::wipe($scaffold['beanType']);
 	}
 
 
@@ -217,6 +253,28 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $hasRun );
 		$this->assertPattern('/id was not specified/i', $output);
 		unset($arguments);
+		// default breadcrumb
+		self::resetScaffoldConfig();
+		$arguments['id'] = $id;
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
+		$this->assertTrue( isset($arguments['breadcrumb'][1]) and strtolower($arguments['breadcrumb'][1]) == 'edit' );
+		unset($arguments);
+		// custom breadcrumb
+		self::resetScaffoldConfig();
+		$arguments['id'] = $id;
+		$arguments['breadcrumb'] = array('UNIT TEST', 'EDIT', 'FOO BAR');
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'UNIT TEST' );
+		$this->assertTrue( isset($arguments['breadcrumb'][1]) and $arguments['breadcrumb'][1] == 'EDIT' );
+		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == 'FOO BAR' );
+		unset($arguments);
 		// inline edit
 		// ===> must be ajax-request
 		self::resetScaffoldConfig();
@@ -350,7 +408,27 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $fusebox;
 		global $scaffold;
 		$fusebox->action = 'new';
-		// classic : allow save (no parameter is required)
+		// default breadcrumb
+		self::resetScaffoldConfig();
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
+		$this->assertTrue( isset($arguments['breadcrumb'][1]) and strtolower($arguments['breadcrumb'][1]) == 'new' );
+		unset($arguments);
+		// custom breadcrumb
+		self::resetScaffoldConfig();
+		$arguments['breadcrumb'] = array('Unit Test', 'New', '*');
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'Unit Test' );
+		$this->assertTrue( isset($arguments['breadcrumb'][1]) and $arguments['breadcrumb'][1] == 'New' );
+		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == '*' );
+		unset($arguments);
+		// classic : allow save
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		ob_start();
