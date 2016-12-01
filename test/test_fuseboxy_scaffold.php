@@ -576,6 +576,49 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-close')->length == 1 );
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+		// check input field type
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['editMode'] = 'classic';
+		$scaffold['fieldConfig'] = array(
+			'myOutput' => array('format' => 'output'),
+			'myText' => array('format' => 'normal', 'placeholder' => 'Please enter here', 'required' => true),
+			'myTextArea' => array('format' => 'textarea'),
+			'myDropDown' => array('options' => array('abc'=>'ABC', 'xyz'=>'XYZ'), 'default' => 'xyz'),
+			'myRadio' => array('format' => 'radio', 'options' => array('a'=>'A','b'=>'B','c'=>'C')),
+			'myCheckBox' => array('format' => 'checkbox', 'options' => array('x'=>'X','y'=>'Y','z'=>'Z')),
+			'myOneToMany' => array('format' => 'one-to-many', 'options' => array('A','B','C','D','E')),
+			'myManyToMany' => array('format' => 'many-to-many', 'options' => array('X','Y','Z')),
+			'myDefault' => array('default' => '999', 'readonly' => true),
+		);
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq("[name='data[myOutput]']")->length );
+		$this->assertTrue( pq("[name='data[myText]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[myText]']")->is('input[type=text]') );
+		$this->assertTrue( pq("[name='data[myText]']")->attr('placeholder') == 'Please enter here' );
+		$this->assertTrue( pq("[name='data[myText]']")->is('[required]') );
+		$this->assertTrue( pq("[name='data[myText]']")->not('[readonly]') );
+		$this->assertTrue( pq("[name='data[myTextArea]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[myTextArea]']")->is('textarea') );
+		$this->assertTrue( pq("[name='data[myDropDown]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[myDropDown]']")->is('select') );
+		$this->assertTrue( pq("[name='data[myDropDown]']")->val() == 'xyz' );
+		$this->assertTrue( pq("[name='data[myCheckBox][]']")->length == 3 );
+		$this->assertTrue( pq("[name='data[myCheckBox][]']")->is('input[type=checkbox]') );
+		$this->assertTrue( pq("[name='data[myRadio]']")->length == 3 );
+		$this->assertTrue( pq("[name='data[myRadio]']")->is('input[type=radio]') );
+		$this->assertTrue( pq("[name='data[myOneToMany][]']")->length == 5 );
+		$this->assertTrue( pq("[name='data[myOneToMany][]']")->is('input[type=checkbox]') );
+		$this->assertTrue( pq("[name='data[myManyToMany][]']")->length == 3 );
+		$this->assertTrue( pq("[name='data[myManyToMany][]']")->is('input[type=checkbox]') );
+		$this->assertTrue( pq("[name='data[myDefault]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[myDefault]']")->is('input[type=text]') );
+		$this->assertTrue( pq("[name='data[myDefault]']")->val() == 999 );
+		$this->assertTrue( pq("[name='data[myDefault]']")->is('[readonly]') );
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}

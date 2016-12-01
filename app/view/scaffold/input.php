@@ -154,9 +154,10 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 			<?php if ( isset($field['placeholder']) ) echo $field['placeholder']; ?>
 		</option>
 		<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-			<option value="<?php echo $optValue; ?>" <?php if ( $field['_value_'] == $optValue ) echo 'selected'; ?>>
-				<?php echo $optText; ?>
-			</option>
+			<option
+				value="<?php echo $optValue; ?>"
+				<?php if ( $field['_value_'] == $optValue ) echo 'selected'; ?>
+			><?php echo $optText; ?></option>
 		<?php endforeach; ?>
 	</select>
 	<?php if ( !empty($field['readonly']) ) : ?>
@@ -167,7 +168,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <!-- normal -->
 <?php else : ?>
 	<input
-		type="<?php echo isset($field['format']) ? $field['format'] : 'text'; ?>"
+		type="<?php echo ( empty($field['format']) or $field['format'] == 'normal' ) ? 'text' : $field['format']; ?>"
 		class="form-control input-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo $field['_value_']; ?>"

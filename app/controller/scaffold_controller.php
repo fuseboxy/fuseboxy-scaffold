@@ -1,12 +1,14 @@
 <?php /*
 <fusedoc>
-	<history version="1.4.2">
+	<history version="1.5">
 		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
 		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
+		- validate submitted value of {radio|checkbox|one-to-many|many-to-many} against {options}
+		- validate submitted value {readonly} field against {default} value
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
