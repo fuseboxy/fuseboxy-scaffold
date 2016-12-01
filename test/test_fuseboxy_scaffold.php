@@ -1278,12 +1278,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 
 	function test__uploadFile() {
-		/***** (UNDER CONSTRUCTION) *****/
+		// UNDER CONSTRUCTION
 	}
 
 
 	function test__uploadFileProgress() {
-		/***** (UNDER CONSTRUCTION) *****/
+		// UNDER CONSTRUCTION
 	}
 
 
