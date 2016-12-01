@@ -1,11 +1,12 @@
 <?php /*
 <fusedoc>
 	<history version="1.4.2">
+		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
-		- allow custom breadcrumb
+		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -68,7 +69,7 @@
 				<structure name="fieldConfig|editField" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
-						<string name="format" comments="normal|output|textarea|checkbox|radio|file" default="normal" />
+						<string name="format" comments="normal|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="normal" />
 						<array name="options" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
 						</array>
@@ -82,8 +83,6 @@
 						<string name="filesize" optional="yes" comments="max file size in bytes" />
 						<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
 						<boolean name="preview" optional="yes" />
-						<!-- below are for [format=checkbox] only -->
-						<boolean name="many-to-many" optional="yes" />
 					</structure>
 				</structure>
 				<!-- advanced settings for UI customization -->
@@ -97,7 +96,7 @@
 				</structure>
 				<!-- advanced settings for file upload -->
 				<string name="libPath" optional="yes" default="~fusebox.config.appPath~/../lib" comments="for simple-ajax-uploader library" />
-				<string name="uploadBaseUrl" optional="yes" comments="for [format=file] field" />
+				<string name="uploadBaseUrl|previewBaseUrl" optional="yes" comments="for [format=file] field; has trailing slash" />
 				<!-- settings for log -->
 				<boolean name="writeLog" optional="yes" comments="simply true to log all actions" />
 			</structure>
@@ -447,23 +446,25 @@ switch ( $fusebox->action ) :
 			} else {
 				$bean = R::dispense($scaffold['beanType']);
 			}
-			// default value of one-to-many & many-to-many
+			// fix submitted multi-selection value
 			foreach ( $scaffold['editField'] as $fieldName => $field ) {
-				if ( !empty($field['format']) and $field['format'] == 'checkbox' ) {
+				// default value when select no item
+				if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
 					$arguments['data'][$fieldName] = isset($arguments['data'][$fieldName]) ? $arguments['data'][$fieldName] : array();
 				}
-			}
-			// extract one-to-many & many-to-many from submitted data before saving
-			foreach ( $arguments['data'] as $key => $val ) {
-				if ( is_array($val) ) {
-					$associateName = str_replace('_id', '', $key);
-					$propertyName = ( !empty($scaffold['editField'][$key]['many-to-many']) ? 'shared' : 'own' ) . ucfirst($associateName);
+				// extract {one-to-many|many-to-many} from submitted data before saving
+				if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
+					$associateName = str_replace('_id', '', $fieldName);
+					$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 					$bean->{$propertyName} = array();
-					foreach ( $val as $associateID ) {
+					foreach ( $arguments['data'][$fieldName] as $associateID ) {
 						$associateBean = R::load($associateName, $associateID);
 						$bean->{$propertyName}[] = $associateBean;
 					}
-					unset($arguments['data'][$key]);
+					unset($arguments['data'][$fieldName]);
+				// turn checkbox into pipe-delimited list
+				} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
+					$arguments['data'][$fieldName] = implode('|', $arguments['data'][$fieldName]);
 				}
 			}
 			// put submitted data into bean

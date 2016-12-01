@@ -8,8 +8,8 @@
 			</structure>
 			<structure name="$field">
 				<string name="name" />
-				<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
-				<array name="options" comments="show dropdown when specified">
+				<string name="format" comments="normal|output|textarea|radio|checkbox|one-to-many|many-to-many" default="normal" />
+				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
 					<string name="~key is option-value~" comments="value is option-text" />
 				</array>
 				<boolean name="required" />
@@ -22,9 +22,6 @@
 				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
 				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
 				<boolean name="preview" optional="yes" />
-				<string name="previewBaseUrl" comments="has trailing slash" />
-				<!-- below are for [format=checkbox] -->
-				<boolean name="many-to-many" optional="yes" />
 			</structure>
 			<object name="$bean" comments="for field value" />
 		</in>
@@ -33,14 +30,19 @@
 </fusedoc>
 */
 
-// checkbox
-// ===> get value from shared-list (many-to-many)
-// ===> get value from own-list (one-to-many)
-if ( isset($field['options']) and isset($field['format']) and $field['format'] == 'checkbox' ) {
+// checkbox (one-to-many|many-to-many)
+// ===> one-to-many  : get value from own-list
+// ===> many-to-many : get value from shared-list
+if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
 	$field['_value_'] = array();
 	$associateName = str_replace('_id', '', $field['name']);
-	$propertyName = ( !empty($field['many-to-many']) ? 'shared' : 'own' ) . ucfirst($associateName);
+	$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 	foreach ( $bean->{$propertyName} as $tmp ) $field['_value_'][] = $tmp->id;
+
+// checkbox (normal)
+// ===> turn pipe-delimited list into array
+} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
+	$field['_value_'] = explode('|', $bean[$field['name']]);
 
 // other type
 // ===> simple value
@@ -56,7 +58,18 @@ if ( isset($field['options']) and isset($field['format']) and $field['format'] =
 } else {
 	$field['_value_'] = '';
 }
+
+// fix options (when necessary)
+if ( isset($field['format']) and in_array($field['format'], array('radio','checkbox','one-to-many','many-to-many')) and !isset($field['options']) ) {
+	$field['options'] = array();
+	if ( $field['format'] == 'radio' ) {
+		$field['options'][$field['_value_']] = $field['_value_'];
+	} else {
+		foreach ( $field['_value_'] as $val ) $field['options'][$val] = $val;
+	}
+}
 ?>
+
 
 <!-- output -->
 <?php if ( isset($field['format']) and $field['format'] == 'output' ) : ?>
@@ -64,7 +77,7 @@ if ( isset($field['options']) and isset($field['format']) and $field['format'] =
 
 
 <!-- radio -->
-<?php elseif ( isset($field['options']) and isset($field['format']) and $field['format'] == 'radio' ) : ?>
+<?php elseif ( isset($field['format']) and $field['format'] == 'radio' ) : ?>
 	<?php $optIndex = 0; ?>
 	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
 		<div class="radio">
@@ -87,7 +100,7 @@ if ( isset($field['options']) and isset($field['format']) and $field['format'] =
 
 
 <!-- checkbox (submit array value) -->
-<?php elseif ( isset($field['options']) and isset($field['format']) and $field['format'] == 'checkbox' ) : ?>
+<?php elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) : ?>
 	<?php $optIndex = 0; ?>
 	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
 		<div class="checkbox">
@@ -111,6 +124,23 @@ if ( isset($field['options']) and isset($field['format']) and $field['format'] =
 	<?php endif; ?>
 
 
+<!-- textarea -->
+<?php elseif ( isset($field['format']) and $field['format'] == 'textarea' ) : ?>
+	<textarea
+		class="form-control input-sm"
+		name="data[<?php echo $field['name']; ?>]"
+		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
+		<?php if ( !empty($field['required']) ) echo 'required'; ?>
+		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
+	><?php echo $field['_value_']; ?></textarea>
+
+
+<!-- file -->
+<?php elseif ( isset($field['format']) and $field['format'] == 'file' ) : ?>
+	<?php include 'input.file.php'; ?>
+
+
 <!-- listbox -->
 <?php elseif ( isset($field['options']) ) : ?>
 	<select
@@ -132,23 +162,6 @@ if ( isset($field['options']) and isset($field['format']) and $field['format'] =
 	<?php if ( !empty($field['readonly']) ) : ?>
 		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo $field['_value_']; ?>" />
 	<?php endif; ?>
-
-
-<!-- textarea -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'textarea' ) : ?>
-	<textarea
-		class="form-control input-sm"
-		name="data[<?php echo $field['name']; ?>]"
-		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-	><?php echo $field['_value_']; ?></textarea>
-
-
-<!-- file -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'file' ) : ?>
-	<?php include 'input.file.php'; ?>
 
 
 <!-- normal -->

@@ -22,7 +22,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// load library
 		include dirname(__FILE__).'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
 		include dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php';
-		R::setup('sqlite:'.dirname(dirname(dirname(__FILE__))).'/unit_test.db');
+		R::setup('sqlite:'.dirname(__FILE__).'/unit_test.db');
 		R::freeze(false);
 	}
 
@@ -911,14 +911,221 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		$this->assertTrue( $bean->alias != 'aaa-bbb-ccc' and $bean->name != 'XXX YYY ZZZ' and $bean->seq != 222 );
 		unset($arguments);
-		// check saving one-to-many
-		/***** (UNDER CONSTRUCTION) *****/
-
-		// check saving many-to-many
-		/***** (UNDER CONSTRUCTION) *****/
-
 		// clean-up
 		R::wipe($scaffold['beanType']);
+	}
+
+
+	function test__save__checkboxField() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'save';
+		// create dummy record
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'alias' => 'unit-test',
+			'name' => 'Unit Test',
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// save record
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['fieldConfig'] = array(
+			'alias' => array('format' => 'normal'),
+			'name' => array('format' => 'normal'),
+			"multiple" => array('format' => 'checkbox'),
+		);
+		$arguments['data'] = array(
+			'alias' => 'foo-bar',
+			'name' => 'Foo Bar',
+			"multiple" => array('A','B','C','x','y','z'),
+		);
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		// check page response
+		$this->assertTrue( $hasRun );
+		$this->assertFalse( $hasError );
+		$this->assertTrue( $hasRedirect );
+		// check base record
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( $bean->alias == 'foo-bar' );
+		$this->assertTrue( $bean->name == 'Foo Bar' );
+		$this->assertTrue( $bean->multiple = 'A|B|C|x|y|z');
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	function test__save__oneToMany() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'save';
+		// create dummy record
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'alias' => 'unit-test',
+			'name' => 'Unit Test',
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// create dummy records at associated table (one-to-many)
+		$childBeanType = $scaffold['beanType'].'one2many';
+		$childBeanIDs = array();
+		for ($i=0; $i<10; $i++) {
+			$childBean = R::dispense($childBeanType);
+			$childBean->import(array(
+				$scaffold['beanType'].'_id' => null,
+				'name' => "Child Bean #{$i}",
+			));
+			$childBeanIDs[] = R::store($childBean);
+			$this->assertTrue( $childBeanIDs[count($childBeanIDs)-1] );
+		}
+		// check associates before save
+		$tmp = R::findAll($childBeanType, 'ORDER BY NAME');
+		$bIndex = 0;
+		foreach ( $tmp as $b ) {
+			$this->assertFalse( $b["{$scaffold['beanType']}_id"] );
+			$this->assertPattern("/Child Bean #{$bIndex}/", $b->name);
+			$bIndex++;
+		}
+		// save children beans
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['fieldConfig'] = array(
+			'alias' => array('format' => 'normal'),
+			'name' => array('format' => 'normal'),
+			"{$childBeanType}_id" => array('format' => 'one-to-many'),
+		);
+		$arguments['data'] = array(
+			'alias' => 'foo-bar',
+			'name' => 'Foo Bar',
+			"{$childBeanType}_id" => $childBeanIDs,
+		);
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		// check page response
+		$this->assertTrue( $hasRun );
+		$this->assertFalse( $hasError );
+		$this->assertTrue( $hasRedirect );
+		// check base record
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( $bean->alias == 'foo-bar' );
+		$this->assertTrue( $bean->name == 'Foo Bar' );
+		$propertyName = 'own'.ucfirst($childBeanType);
+		$this->assertTrue( count($bean->{$propertyName}) == count($childBeanIDs) );
+		foreach ( $bean->{$propertyName} as $b ) {
+			$this->assertTrue( $b["{$scaffold['beanType']}_id"] == $bean->id );
+			$this->assertPattern("/Child Bean #/", $b->name);
+		}
+		// check associates after save
+		$tmp = R::findAll($childBeanType, 'ORDER BY NAME');
+		$bIndex = 0;
+		foreach ( $tmp as $b ) {
+			$this->assertTrue( $b["{$scaffold['beanType']}_id"] == $bean->id );
+			$this->assertPattern("/Child Bean #{$bIndex}/", $b->name);
+			$bIndex++;
+		}
+		// clean-up
+		R::wipe($scaffold['beanType']);
+		R::wipe($childBeanType);
+	}
+
+
+	function test__save__manyToMany() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'save';
+		// create dummy record
+		$bean = R::dispense($scaffold['beanType']);
+		$bean->import(array(
+			'alias' => 'unit-test',
+			'name' => 'Unit Test',
+		));
+		$id = R::store($bean);
+		$this->assertTrue($id);
+		// create dummy records at associated table
+		$anotherBeanType = $scaffold['beanType'].'many2many';
+		$anotherBeanIDs = array();
+		for ($i=0; $i<10; $i++) {
+			$anotherBean = R::dispense($anotherBeanType);
+			$anotherBean->import(array(
+				'name' => "Another Bean #{$i}",
+			));
+			$anotherBeanIDs[] = R::store($anotherBean);
+			$this->assertTrue( $anotherBeanIDs[count($anotherBeanIDs)-1] );
+		}
+		// save related beans
+		self::resetScaffoldConfig();
+		$scaffold['allowEdit'] = true;
+		$scaffold['fieldConfig'] = array(
+			'alias' => array('format' => 'normal'),
+			'name' => array('format' => 'normal'),
+			"{$anotherBeanType}_id" => array('format' => 'many-to-many'),
+		);
+		$arguments['data'] = array(
+			'alias' => 'foo-bar',
+			'name' => 'Foo Bar',
+			"{$anotherBeanType}_id" => $anotherBeanIDs,
+		);
+		try {
+			$hasRun = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$hasRun = true;
+			$output = $e->getMessage();
+			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+		}
+		// check page response
+		$this->assertTrue( $hasRun );
+		$this->assertFalse( $hasError );
+		$this->assertTrue( $hasRedirect );
+		// check base record
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( $bean->alias == 'foo-bar' );
+		$this->assertTrue( $bean->name == 'Foo Bar' );
+		// check base record
+		$bean = R::load($scaffold['beanType'], $id);
+		$this->assertTrue( $bean->alias == 'foo-bar' );
+		$this->assertTrue( $bean->name == 'Foo Bar' );
+		$propertyName = 'shared'.ucfirst($anotherBeanType);
+		$this->assertTrue( count($bean->{$propertyName}) == count($anotherBeanIDs) );
+		foreach ( $bean->{$propertyName} as $b ) {
+			$this->assertPattern("/Another Bean #/", $b->name);
+		}
+		// check associates after save
+		$tmp = R::findAll($scaffold['beanType'].'_'.$anotherBeanType, "ORDER BY {$anotherBeanType}_id");
+		$bIndex = 0;
+		foreach ( $tmp as $b ) {
+			$this->assertTrue( $b["{$scaffold['beanType']}_id"] == $bean->id );
+			$this->assertTrue( $b["{$anotherBeanType}_id"] == $anotherBeanIDs[$bIndex] );
+			$bIndex++;
+		}
+		// clean-up
+		R::wipe($scaffold['beanType']);
+		R::wipe($anotherBeanType);
+		R::wipe($scaffold['beanType'].'_'.$anotherBeanType);
 	}
 
 
