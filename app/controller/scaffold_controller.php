@@ -3,6 +3,7 @@
 	<history version="1.5">
 		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
+		- do not throw error when table not exists (usually at MySQL)
 		- do not accept {editField} as parameter anymore (and only accept {fieldConfig} to avoid any confusion)
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
@@ -131,7 +132,15 @@ $scaffold['editMode'] = !empty($scaffold['editMode']) ? $scaffold['editMode'] : 
 $scaffold['modalSize'] = !empty($scaffold['modalSize']) ? $scaffold['modalSize'] : 'normal';
 
 // param default : list field
-$scaffold['_columns_'] = R::getColumns( $scaffold['beanType'] );
+try {
+	$scaffold['_columns_'] = R::getColumns( $scaffold['beanType'] );
+} catch (Exception $e) {
+	if ( preg_match('/Base table or view not found/i', $e->getMessage()) ) {
+		$scaffold['_columns_'] = isset($scaffold['fieldConfig']) ? array_keys($scaffold['fieldConfig']) : array();
+	} else {
+		throw $e;
+	}
+}
 $scaffold['listField'] = isset($scaffold['listField']) ? $scaffold['listField'] : array_keys($scaffold['_columns_']);
 
 // param default : list filter & order
@@ -155,7 +164,7 @@ if ( !isset($arguments['sortField']) ) {
 	if ( isset($tmp[1]) ) $arguments['sortRule'] = $tmp[1];
 }
 
-// param default : edit field
+// param default : field config
 $scaffold['fieldConfig'] = isset($scaffold['fieldConfig']) ? $scaffold['fieldConfig'] : array();
 $_scaffoldEditField = $scaffold['fieldConfig'];
 $scaffold['fieldConfig'] = array();
