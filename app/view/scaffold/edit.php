@@ -12,7 +12,7 @@
 				<structure name="modalField">
 					<list name="~column list~" comments="value is column width list" delim="|" />
 				</structure>
-				<structure name="editField">
+				<structure name="fieldConfig">
 					<structure name="~column~">
 						<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
 						<array name="options" comments="show dropdown when specified">
@@ -95,7 +95,7 @@
 					<div class="row clearfix <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-md-10<?php else : ?>col-md-9<?php endif; ?>">
 						<?php foreach ( $colList as $i => $col ) : ?>
 							<div class="col-md-<?php echo $colWidthList[$i]; ?>">
-								<?php $field = $scaffold['editField'][$col] + array('name' => $col); ?>
+								<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
 								<?php include 'input.php'; ?>
 							</div>
 						<?php endforeach; ?>

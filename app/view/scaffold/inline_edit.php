@@ -8,7 +8,7 @@
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
 					<string name="~column-list~" comments="column width" />
 				</array>
-				<structure name="editField">
+				<structure name="fieldConfig">
 					<structure name="~column~">
 						<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
 						<array name="options" comments="show dropdown when specified">
@@ -52,7 +52,7 @@
 							<div class="form-group <?php echo $col; ?>" style="margin-bottom: 5px;">
 								<div class="col-sm-12">
 									<?php
-										$field = $scaffold['editField'][$col];
+										$field = $scaffold['fieldConfig'][$col];
 										$field['name'] = $col;
 										include 'input.php';
 									?>

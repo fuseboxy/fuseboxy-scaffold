@@ -3,6 +3,7 @@
 	<history version="1.5">
 		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
+		- do not accept {editField} as parameter anymore (and only accept {fieldConfig} to avoid any confusion)
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
@@ -66,7 +67,7 @@
 					<list name="+" comments="when no key specified, value is column list" />
 					<list name="~column-list~" comments="when key was specified, key is column list and value is column width list" />
 				</array>
-				<structure name="fieldConfig|editField" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
+				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
 						<string name="format" comments="normal|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="normal" />
@@ -155,44 +156,41 @@ if ( !isset($arguments['sortField']) ) {
 }
 
 // param default : edit field
-if ( isset($scaffold['fieldConfig']) ) {
-	$scaffold['editField'] = $scaffold['fieldConfig'];
-}
-$scaffold['editField'] = isset($scaffold['editField']) ? $scaffold['editField'] : array();
-$_scaffoldEditField = $scaffold['editField'];
-$scaffold['editField'] = array();
+$scaffold['fieldConfig'] = isset($scaffold['fieldConfig']) ? $scaffold['fieldConfig'] : array();
+$_scaffoldEditField = $scaffold['fieldConfig'];
+$scaffold['fieldConfig'] = array();
 foreach ( $_scaffoldEditField as $_key => $_val ) {
 	if ( is_numeric($_key) ) {
-		$scaffold['editField'][$_val] = array();
+		$scaffold['fieldConfig'][$_val] = array();
 	} else {
-		$scaffold['editField'][$_key] = $_val;
+		$scaffold['fieldConfig'][$_key] = $_val;
 	}
 }
 unset($_scaffoldEditField);
 foreach ( $scaffold['_columns_'] as $_col => $_colType ) {
-	if ( !isset($scaffold['editField'][$_col]) ) {
-		$scaffold['editField'][$_col] = array();
+	if ( !isset($scaffold['fieldConfig'][$_col]) ) {
+		$scaffold['fieldConfig'][$_col] = array();
 	}
 }
-if ( !isset($scaffold['editField']['id']) ) {
-	$scaffold['editField']['id'] = array();
+if ( !isset($scaffold['fieldConfig']['id']) ) {
+	$scaffold['fieldConfig']['id'] = array();
 }
 
 // param default : edit field (field {id} must be readonly)
-$scaffold['editField']['id']['readonly'] = true;
+$scaffold['fieldConfig']['id']['readonly'] = true;
 
 // param default : edit field (field {seq} must be number)
-if ( isset($scaffold['editField']['seq']) ) {
-	$scaffold['editField']['seq']['format'] = 'number';
+if ( isset($scaffold['fieldConfig']['seq']) ) {
+	$scaffold['fieldConfig']['seq']['format'] = 'number';
 }
 
 // param default : edit field (field {disabled} is dropdown by default)
-if ( isset($scaffold['editField']['disabled']) and empty($scaffold['editField']['disabled']) ) {
-	$scaffold['editField']['disabled'] = array('options' => array('0' => 'enable', '1' => 'disable'));
+if ( isset($scaffold['fieldConfig']['disabled']) and empty($scaffold['fieldConfig']['disabled']) ) {
+	$scaffold['fieldConfig']['disabled'] = array('options' => array('0' => 'enable', '1' => 'disable'));
 }
 
 // param default : modal field
-$scaffold['modalField'] = isset($scaffold['modalField']) ? $scaffold['modalField'] : array_keys($scaffold['editField']);
+$scaffold['modalField'] = isset($scaffold['modalField']) ? $scaffold['modalField'] : array_keys($scaffold['fieldConfig']);
 $_scaffoldModalField = $scaffold['modalField'];
 $scaffold['modalField'] = array();
 $_scaffoldModalFieldHasID = false;
@@ -243,7 +241,7 @@ $scaffold['writeLog'] = isset($scaffold['writeLog']) ? $scaffold['writeLog'] : f
 if ( isset($scaffold['previewBaseUrl']) ) {
 	$scaffold['uploadBaseUrl'] = $scaffold['previewBaseUrl'];  // for backward compatibility
 }
-foreach ( $scaffold['editField'] as $item ) {
+foreach ( $scaffold['fieldConfig'] as $item ) {
 	F::error('configuration $scaffold["uploadBaseUrl"] is required for [format=file] field', !isset($scaffold['uploadBaseUrl']) and isset($item['format']) and $item['format'] == 'file');
 }
 if ( isset($scaffold['uploadBaseUrl']) and !in_array(substr($scaffold['uploadBaseUrl'], -1), array('/','\\')) ) {
@@ -259,7 +257,7 @@ if ( !in_array($scaffold['editMode'], array('inline','modal','classic')) ) {
 }
 
 // param fix : file size (string to number)
-foreach ( $scaffold['editField'] as $itemName => $item ) {
+foreach ( $scaffold['fieldConfig'] as $itemName => $item ) {
 	if ( !empty($item['filesize']) ) {
 		$kb = 1024;
 		$mb = $kb * 1024;
@@ -280,7 +278,7 @@ foreach ( $scaffold['editField'] as $itemName => $item ) {
 		} else {
 			$item['filesize'] = floatval($item['filesize']);
 		}
-		$scaffold['editField'][$itemName]['filesize_numeric'] = $item['filesize'];
+		$scaffold['fieldConfig'][$itemName]['filesize_numeric'] = $item['filesize'];
 	}
 }
 
@@ -447,7 +445,7 @@ switch ( $fusebox->action ) :
 				$bean = R::dispense($scaffold['beanType']);
 			}
 			// fix submitted multi-selection value
-			foreach ( $scaffold['editField'] as $fieldName => $field ) {
+			foreach ( $scaffold['fieldConfig'] as $fieldName => $field ) {
 				// default value when select no item
 				if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
 					$arguments['data'][$fieldName] = isset($arguments['data'][$fieldName]) ? $arguments['data'][$fieldName] : array();
@@ -553,15 +551,15 @@ switch ( $fusebox->action ) :
 			// config : file upload directory (include trailing slash)
 			$fileUpload->uploadDir = "{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/";
 			// config : array of permitted file extensions (only allow image & doc by default)
-			if ( isset($scaffold['editField'][$arguments['fieldName']]['filetype']) ) {
-				$fileUpload->allowedExtensions = explode(',', $scaffold['editField'][$arguments['fieldName']]['filetype']);
+			if ( isset($scaffold['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
+				$fileUpload->allowedExtensions = explode(',', $scaffold['fieldConfig'][$arguments['fieldName']]['filetype']);
 			} else {
 				$fileUpload->allowedExtensions = explode(',', 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx');
 			}
 			// config : max file upload size in bytes (default 10MB in library)
 			// ===> scaffold-controller turns human-readable-filesize into numeric
-			if ( isset($scaffold['editField'][$arguments['fieldName']]['filesize']) ) {
-				$fileUpload->sizeLimit = $scaffold['editField'][$arguments['fieldName']]['filesize_numeric'];
+			if ( isset($scaffold['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
+				$fileUpload->sizeLimit = $scaffold['fieldConfig'][$arguments['fieldName']]['filesize_numeric'];
 			}
 			// config : assign unique name to avoid overwrite
 			$originalName = urldecode($arguments[$arguments['uploaderID']]);

@@ -8,7 +8,7 @@
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
 					<string name="~column-list~" comments="column width" />
 				</array>
-				<array name="editField">
+				<array name="fieldConfig">
 					<structure name="~column~">
 						<string name="format" />
 						<!-- for [format=file] only -->
@@ -34,15 +34,15 @@
 						<?php foreach ( $cols as $i => $col ) : ?>
 							<?php
 								$objectName = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
-								$isManyToMany = ( isset($scaffold['editField'][$col]['format']) and $scaffold['editField'][$col]['format'] == 'checkbox' and !empty($scaffold['editField'][$col]['many-to-many']) );
-								$isOneToMany = ( isset($scaffold['editField'][$col]['format']) and $scaffold['editField'][$col]['format'] == 'checkbox' and empty($scaffold['editField'][$col]['many-to-many']) );
+								$isManyToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' and !empty($scaffold['fieldConfig'][$col]['many-to-many']) );
+								$isOneToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' and empty($scaffold['fieldConfig'][$col]['many-to-many']) );
 								$isObject = is_object($bean[$objectName]);
-								$isFile = ( isset($scaffold['editField'][$col]['format']) and $scaffold['editField'][$col]['format'] == 'file' );
-								$isHidden = ( isset($scaffold['editField'][$col]['format']) and $scaffold['editField'][$col]['format'] == 'hidden' );
+								$isFile = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
+								$isHidden = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
 							?>
 							<div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>">
 								<!-- file & preview : show thumbnail -->
-								<?php if ( $isFile and !empty($bean[$col]) and !empty($scaffold['editField'][$col]['preview']) ) : ?>
+								<?php if ( $isFile and !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) : ?>
 									<div class="thumbnail" style="margin-bottom: 0; max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?>">
 										<a href="<?php echo $bean[$col]; ?>" target="_blank"><img src="<?php echo $bean[$col]; ?>" alt="" /></a>
 									</div>
