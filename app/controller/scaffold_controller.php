@@ -119,6 +119,25 @@ F::error('configuration $scaffold["beanType"] cannot contain underscore', strpos
 F::error('configuration $scaffold["layoutPath"] is required', empty($scaffold['layoutPath']));
 F::error('Log component is required', !empty($scaffold['writeLog']) and !class_exists('Log'));
 
+// obtain all columns of specified table
+// ===> if no column (or non-exist table)
+// ===> rely on {fieldConfig} (if any)
+try {
+	$scaffold['_columns_'] = R::getColumns( $scaffold['beanType'] );
+} catch (Exception $e) {
+	if ( preg_match('/Base table or view not found/i', $e->getMessage()) ) {
+		$scaffold['_columns_'] = array();
+	} else {
+		throw $e;
+	}
+}
+if ( empty($scaffold['_columns_']) and isset($scaffold['fieldConfig']) ) {
+	foreach ( $scaffold['fieldConfig'] as $_key => $_val ) {
+		$_col = is_numeric($_key) ? $_val : $_key;
+		$scaffold['_columns_'][$_col] = '~any~';
+	}
+}
+
 // param default : permission
 $scaffold['allowNew'] = isset($scaffold['allowNew']) ? $scaffold['allowNew'] : true;
 $scaffold['allowEdit'] = isset($scaffold['allowEdit']) ? $scaffold['allowEdit'] : true;
@@ -137,15 +156,6 @@ $scaffold['editMode'] = !empty($scaffold['editMode']) ? $scaffold['editMode'] : 
 $scaffold['modalSize'] = !empty($scaffold['modalSize']) ? $scaffold['modalSize'] : 'normal';
 
 // param default : list field
-try {
-	$scaffold['_columns_'] = R::getColumns( $scaffold['beanType'] );
-} catch (Exception $e) {
-	if ( preg_match('/Base table or view not found/i', $e->getMessage()) ) {
-		$scaffold['_columns_'] = isset($scaffold['fieldConfig']) ? array_keys($scaffold['fieldConfig']) : array();
-	} else {
-		throw $e;
-	}
-}
 $scaffold['listField'] = isset($scaffold['listField']) ? $scaffold['listField'] : array_keys($scaffold['_columns_']);
 
 // param default : list filter & order
@@ -177,16 +187,16 @@ if ( !isset($arguments['sortField']) ) {
 
 // param default : field config
 $scaffold['fieldConfig'] = isset($scaffold['fieldConfig']) ? $scaffold['fieldConfig'] : array();
-$_scaffoldEditField = $scaffold['fieldConfig'];
+$_arr = $scaffold['fieldConfig'];
 $scaffold['fieldConfig'] = array();
-foreach ( $_scaffoldEditField as $_key => $_val ) {
+foreach ( $_arr as $_key => $_val ) {
 	if ( is_numeric($_key) ) {
 		$scaffold['fieldConfig'][$_val] = array();
 	} else {
 		$scaffold['fieldConfig'][$_key] = $_val;
 	}
 }
-unset($_scaffoldEditField);
+unset($_arr);
 foreach ( $scaffold['_columns_'] as $_col => $_colType ) {
 	if ( !isset($scaffold['fieldConfig'][$_col]) ) {
 		$scaffold['fieldConfig'][$_col] = array();

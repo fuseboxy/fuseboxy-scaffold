@@ -102,8 +102,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-row')->length == 10 );
 		$this->assertTrue( pq('.scaffold-btn-enable')->length == 5 );
 		$this->assertTrue( pq('.scaffold-btn-disable')->length == 5 );
-		// non-exist table
+		// non-existing table
+		// ===> should pass and nothing happen
 		self::resetScaffoldConfig();
+		$scaffold['beanType'] = 'unknown';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertFalse( pq('.scaffold-row')->length );
 		// config {listFilter} in string
 		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
@@ -132,7 +140,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		R::wipe($scaffold['beanType']);
 	}
 
-/*
+
 	// php bug : scaffold config cannot reset clearly
 	// ===> create another test case to avoid it
 	function test__index__enableAllFeatures() {
@@ -648,6 +656,50 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[myDefault]']")->is('input[type=text]') );
 		$this->assertTrue( pq("[name='data[myDefault]']")->val() == 999 );
 		$this->assertTrue( pq("[name='data[myDefault]']")->is('[readonly]') );
+		// with detail {fieldConfig} specified
+		self::resetScaffoldConfig();
+		$scaffold['editMode'] = 'classic';
+		$scaffold['fieldConfig'] = array(
+			'name' => array('format' => 'textarea'),
+			'disabled' => array('format' => 'hidden'),
+			'seq' => array('format' => 'date'),
+		);
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq("[name='data[name]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[disabled]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[seq]']")->length == 1 );
+		$this->assertFalse( pq("[name='data[1]'],[name='data[2]'],[name='data[3]']")->length );  // should not have any dummy field
+		$this->assertTrue( pq("[name='data[name]']")->is('textarea') );
+		$this->assertTrue( pq("[name='data[disabled]']")->is('[type=hidden]') );
+		$this->assertFalse( pq("[name='data[seq]']")->is('[type=date]') );
+		$this->assertTrue( pq("[name='data[seq]']")->is('[type=number]') );  // field {seq} must be corrected into [type=number]
+		$this->assertTrue( isset($scaffold['fieldConfig']['id']) );  // field-config of {id} was auto-created
+		$this->assertTrue( $scaffold['fieldConfig']['id']['readonly'] );  // field {id} must be read-only
+		// non-exist table & no {fieldConfig} specified
+		// ===> only specify field name
+		self::resetScaffoldConfig();
+		$scaffold['beanType'] = 'unknown';
+		$scaffold['editMode'] = 'classic';
+		$scaffold['fieldConfig'] = array(
+			'title',
+			'speaker',
+			'remark',
+			'photo',
+		);
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq("[name='data[title]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[speaker]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[remark]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[photo]']")->length == 1 );
+		$this->assertFalse( pq("[name='data[1]'],[name='data[2]'],[name='data[3]']")->length );  // should not have any dummy field
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
@@ -1304,7 +1356,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
-*/
+
 
 	function test__uploadFile() {
 		// UNDER CONSTRUCTION
