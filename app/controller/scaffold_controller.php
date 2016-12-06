@@ -12,6 +12,7 @@
 		- no delete button in edit form (only available in listing)
 		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
 		- allow {listFilter} as array for sql parameter binding
+		- remove expired files when uploading file
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -587,15 +588,20 @@ switch ( $fusebox->action ) :
 			// fix config
 			$uploadDir  = $fusebox->config['uploadDir'];
 			$uploadDir .= in_array(substr($uploadDir, -1), array('/','\\')) ? '' : '/';
-			$uploadDir .= $scaffold['beanType'];
-			$uploadDir .= in_array(substr($uploadDir, -1), array('/','\\')) ? '' : '/';
+			$uploadDir .= "{$scaffold['beanType']}/{$arguments['fieldName']}/";
 			$uploadBaseUrl  = $fusebox->config['uploadBaseUrl'];
 			$uploadBaseUrl .= in_array(substr($uploadBaseUrl, -1), array('/','\\')) ? '' : '/';
-			$uploadBaseUrl .= $scaffold['beanType'];
-			$uploadBaseUrl .= in_array(substr($uploadBaseUrl, -1), array('/','\\')) ? '' : '/';
+			$uploadBaseUrl .= "{$scaffold['beanType']}/{$arguments['fieldName']}/";
 			// create directory (when necessary)
 			if ( !file_exists( $uploadDir ) ) {
 				mkdir($uploadDir, 0766, true);
+			}
+			// remove expired file
+			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+				F::invoke("{$fusebox->controller}.remove_expired_file", array(
+					'fieldName' => $arguments['fieldName'],
+					'uploadDir' => $uploadDir,
+				));
 			}
 			// init object (specify [uploaderID] to know which DOM to update)
 			$fileUpload = new FileUpload($arguments['uploaderID']);
@@ -637,6 +643,34 @@ switch ( $fusebox->action ) :
 		break;
 	case 'upload_file_progress':
 		require $scaffold['libPath'].'simple-ajax-uploader/1.10.1/extras/uploadProgress.php';
+		break;
+
+
+	// remove uploaded files which have parent record deleted
+	case 'remove_expired_file':
+		F::error('invalid access', !F::isInvoke() and empty($GLOBALS['FUSEBOX_UNIT_TEST']));
+		F::error('argument [fieldName] is required', empty($arguments['fieldName']));
+		F::error('argument [uploadDir] is required', empty($arguments['uploadDir']));
+		// get all records of specific field
+		// ===> only required file name
+		$nonOrphanFiles = R::getCol("SELECT {$arguments['fieldName']} FROM {$scaffold['beanType']} WHERE {$arguments['fieldName']} IS NOT NULL");
+		foreach ( $nonOrphanFiles as $i => $path ) {
+			if ( !empty($path) ) {
+				$nonOrphanFiles[$i] = basename($path);
+			}
+		}
+		// go through every file in upload directory
+		if ( !empty($nonOrphanFiles) ) {
+			foreach (glob($arguments['uploadDir']."*.*") as $filename) {
+				// only remove orphan file older than one day
+				// ===> avoid remove file which ajax-upload by user but not save record yet
+				$isOrphan = !in_array($filename, $nonOrphanFiles);
+				$isDayOld = ( filemtime($arguments['uploadDir'].$filename) < strtotime(date('-1 day')) );
+				if ( $isOrphan and $isDayOld ) {
+					unlink($arguments['uploadDir'].$filename);
+				}
+			}
+		}
 		break;
 
 

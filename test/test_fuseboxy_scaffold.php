@@ -1427,8 +1427,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
-		$arguments['uploaderID'] = 'photo_uploader';
-		$arguments['fieldName'] = 'photo';
+		$arguments['uploaderID'] = 'foobar_uploader_123456789';
+		$arguments['fieldName'] = 'foobar';
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -1443,8 +1443,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
-		$arguments['uploaderID'] = 'photo_uploader';
-		$arguments['fieldName'] = 'photo';
+		$arguments['uploaderID'] = 'foobar_uploader_123456789';
+		$arguments['fieldName'] = 'foobar';
 		$arguments[$arguments['uploaderID']] = 'unit_test_photo.jpg';
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
@@ -1453,17 +1453,17 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$json = json_decode($output);
 		$this->assertTrue($json);
 		$this->assertFalse($json->success);
-		$this->assertPattern('/field config for \[photo\] is required/i', $json->msg);
+		$this->assertPattern('/field config for \[foobar\] is required/i', $json->msg);
 		unset($output, $json, $arguments);
 		// invalid field-config
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
-		$arguments['uploaderID'] = 'photo_uploader';
-		$arguments['fieldName'] = 'photo';
+		$arguments['uploaderID'] = 'foobar_uploader_123456789';
+		$arguments['fieldName'] = 'foobar';
 		$arguments[$arguments['uploaderID']] = 'unit_test_photo.jpg';
-		$scaffold['fieldConfig'] = array( 'photo' => array('format' => 'checkbox') );
+		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'checkbox') );
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -1471,19 +1471,19 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$json = json_decode($output);
 		$this->assertTrue($json);
 		$this->assertFalse($json->success);
-		$this->assertPattern('/field \[photo\] must be \[format=file\]/i', $json->msg);
+		$this->assertPattern('/field \[foobar\] must be \[format=file\]/i', $json->msg);
 		unset($output, $json, $arguments);
-		// success
+		// upload file successfully
 		// ===> should have directory created
 		// ===> response should have uploaded file
 		self::resetScaffoldConfig();
 		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
-		$arguments['uploaderID'] = 'photo_uploader';
-		$arguments['fieldName'] = 'photo';
+		$arguments['uploaderID'] = 'foobar_uploader_123456789';
+		$arguments['fieldName'] = 'foobar';
 		$arguments[$arguments['uploaderID']] = 'unit_test_photo.jpg';
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
-		$scaffold['fieldConfig'] = array( 'photo' => array('format' => 'file') );
+		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -1493,12 +1493,72 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue($json->success);
 		$this->assertTrue( isset($json->baseUrl) );
 		$this->assertTrue( isset($json->fileUrl) );
-		$this->assertTrue( file_exists($fusebox->config['uploadDir'].'/'.$scaffold['beanType']) );
+		$this->assertPattern('/'.preg_quote("/{$scaffold['beanType']}/{$arguments['fieldName']}/", '/').'/', $json->baseUrl);
+		$this->assertPattern('/'.preg_quote("/{$scaffold['beanType']}/{$arguments['fieldName']}/unit_test_photo", '/').'/', $json->fileUrl);
+		$this->assertTrue( is_dir("{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/") );
+		$this->assertTrue( is_dir("{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/{$arguments['fieldName']}/") );
 		unset($output, $arguments, $fusebox->config['uploadDir'], $fusebox->config['uploadBaseUrl']);
 		// file extension check (UNDER CONSTRUCTION)
 
 		// file size check (UNDER CONSTRUCTION)
 
+		// clean-up
+		R::wipe($scaffold['beanType']);
+	}
+
+
+	function test__removeExpiredFile() {
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'remove_expired_file';
+		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
+		// missing parameter
+		self::resetScaffoldConfig();
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+		}
+		$this->assertTrue($hasError);
+		$this->assertPattern('/argument \[fieldName\] is required/i', $output);
+		unset($output);
+		// define essential param
+		$arguments['fieldName'] = 'poster';
+		$arguments['uploadDir'] = $fusebox->config['uploadDir'].'/'.$scaffold['beanType'].'/'.$arguments['fieldName'];
+		// create dummy records
+		self::resetScaffoldConfig();
+		for ($i=0; $i<5; $i++) {
+			$bean = R::dispense($scaffold['beanType']);
+			$bean->import(array(
+				'name' => "Foo Bar #{$i}",
+				'poster' => $fusebox->config['uploadBaseUrl'].'/'.$scaffold['beanType'].'/'.$arguments['fieldName'],
+			));
+			$this->assertTrue( R::store($bean) );
+		}
+		// remove expired file successfully
+		self::resetScaffoldConfig();
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+		}
+		$this->assertFalse($hasError);
+
+
+		// (UNDER CONSTRUCTION)
+
+
+
+		unset($output);
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
