@@ -4,7 +4,9 @@
 		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
 		- do not throw error when table not exists (usually at MySQL)
-		- do not accept {editField} as parameter anymore (and only accept {fieldConfig} to avoid any confusion)
+		- define {uploadBaseUrl} at fusebox-config scope instead of scaffold scope
+		- deprecate {editField} and only accept {fieldConfig} to avoid any confusion
+		- deprecate {previewBaseUrl} and only accept {uploadBaseUrl} to avoid any confusion
 		- fix {editMode=classic} when not ajax-request
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
@@ -103,11 +105,14 @@
 				</structure>
 				<!-- advanced settings for file upload -->
 				<string name="libPath" optional="yes" default="~fusebox.config.appPath~/../lib" comments="for simple-ajax-uploader library" />
-				<string name="uploadBaseUrl|previewBaseUrl" optional="yes" comments="for [format=file] field; has trailing slash" />
 				<!-- settings for log -->
 				<boolean name="writeLog" optional="yes" comments="simply true to log all actions" />
 			</structure>
-			<array name="$arguments" optional="yes" comments="custom breadcrumb" />
+			<structure name="config" scope="$fusebox" comments="for file field">
+				<string name="uploadDir" optional="yes" comments="server path for saving file" />
+				<string name="uploadBaseUrl" optional="yes" comments="web path for image source" />
+			</structure>
+			<array name="breadcrumb" scope="$arguments" optional="yes" comments="custom breadcrumb" />
 		</in>
 		<out />
 	</io>
@@ -117,6 +122,9 @@
 F::error('configuration $scaffold["beanType"] is required', empty($scaffold['beanType']));
 F::error('configuration $scaffold["beanType"] cannot contain underscore', strpos($scaffold['beanType'], '_') !== false);
 F::error('configuration $scaffold["layoutPath"] is required', empty($scaffold['layoutPath']));
+F::error('configuration $scaffold["libPath"] is required', empty($scaffold['libPath']) and F::is('*.upload_file'));
+F::error('configuration $fusebox->config["uploadDir"] is required', empty($fusebox->config['uploadDir']) and F::is('*.upload_file'));
+F::error('configuration $fusebox->config["uploadBaseUrl"] is required', empty($fusebox->config['uploadBaseUrl']) and F::is('*.upload_file'));
 F::error('Log component is required', !empty($scaffold['writeLog']) and !class_exists('Log'));
 
 // obtain all columns of specified table
@@ -266,17 +274,6 @@ $scaffold['libPath'] = isset($scaffold['libPath']) ? $scaffold['libPath'] : (dir
 
 // param default : write log
 $scaffold['writeLog'] = isset($scaffold['writeLog']) ? $scaffold['writeLog'] : false;
-
-// validation & param fix : upload-base-url
-if ( isset($scaffold['previewBaseUrl']) ) {
-	$scaffold['uploadBaseUrl'] = $scaffold['previewBaseUrl'];  // for backward compatibility
-}
-foreach ( $scaffold['fieldConfig'] as $item ) {
-	F::error('configuration $scaffold["uploadBaseUrl"] is required for [format=file] field', !isset($scaffold['uploadBaseUrl']) and isset($item['format']) and $item['format'] == 'file');
-}
-if ( isset($scaffold['uploadBaseUrl']) and !in_array(substr($scaffold['uploadBaseUrl'], -1), array('/','\\')) ) {
-	$scaffold['uploadBaseUrl'] .= '/';
-}
 
 // param fix : edit mode
 if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
@@ -565,21 +562,45 @@ switch ( $fusebox->action ) :
 
 	// ajax file upload
 	case 'upload_file':
-		require $scaffold['libPath'].'simple-ajax-uploader/1.10.1/extras/Uploader.php';
+		// load library
+		if ( !class_exists('FileUpload') ) {
+			require $scaffold['libPath'].'simple-ajax-uploader/1.10.1/extras/Uploader.php';
+		}
 		// validation
+		$err = array();
 		if ( empty($arguments['uploaderID']) ) {
-			$err = 'argument [uploaderID] is required';
-		} elseif ( empty($arguments['fieldName']) ) {
-			$err = 'argument [fieldName] is required';
+			$err[] = 'argument [uploaderID] is required';
+		} elseif ( !isset($arguments[$arguments['uploaderID']]) ) {
+			$err[] = "data of [{$arguments['uploaderID']}] was not submitted";
+		}
+		if ( empty($arguments['fieldName']) ) {
+			$err[] = 'argument [fieldName] is required';
+		} elseif ( !isset($scaffold['fieldConfig'][$arguments['fieldName']]) ) {
+			$err[] = "field config for [{$arguments['fieldName']}] is required";
+		} elseif ( $scaffold['fieldConfig'][$arguments['fieldName']]['format'] != 'file' ) {
+			$err[] = "field [{$arguments['fieldName']}] must be [format=file]";
 		}
 		// only proceed when ok...
 		if ( !empty($err) ) {
-			$result = array('success' => false, 'msg' => $err);
+			$result = array('success' => false, 'msg' => implode("\n", $err));
 		} else {
+			// fix config
+			$uploadDir  = $fusebox->config['uploadDir'];
+			$uploadDir .= in_array(substr($uploadDir, -1), array('/','\\')) ? '' : '/';
+			$uploadDir .= $scaffold['beanType'];
+			$uploadDir .= in_array(substr($uploadDir, -1), array('/','\\')) ? '' : '/';
+			$uploadBaseUrl  = $fusebox->config['uploadBaseUrl'];
+			$uploadBaseUrl .= in_array(substr($uploadBaseUrl, -1), array('/','\\')) ? '' : '/';
+			$uploadBaseUrl .= $scaffold['beanType'];
+			$uploadBaseUrl .= in_array(substr($uploadBaseUrl, -1), array('/','\\')) ? '' : '/';
+			// create directory (when necessary)
+			if ( !file_exists( $uploadDir ) ) {
+				mkdir($uploadDir, 0766, true);
+			}
 			// init object (specify [uploaderID] to know which DOM to update)
 			$fileUpload = new FileUpload($arguments['uploaderID']);
 			// config : file upload directory (include trailing slash)
-			$fileUpload->uploadDir = "{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/";
+			$fileUpload->uploadDir = $uploadDir;
 			// config : array of permitted file extensions (only allow image & doc by default)
 			if ( isset($scaffold['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
 				$fileUpload->allowedExtensions = explode(',', $scaffold['fieldConfig'][$arguments['fieldName']]['filetype']);
@@ -595,25 +616,25 @@ switch ( $fusebox->action ) :
 			$originalName = urldecode($arguments[$arguments['uploaderID']]);
 			$uniqueName = pathinfo($originalName, PATHINFO_FILENAME).'_'.uniqid().'.'.pathinfo($originalName, PATHINFO_EXTENSION);
 			$fileUpload->newFileName = $uniqueName;
-			// create directory (when necessary)
-			if ( !file_exists( $fileUpload->uploadDir ) ) {
-				mkdir($fileUpload->uploadDir, 0766, true);
-			}
 			// start upload
-			$uploadResult = $fileUpload->handleUpload();
+			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+				$uploadResult = $fileUpload->handleUpload();
+				$uploadFileName = $fileUpload->getFileName();
+			} else {
+				$uploadResult = true;
+				$uploadFileName = $uniqueName;
+			}
 			// result
 			$result = array(
 				'success' => $uploadResult,
 				'msg' => $uploadResult ? 'File uploaded successfully' : $fileUpload->getErrorMsg(),
-				'baseUrl' => $scaffold['uploadBaseUrl'],
-				'fileUrl' => "{$scaffold['uploadBaseUrl']}{$scaffold['beanType']}/".$fileUpload->getFileName()
+				'baseUrl' => $uploadBaseUrl,
+				'fileUrl' => $uploadBaseUrl.$uploadFileName,
 			);
 		}
 		// return to browser as json response
 		echo json_encode($result);
 		break;
-
-
 	case 'upload_file_progress':
 		require $scaffold['libPath'].'simple-ajax-uploader/1.10.1/extras/uploadProgress.php';
 		break;

@@ -1,2 +1,3 @@
 data/*.*
 test/unit_test.db
+test/utility-scaffold/upload/*.*
