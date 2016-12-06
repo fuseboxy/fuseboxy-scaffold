@@ -737,7 +737,6 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( pq(".scaffold-inline-edit")->length == 1 );
 		$this->assertFalse( pq("form[action]")->length );
-		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
 		$this->assertFalse( pq('.scaffold-btn-save')->length );
 		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
@@ -754,7 +753,6 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( pq(".scaffold-edit")->length == 1 );
 		$this->assertFalse( pq("form[action]")->length );
-		$this->assertTrue( pq("form[data-toggle='ajax-submit']")->length == 1 );
 		$this->assertFalse( pq('.scaffold-btn-save')->length );
 		$this->assertTrue( pq('.scaffold-btn-close')->length == 1 );
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );

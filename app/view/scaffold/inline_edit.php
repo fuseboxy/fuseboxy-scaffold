@@ -36,8 +36,6 @@
 		<?php if ( isset($xfa['submit']) ) : ?>
 			method="post"
 			action="<?php echo F::url($xfa['submit']); ?>"
-		<?php endif; ?>
-		<?php if ( $scaffold['editMode'] == 'inline' ) : ?>
 			data-toggle="ajax-submit"
 			data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
 		<?php endif; ?>
