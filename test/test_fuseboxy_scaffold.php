@@ -92,6 +92,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($arguments);
 		// check number of rows
 		self::resetScaffoldConfig();
+		$scaffold['allowToggle'] = true;
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -99,11 +100,39 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( pq('.scaffold-header')->length == 1 );
 		$this->assertTrue( pq('.scaffold-row')->length == 10 );
+		$this->assertTrue( pq('.scaffold-btn-enable')->length == 5 );
+		$this->assertTrue( pq('.scaffold-btn-disable')->length == 5 );
+		// non-exist table
+		self::resetScaffoldConfig();
+		// config {listFilter} in string
+		self::resetScaffoldConfig();
+		$scaffold['allowToggle'] = true;
+		$scaffold['listFilter'] = 'disabled = 0';
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-row')->length == 5 );
+		$this->assertTrue( pq('.scaffold-btn-disable')->length == 5 );
+		$this->assertFalse( pq('.scaffold-btn-enable')->length );
+		// config {listFilter} in array
+		self::resetScaffoldConfig();
+		$scaffold['allowToggle'] = true;
+		$scaffold['listFilter'] = array('sql' => 'disabled = ?', 'param' => array(1));
+		ob_start();
+		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		$output = ob_get_clean();
+		$doc = phpQuery::newDocument($output);
+		$this->assertNoPattern('/PHP ERROR/i', $output);
+		$this->assertTrue( pq('.scaffold-row')->length == 5 );
+		$this->assertTrue( pq('.scaffold-btn-enable')->length == 5 );
+		$this->assertFalse( pq('.scaffold-btn-disable')->length );
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
 
-
+/*
 	// php bug : scaffold config cannot reset clearly
 	// ===> create another test case to avoid it
 	function test__index__enableAllFeatures() {
@@ -1275,7 +1304,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// clean-up
 		R::wipe($scaffold['beanType']);
 	}
-
+*/
 
 	function test__uploadFile() {
 		// UNDER CONSTRUCTION

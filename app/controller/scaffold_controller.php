@@ -9,6 +9,7 @@
 		- fix {editMode=inline} when invalid mode was specified
 		- no delete button in edit form (only available in listing)
 		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
+		- allow {listFilter} as array for sql parameter binding
 	</history>
 	<history version="1.4.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -55,6 +56,10 @@
 				<string name="paramEdit" optional="yes" comments="extra url-param for [edit] button" />
 				<string name="editMode" optional="yes" comments="inline|modal|classic" />
 				<string name="modalSize" optional="yes" comments="normal|large|max" />
+				<array_or_string name="listFilter" optional="yes">
+					<string name="sql" optional="yes" oncondition="when {listFilter} is array" />
+					<array name="param" optional="yes" oncondition="when {listFilter} is array" />
+				</array_or_string>
 				<string name="listFilter" optional="yes" />
 				<string name="listOrder" optional="yes" default="order by {seq} (if any), then by {id}" />
 				<array name="listField" optional="yes" comments="determine fields to display in listing">
@@ -145,6 +150,12 @@ $scaffold['listField'] = isset($scaffold['listField']) ? $scaffold['listField'] 
 
 // param default : list filter & order
 $scaffold['listFilter'] = isset($scaffold['listFilter']) ? $scaffold['listFilter'] : '1 = 1 ';
+if ( is_string($scaffold['listFilter']) ) {
+	$scaffold['listFilter'] = array(
+		'sql' => $scaffold['listFilter'],
+		'param' => array(),
+	);
+}
 if ( $scaffold['allowSort'] and isset($arguments['sortField']) ) {
 	// use sort-field specified (when necessary)
 	$scaffold['listOrder'] = "ORDER BY {$arguments['sortField']} ";
@@ -301,7 +312,7 @@ switch ( $fusebox->action ) :
 	// default show index
 	case 'index':
 		// get all records
-		$beanList = R::find($scaffold['beanType'], "{$scaffold['listFilter']} {$scaffold['listOrder']}");
+		$beanList = R::find($scaffold['beanType'], $scaffold['listFilter']['sql'].' '.$scaffold['listOrder'], $scaffold['listFilter']['param']);
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
 			if ( $scaffold['editMode'] != 'inline' ) {
