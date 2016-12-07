@@ -119,12 +119,22 @@
 	</io>
 </fusedoc>
 */
+$_hasFileField = false;
+if ( isset($scaffold['fieldConfig']) ) {
+	foreach ( $scaffold['fieldConfig'] as $_key => $_field ) {
+		if ( isset($_field['format']) and $_field['format'] == 'file' ) {
+			$_hasFileField = true;
+			break;
+		}
+	}
+}
+
 // validation
 F::error('configuration $scaffold["beanType"] is required', empty($scaffold['beanType']));
 F::error('configuration $scaffold["beanType"] cannot contain underscore', strpos($scaffold['beanType'], '_') !== false);
 F::error('configuration $scaffold["layoutPath"] is required', empty($scaffold['layoutPath']));
-F::error('configuration $fusebox->config["uploadDir"] is required', empty($fusebox->config['uploadDir']) and F::is('*.upload_file'));
-F::error('configuration $fusebox->config["uploadBaseUrl"] is required', empty($fusebox->config['uploadBaseUrl']) and F::is('*.upload_file'));
+F::error('configuration $fusebox->config["uploadDir"] is required', empty($fusebox->config['uploadDir']) and $_hasFileField);
+F::error('configuration $fusebox->config["uploadBaseUrl"] is required', empty($fusebox->config['uploadBaseUrl']) and $_hasFileField);
 F::error('Log component is required', !empty($scaffold['writeLog']) and !class_exists('Log'));
 
 // obtain all columns of specified table
