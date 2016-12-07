@@ -48,13 +48,17 @@
 					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
 						<?php foreach ( $cols as $i => $col ) : ?>
 							<div class="form-group <?php echo $col; ?>" style="margin-bottom: 5px;">
-								<div class="col-sm-12">
-									<?php
+								<div class="col-sm-12"><?php
+									if ( isset($scaffold['fieldConfig'][$col]) ) :
 										$field = $scaffold['fieldConfig'][$col];
 										$field['name'] = $col;
 										include 'input.php';
-									?>
-								</div>
+									else :
+										?><div class="form-control" readonly>
+											<em class="small text-muted text-nowrap">Field [<?php echo $col; ?>] is undefined</em>
+										</div><?php
+									endif;
+								?></div>
 							</div>
 						<?php endforeach; ?>
 					</td>
