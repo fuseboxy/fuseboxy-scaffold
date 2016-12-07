@@ -48,7 +48,7 @@
 									</div>
 								<!-- file : show link -->
 								<?php elseif ( $isFile and !empty($bean[$col]) ) : ?>
-									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo $bean[$col]; ?></a>
+									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo basename($bean[$col]); ?></a>
 								<!-- many-to-many : show alias/name/etc. -->
 								<?php elseif ( $isManyToMany ) : ?>
 									<?php foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) : ?>
