@@ -60,8 +60,8 @@
 				<string name="editMode" optional="yes" comments="inline|modal|classic" />
 				<string name="modalSize" optional="yes" comments="normal|large|max" />
 				<array_or_string name="listFilter" optional="yes">
-					<string name="sql" optional="yes" oncondition="when {listFilter} is array" />
-					<array name="param" optional="yes" oncondition="when {listFilter} is array" />
+					<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />
+					<array name="1" optional="yes" comments="parameter" oncondition="when {listFilter} is array" />
 				</array_or_string>
 				<string name="listFilter" optional="yes" />
 				<string name="listOrder" optional="yes" default="order by {seq} (if any), then by {id}" />
@@ -171,8 +171,8 @@ $scaffold['listField'] = isset($scaffold['listField']) ? $scaffold['listField'] 
 $scaffold['listFilter'] = isset($scaffold['listFilter']) ? $scaffold['listFilter'] : '1 = 1 ';
 if ( is_string($scaffold['listFilter']) ) {
 	$scaffold['listFilter'] = array(
-		'sql' => $scaffold['listFilter'],
-		'param' => array(),
+		$scaffold['listFilter'],
+		array(),
 	);
 }
 if ( $scaffold['allowSort'] and isset($arguments['sortField']) ) {
@@ -320,7 +320,7 @@ switch ( $fusebox->action ) :
 	// default show index
 	case 'index':
 		// get all records
-		$beanList = R::find($scaffold['beanType'], $scaffold['listFilter']['sql'].' '.$scaffold['listOrder'], $scaffold['listFilter']['param']);
+		$beanList = R::find($scaffold['beanType'], $scaffold['listFilter'][0].' '.$scaffold['listOrder'], $scaffold['listFilter'][1]);
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
 			if ( $scaffold['editMode'] != 'inline' ) {

@@ -127,7 +127,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// config {listFilter} in array
 		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
-		$scaffold['listFilter'] = array('sql' => 'disabled = ?', 'param' => array(1));
+		$scaffold['listFilter'] = array('disabled = ?', array(true));
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
