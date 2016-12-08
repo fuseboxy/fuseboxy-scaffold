@@ -3,12 +3,12 @@
 	<io>
 		<in>
 			<structure name="$xfa">
-				<string name="ajaxUpload" />
-				<string name="ajaxUploadProgress" />
+				<string name="ajaxUpload" comments="for [format=file] field" />
+				<string name="ajaxUploadProgress" comments="for [format=file] field" />
 			</structure>
 			<structure name="$field">
 				<string name="name" />
-				<string name="format" comments="normal|output|textarea|radio|checkbox|one-to-many|many-to-many" default="normal" />
+				<string name="format" comments="text|hidden|number|file|output|textarea|radio|checkbox|one-to-many|many-to-many" default="text" />
 				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
 					<string name="~key is option-value~" comments="value is option-text" />
 				</array>
@@ -165,10 +165,10 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	<?php endif; ?>
 
 
-<!-- normal -->
+<!-- text -->
 <?php else : ?>
 	<input
-		type="<?php echo ( empty($field['format']) or $field['format'] == 'normal' ) ? 'text' : $field['format']; ?>"
+		type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		class="form-control input-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo $field['_value_']; ?>"

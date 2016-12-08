@@ -42,8 +42,17 @@
 							<div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>">
 								<!-- file & preview : show thumbnail -->
 								<?php if ( $isFile and !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) : ?>
-									<div class="thumbnail" style="margin-bottom: 0; max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?>">
-										<a href="<?php echo $bean[$col]; ?>" target="_blank"><img src="<?php echo $bean[$col]; ?>" alt="" /></a>
+									<div>
+									<a
+										href="<?php echo $bean[$col]; ?>"
+										class="thumbnail"
+										target="_blank"
+										style="margin: 5px 0 0 0; max-width: 100%; <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?> <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?>"
+										title="<?php echo basename($bean[$col]); ?>"
+									><img
+										alt=""
+										src="<?php echo $bean[$col]; ?>"
+									/></a>
 									</div>
 								<!-- file : show link -->
 								<?php elseif ( $isFile and !empty($bean[$col]) ) : ?>

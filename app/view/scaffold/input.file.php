@@ -1,4 +1,30 @@
-<?php $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid(); ?>
+<?php /*
+<fusedoc>
+	<io>
+		<in>
+			<structure name="$xfa">
+				<string name="ajaxUpload" />
+				<string name="ajaxUploadProgress" />
+			</structure>
+			<structure name="$field">
+				<string name="name" />
+				<string name="format" comments="file" />
+				<boolean name="required" />
+				<boolean name="readonly" comments="output does not pass value; readonly does" />
+				<string name="style" comments="apply to preview image" />
+				<string name="filesize" optional="yes" comments="max file size in bytes" />
+				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
+				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
+				<boolean name="preview" optional="yes" />
+			</structure>
+			<object name="$bean" comments="for field value" />
+		</in>
+		<out />
+	</io>
+</fusedoc>
+*/
+$uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
+?>
 <div
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file"
@@ -36,12 +62,17 @@
 		<div class="col-xs-9 progress-wrap"></div>
 		<div class="col-xs-3 progress-abort"></div>
 	</div>
-	<?php if ( !empty($field['preview']) ) : ?>
-		<div class="thumbnail" style="margin-bottom: 0; margin-top: 5px; max-width: 100%; <?php if ( empty($field['_value_']) ) : ?>display: none;<?php endif; ?>">
-			<?php if ( !empty($field['_value_']) ) : ?>
-				<a href="<?php echo $field['_value_']; ?>" target="_blank"><img src="<?php echo $field['_value_']; ?>" alt="" /></a>
-			<?php endif; ?>
-		</div>
+	<?php if ( !empty($field['preview']) and !empty($field['_value_']) ) : ?>
+		<a
+			href="<?php echo $field['_value_']; ?>"
+			class="thumbnail"
+			target="_blank"
+			style="margin: 5px 0 0 0; width: auto; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
+			title="<?php echo basename($field['_value_']); ?>"
+		><img
+			alt=""
+			src="<?php echo $field['_value_']; ?>"
+		/></a>
 	<?php endif; ?>
 </div>
 
