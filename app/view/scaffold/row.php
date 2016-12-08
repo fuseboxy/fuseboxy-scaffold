@@ -13,8 +13,6 @@
 						<string name="format" />
 						<!-- for [format=file] only -->
 						<boolean name="preview" />
-						<!-- for [format=checkbox] only -->
-						<boolean name="many-to-many" />
 					</structure>
 				</array>
 			</structure>
@@ -34,8 +32,9 @@
 						<?php foreach ( $cols as $i => $col ) : ?>
 							<?php
 								$objectName = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
-								$isManyToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' and !empty($scaffold['fieldConfig'][$col]['many-to-many']) );
-								$isOneToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' and empty($scaffold['fieldConfig'][$col]['many-to-many']) );
+								$isManyToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'many-to-many' );
+								$isOneToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'one-to-many' );
+								$isCheckbox = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' );
 								$isObject = is_object($bean[$objectName]);
 								$isFile = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
 								$isHidden = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
@@ -49,6 +48,9 @@
 								<!-- file : show link -->
 								<?php elseif ( $isFile and !empty($bean[$col]) ) : ?>
 									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo basename($bean[$col]); ?></a>
+								<!-- checkbox : turn list into items -->
+								<?php elseif ( $isCheckbox and !empty($bean[$col]) ) : ?>
+									<div><?php echo implode('</div><div>', $bean[$col]); ?></div>
 								<!-- many-to-many : show alias/name/etc. -->
 								<?php elseif ( $isManyToMany ) : ?>
 									<?php foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) : ?>
@@ -94,8 +96,7 @@
 									</div>
 								<!-- show text -->
 								<?php else : ?>
-									<?php eval('echo nl2br($bean->'.$col.');'); ?>
-									<?php //echo nl2br($bean[$col]); ?>
+									<?php echo nl2br($bean[$col]); ?>
 								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
