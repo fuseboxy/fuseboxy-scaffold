@@ -50,24 +50,20 @@
 		data-toggle="ajax-submit"
 	<?php endif; ?>
 >
-
-    <!-- title -->
-    <?php if ( $scaffold['editMode'] == 'modal' ) : ?>
+	<!-- title -->
+	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			<h4 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h4>
 		</div>
 	<?php endif; ?>
-
 	<div class="modal-body">
-
 		<!-- message (if any) -->
 		<?php if ( isset($arguments['flash']) ) : ?>
 			<div class="alert alert-<?php echo isset($arguments['flash']['type']) ? $arguments['flash']['type'] : 'warning'; ?>">
 				<?php echo isset($arguments['flash']['message']) ? $arguments['flash']['message'] : $arguments['flash']; ?>
 			</div>
 		<?php endif; ?>
-
 		<!-- form fields -->
 		<?php foreach ( $scaffold['modalField'] as $colList => $colWidthList ) : ?>
 			<!-- output : horizontal line -->
@@ -81,17 +77,22 @@
 				<?php $colList = explode('|', $colList); ?>
 				<?php $colWidthList = explode('|', $colWidthList); ?>
 				<div class="form-group">
-					<label class="control-label <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-md-2<?php else : ?>col-md-3<?php endif; ?>">
-						<?php foreach ( $colList as $i => $col ) : ?>
-							<?php if ( $i == 0 ) : ?>
-								<?php echo isset($scaffold['displayName'][$col]) ? $scaffold['displayName'][$col] : $col; ?>
-							<?php elseif ( !(isset($scaffold['displayName'][$col]) and empty($scaffold['displayName'][$col])) ) : ?>
-								<small class="text-muted">
-									/ <?php echo isset($scaffold['displayName'][$col]) ? $scaffold['displayName'][$col] : $col; ?>
-								</small>
-							<?php endif; ?>
-						<?php endforeach; ?>
-					</label>
+					<label class="control-label <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-md-2<?php else : ?>col-md-3<?php endif; ?>"><?php
+						foreach ( $colList as $i => $col ) :
+							if ( isset($scaffold['displayName'][$col]) ) {
+								$headerText = $scaffold['displayName'][$col];
+							} elseif ( $col == 'id' ) {
+								$headerText = strtoupper($col);
+							} else {
+								$headerText = ucwords(str_replace('_', ' ', $col));
+							}
+							if ( $i == 0 ) {
+								echo $headerText;
+							} elseif ( !empty($headerText) ) {
+								?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
+							}
+						endforeach;
+					?></label>
 					<div class="row clearfix <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-md-10<?php else : ?>col-md-9<?php endif; ?>">
 						<?php foreach ( $colList as $i => $col ) : ?>
 							<div class="col-md-<?php echo $colWidthList[$i]; ?>">
@@ -103,9 +104,7 @@
 				</div>
 			<?php endif; ?>
 		<?php endforeach; ?>
-
 	</div>
-
 	<!-- button -->
 	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-footer">
@@ -125,5 +124,4 @@
 			</div>
 		</div>
 	<?php endif; ?>
-
 </form>

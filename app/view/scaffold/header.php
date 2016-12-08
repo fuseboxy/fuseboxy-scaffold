@@ -40,7 +40,13 @@
 									$sortUrl = "{$xfa['sort']}&sortField={$col}";
 									if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
 								}
-								$headerText = isset($scaffold['displayName'][$col]) ? $scaffold['displayName'][$col] : $col;
+								if ( isset($scaffold['displayName'][$col]) ) {
+									$headerText = $scaffold['displayName'][$col];
+								} elseif ( $col == 'id' ) {
+									$headerText = strtoupper($col);
+								} else {
+									$headerText = ucwords(str_replace('_', ' ', $col));
+								}
 								if ( $isSortByThisField ) {
 									$headerIcon = $isAscendingOrder ? 'fa fa-caret-up' : 'fa fa-caret-down';
 									$headerText .= " <i class='{$headerIcon}'></i>";
