@@ -79,7 +79,7 @@
 				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
-						<string name="format" comments="normal|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="normal" />
+						<string name="format" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="text" />
 						<array name="options" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
 						</array>
@@ -281,6 +281,7 @@ foreach ( $arr as $i => $item ) {
 
 // param default : library path
 $scaffold['libPath'] = isset($scaffold['libPath']) ? $scaffold['libPath'] : (dirname(F::config('appPath')).'/lib/');
+$scaffold['libPath'] .= in_array(substr($scaffold['libPath'], -1), array('/','\\')) ? '' : '/';
 
 // param default : write log
 $scaffold['writeLog'] = isset($scaffold['writeLog']) ? $scaffold['writeLog'] : false;
@@ -670,14 +671,12 @@ switch ( $fusebox->action ) :
 		}
 		// go through every file in upload directory
 		if ( !empty($nonOrphanFiles) ) {
-			foreach (glob($arguments['uploadDir']."*.*") as $filename) {
+			foreach (glob($arguments['uploadDir']."*.*") as $filePath) {
 				// only remove orphan file older than one day
 				// ===> avoid remove file which ajax-upload by user but not save record yet
-				$isOrphan = !in_array($filename, $nonOrphanFiles);
-				$isDayOld = ( filemtime($arguments['uploadDir'].$filename) < strtotime(date('-1 day')) );
-				if ( $isOrphan and $isDayOld ) {
-					unlink($arguments['uploadDir'].$filename);
-				}
+				$isOrphan = !in_array(basename($filePath), $nonOrphanFiles);
+				$isDayOld = ( filemtime($filePath) < strtotime(date('-1 day')) );
+				if ( $isOrphan and $isDayOld ) unlink($filePath);
 			}
 		}
 		break;
