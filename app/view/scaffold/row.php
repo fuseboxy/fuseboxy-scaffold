@@ -47,7 +47,7 @@
 										href="<?php echo $bean[$col]; ?>"
 										class="thumbnail"
 										target="_blank"
-										style="margin: 5px 0 0 0; max-width: 100%; <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?> <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?>"
+										style="margin: 5px 0 0 0; max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?>"
 										title="<?php echo basename($bean[$col]); ?>"
 									><img
 										alt=""
