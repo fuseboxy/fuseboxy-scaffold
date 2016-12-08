@@ -619,7 +619,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'classic';
 		$scaffold['fieldConfig'] = array(
 			'myOutput' => array('format' => 'output'),
-			'myText' => array('format' => 'normal', 'placeholder' => 'Please enter here', 'required' => true),
+			'myText' => array('format' => 'text', 'placeholder' => 'Please enter here', 'required' => true),
 			'myTextArea' => array('format' => 'textarea'),
 			'myDropDown' => array('options' => array('abc'=>'ABC', 'xyz'=>'XYZ'), 'default' => 'xyz'),
 			'myRadio' => array('format' => 'radio', 'options' => array('a'=>'A','b'=>'B','c'=>'C')),
@@ -1054,8 +1054,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
-			'alias' => array('format' => 'normal'),
-			'name' => array('format' => 'normal'),
+			'alias' => array('format' => 'text'),
+			'name' => array('format' => 'text'),
 			"multiple" => array('format' => 'checkbox'),
 		);
 		$arguments['data'] = array(
@@ -1124,8 +1124,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
-			'alias' => array('format' => 'normal'),
-			'name' => array('format' => 'normal'),
+			'alias' => array('format' => 'text'),
+			'name' => array('format' => 'text'),
 			"{$childBeanType}_id" => array('format' => 'one-to-many'),
 		);
 		$arguments['data'] = array(
@@ -1199,8 +1199,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
-			'alias' => array('format' => 'normal'),
-			'name' => array('format' => 'normal'),
+			'alias' => array('format' => 'text'),
+			'name' => array('format' => 'text'),
 			"{$anotherBeanType}_id" => array('format' => 'many-to-many'),
 		);
 		$arguments['data'] = array(
@@ -1360,23 +1360,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $fusebox;
 		global $scaffold;
 		$fusebox->action = 'upload_file';
-		// missing config : scaffold-config
-		self::resetScaffoldConfig();
-		try {
-			$hasError = false;
-			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
-			$output = ob_get_clean();
-		} catch (Exception $e) {
-			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
-		}
-		$this->assertTrue($hasError);
-		$this->assertPattern('/configuration \$scaffold\[\"libPath\"\] is required/i', $output);
-		unset($output, $arguments, $fusebox->config['uploadDir']);
 		// missing config : fusebox-config (uploadDir)
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
+		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		try {
 			$hasError = false;
 			ob_start();
@@ -1392,6 +1379,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// missing config : fusebox-config (uploadBaseUrl)
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
+		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
 		try {
 			$hasError = false;
