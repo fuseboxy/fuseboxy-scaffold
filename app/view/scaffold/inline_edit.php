@@ -47,7 +47,7 @@
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
 					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
 						<?php foreach ( $cols as $i => $col ) : ?>
-							<div class="form-group <?php echo $col; ?>" style="margin-bottom: 5px;">
+							<div class="form-group" style="margin-bottom: 5px;">
 								<div class="col-sm-12"><?php
 									if ( isset($scaffold['fieldConfig'][$col]) ) :
 										$field = $scaffold['fieldConfig'][$col];
