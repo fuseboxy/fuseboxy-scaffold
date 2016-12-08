@@ -40,8 +40,8 @@
 								$isHidden = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
 							?>
 							<div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>">
-								<!-- file & preview : show thumbnail -->
-								<?php if ( $isFile and !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) : ?>
+								<!-- preview : show thumbnail -->
+								<?php if ( !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) : ?>
 									<div>
 									<a
 										href="<?php echo $bean[$col]; ?>"
@@ -59,7 +59,7 @@
 									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo basename($bean[$col]); ?></a>
 								<!-- checkbox : turn list into items -->
 								<?php elseif ( $isCheckbox and !empty($bean[$col]) ) : ?>
-									<div><?php echo implode('</div><div>', $bean[$col]); ?></div>
+									<div><?php echo str_replace('_', '</div><div>', $bean[$col]); ?></div>
 								<!-- many-to-many : show alias/name/etc. -->
 								<?php elseif ( $isManyToMany ) : ?>
 									<?php foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) : ?>
