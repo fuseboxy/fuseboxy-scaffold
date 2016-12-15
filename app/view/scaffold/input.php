@@ -108,6 +108,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- checkbox (submit array value) -->
 <?php elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) : ?>
+	<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="" />
 	<?php $optIndex = 0; ?>
 	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
 		<div class="checkbox">

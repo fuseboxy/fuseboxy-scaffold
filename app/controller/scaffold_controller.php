@@ -486,9 +486,9 @@ switch ( $fusebox->action ) :
 			}
 			// fix submitted multi-selection value
 			foreach ( $scaffold['fieldConfig'] as $fieldName => $field ) {
-				// default value when select no item
+				// remove empty item from submitted checkboxes
 				if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
-					$arguments['data'][$fieldName] = isset($arguments['data'][$fieldName]) ? $arguments['data'][$fieldName] : array();
+					$arguments['data'][$fieldName] = array_filter($arguments['data'][$fieldName], 'strlen');
 				}
 				// extract {one-to-many|many-to-many} from submitted data before saving
 				if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
