@@ -19,13 +19,13 @@ $uniqid = uniqid();
 $editor_uniqid = "{$scaffold['beanType']}-input-{$field['name']}-{$uniqid}";
 $hidden_uniqid = "{$scaffold['beanType']}-hidden-{$field['name']}-{$uniqid}";
 ?>
-<!-- ckeditor will auto-transform div[contenteditable] (Wow!!!) -->
+<!-- ckeditor will auto-transform div[contenteditable=true] in document! -->
 <!-- sync value of html-editor and hidden-field by javascript -->
 <div
 	id="<?php echo $editor_uniqid; ?>"
 	class="form-control input-sm"
 	<?php if ( empty($field['readonly']) ) : ?>
-		contenteditable
+		contenteditable="true"
 		onblur="$('#<?php echo $hidden_uniqid; ?>').val( $(this).html() );"
 	<?php endif; ?>
 	style="height: auto; <?php echo isset($field['style']) ? $field['style'] : 'min-height: 10em;'; ?>"
