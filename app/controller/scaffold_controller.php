@@ -1,20 +1,21 @@
 <?php /*
 <fusedoc>
 	<history version="1.0">
-		- allow custom breadcrumb
-		- rename {F::fuseaction} to {F::command}
-		- do not throw error when table not exists (usually at MySQL)
-		- define {uploadBaseUrl} at fusebox-config scope instead of scaffold scope
+		- apply custom breadcrumb
+		- apply {format=wysiwyg} input field
+		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
+		- apply {listFilter} of array for sql parameter binding
+		- deprecate {F::fuseaction} and rename method to {F::command}
 		- deprecate {editField} and only accept {fieldConfig} to avoid any confusion
 		- deprecate {previewBaseUrl} and only accept {uploadBaseUrl} to avoid any confusion
-		- fix {editMode=classic} when not ajax-request
-		- fix {editMode=inline} when invalid mode was specified
-		- no delete button in edit form (only available in listing)
-		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
-		- allow {listFilter} as array for sql parameter binding
-		- remove expired files when uploading file
 		- deprecate {paramNew} and {paramEdit} because it can be easily replaced by session
 		- deprecate {displayName} and replace by {fieldConfig.label} to make the config structure more simple
+		- fix bug of throwing error when table not exists (usually at MySQL)
+		- fix bug of {editMode=classic} when not ajax-request
+		- fix bug of {editMode=inline} when invalid mode was specified
+		- define {uploadBaseUrl} at fusebox-config scope instead of scaffold scope
+		- no delete button in edit form (delete button only available in listing)
+		- remove expired files when uploading file
 	</history>
 	<history version="0.9.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -77,7 +78,7 @@
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
 						<string name="label" optional="yes" comments="display name at table/form header">
-						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="text" />
+						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many|wysiwyg" default="text" />
 						<array name="options" optional="yes" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
 						</array>

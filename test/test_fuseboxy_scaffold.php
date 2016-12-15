@@ -626,6 +626,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'myCheckBox' => array('format' => 'checkbox', 'options' => array('x'=>'X','y'=>'Y','z'=>'Z')),
 			'myOneToMany' => array('format' => 'one-to-many', 'options' => array('A','B','C','D','E')),
 			'myManyToMany' => array('format' => 'many-to-many', 'options' => array('X','Y','Z')),
+			'myHtmlReadonly' => array('format' => 'wysiwyg', 'readonly' => true),
+			'myHtmlEditor' => array('format' => 'wysiwyg'),
 			'myDefault' => array('default' => '999', 'readonly' => true),
 			'myValue' => array('default' => 'abc', 'value' => 'xyz'),
 		);
@@ -656,6 +658,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[myManyToMany][]']")->length == 4 );
 		$this->assertTrue( pq("[name='data[myManyToMany][]']:eq(0)")->val() == '' );
 		$this->assertTrue( pq("[name='data[myManyToMany][]']")->is('input[type=checkbox]') );
+		$this->assertTrue( pq("[id*=input-myHtmlReadonly]")->length == 1 );
+		$this->assertTrue( pq("[id*=input-myHtmlReadonly]")->not('[contenteditable]') );
+		$this->assertFalse( pq("[name='data[myHtmlReadonly]']")->length );
+		$this->assertTrue( pq("[id*=input-myHtmlEditor]")->length == 1 );
+		$this->assertTrue( pq("[id*=input-myHtmlEditor]")->is('[contenteditable]') );
+		$this->assertTrue( pq("[name='data[myHtmlEditor]']")->length == 1 );
 		$this->assertTrue( pq("[name='data[myDefault]']")->length == 1 );
 		$this->assertTrue( pq("[name='data[myDefault]']")->is('input[type=text]') );
 		$this->assertTrue( pq("[name='data[myDefault]']")->val() == 999 );

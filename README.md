@@ -3,7 +3,7 @@
 redbeanphp (included)
 bootstrap-extend
 simple-ajax-uploader (included)
-ckeditor (cdn)
+ckeditor 4.6.x (cdn)
 jquery.validate (cdn)
 formUrl2arguments (enabled)
 

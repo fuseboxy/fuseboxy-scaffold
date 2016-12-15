@@ -8,7 +8,7 @@
 			</structure>
 			<structure name="$field">
 				<string name="name" />
-				<string name="format" comments="text|hidden|number|file|output|textarea|radio|checkbox|one-to-many|many-to-many" default="text" />
+				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|one-to-many|many-to-many|wysiwyg" default="text" />
 				<string name="value" optional="yes" />
 				<string name="default" optional="yes" />
 				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
@@ -142,6 +142,11 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
 		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
 	><?php echo $field['value']; ?></textarea>
+
+
+<!-- html editor -->
+<?php elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) : ?>
+	<?php include 'input.wysiwyg.php'; ?>
 
 
 <!-- file -->
