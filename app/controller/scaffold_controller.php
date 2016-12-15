@@ -14,6 +14,7 @@
 		- allow {listFilter} as array for sql parameter binding
 		- remove expired files when uploading file
 		- deprecate {paramNew} and {paramEdit} because it can be easily replaced by session
+		- deprecate {displayName} and replace by {fieldConfig.label} to make the config structure more simple
 	</history>
 	<history version="0.9.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
@@ -68,9 +69,6 @@
 					<string name="+" comments="when no key specified, value is column-list" />
 					<string name="~column-list~" comments="when key was specified, key is column list and value is column width" />
 				</array>
-				<structure name="displayName" optional="yes" comments="display name at table header">
-					<string name="~column~" />
-				</structure>
 				<array name="modalField" optional="yes" comments="determine fields to show in modal form">
 					<list name="+" comments="when no key specified, value is column list" />
 					<list name="~column-list~" comments="when key was specified, key is column list and value is column width list" />
@@ -78,6 +76,7 @@
 				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
+						<string name="label" optional="yes" comments="display name at table/form header">
 						<string name="format" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many" default="text" />
 						<array name="options" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
@@ -219,15 +218,22 @@ if ( !isset($scaffold['fieldConfig']['id']) ) {
 	$scaffold['fieldConfig']['id'] = array();
 }
 
-// param default : edit field (field {id} must be readonly)
+// param default : label
+foreach ( $scaffold['fieldConfig'] as $_key => $_val ) {
+	if ( !isset($_val['label']) ) {
+		$scaffold['fieldConfig'][$_key]['label'] = ( $_key == 'id' ) ? strtoupper($_key) : ucwords(str_replace('_', ' ', $_key));
+	}
+}
+
+// param default : field config (field {id} must be readonly)
 $scaffold['fieldConfig']['id']['readonly'] = true;
 
-// param default : edit field (field {seq} must be number)
+// param default : field config (field {seq} must be number)
 if ( isset($scaffold['fieldConfig']['seq']) ) {
 	$scaffold['fieldConfig']['seq']['format'] = 'number';
 }
 
-// param default : edit field (field {disabled} is dropdown by default)
+// param default : field config (field {disabled} is dropdown by default)
 if ( isset($scaffold['fieldConfig']['disabled']) and empty($scaffold['fieldConfig']['disabled']) ) {
 	$scaffold['fieldConfig']['disabled'] = array('options' => array('0' => 'enable', '1' => 'disable'));
 }

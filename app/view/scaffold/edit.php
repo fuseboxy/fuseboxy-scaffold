@@ -6,14 +6,12 @@
 				<string name="beanType" />
 				<string name="editMode" comments="inline|modal|classic" />
 				<string name="modalSize" comments="normal|large|max" />
-				<structure name="displayName" comments="display name at table header">
-					<string name="~column~" />
-				</structure>
 				<structure name="modalField">
 					<list name="~column list~" comments="value is column width list" delim="|" />
 				</structure>
 				<structure name="fieldConfig">
 					<structure name="~column~">
+						<string name="label" comments="display name at table/form header" />
 						<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
 						<array name="options" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
@@ -79,13 +77,7 @@
 				<div class="form-group">
 					<label class="control-label <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-md-2<?php else : ?>col-md-3<?php endif; ?>"><?php
 						foreach ( $colList as $i => $col ) :
-							if ( isset($scaffold['displayName'][$col]) ) {
-								$headerText = $scaffold['displayName'][$col];
-							} elseif ( $col == 'id' ) {
-								$headerText = strtoupper($col);
-							} else {
-								$headerText = ucwords(str_replace('_', ' ', $col));
-							}
+							$headerText = $scaffold['fieldConfig'][$col]['label'];
 							if ( $i == 0 ) {
 								echo $headerText;
 							} elseif ( !empty($headerText) ) {

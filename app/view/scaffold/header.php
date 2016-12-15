@@ -8,8 +8,10 @@
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
 					<string name="~column-list~" comments="column width" />
 				</array>
-				<structure name="displayName" comments="display name at table header">
-					<string name="~column~" />
+				<structure name="fieldConfig">
+					<structure name="~fieldName~">
+						<string name="label" />
+					</structure>
 				</structure>
 			</structure>
 			<structure name="$xfa">
@@ -40,14 +42,8 @@
 									$sortUrl = "{$xfa['sort']}&sortField={$col}";
 									if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
 								}
-								if ( isset($scaffold['displayName'][$col]) ) {
-									$headerText = $scaffold['displayName'][$col];
-								} elseif ( $col == 'id' ) {
-									$headerText = strtoupper($col);
-								} else {
-									$headerText = ucwords(str_replace('_', ' ', $col));
-								}
-								if ( $isSortByThisField ) {
+								$headerText = $scaffold['fieldConfig'][$col]['label'];
+								if ( $isSortByThisField and !empty($headerText) ) {
 									$headerIcon = $isAscendingOrder ? 'fa fa-caret-up' : 'fa fa-caret-down';
 									$headerText .= " <i class='{$headerIcon}'></i>";
 								}
