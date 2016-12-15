@@ -1,6 +1,6 @@
 <?php /*
 <fusedoc>
-	<history version="1.5">
+	<history version="1.0">
 		- allow custom breadcrumb
 		- rename {F::fuseaction} to {F::command}
 		- do not throw error when table not exists (usually at MySQL)
@@ -13,27 +13,28 @@
 		- apply {format=one-to-many|many-to-many} instead of using {format=checkbox} in order to make things more clear
 		- allow {listFilter} as array for sql parameter binding
 		- remove expired files when uploading file
+		- deprecate {paramNew} and {paramEdit} because it can be easily replaced by session
 	</history>
-	<history version="1.4.1">
+	<history version="0.9.1">
 		- accept {filesize} in string format (e.g. 1MB, 2k)
 		- rename {previewBaseUrl} to {uploadBaseUrl} for better understanding
 		- force {uploadBaseUrl} compulsory if there is [format=file] field
 		- fix bug in {scriptPath} setting
 	</history>
-	<history version="1.4">apply {scriptPath} for further customization on user interface</history>
-	<history version="1.3.2">debug : deselect all checkbox and remove all one-to-many/many-to-many relations</history>
-	<history version="1.3.1">debug : ajax upload file-with-space-in-name will cause filename url-encoded</history>
-	<history version="1.3">apply {writeLog} argument and write CRUD operation log</history>
-	<history version="1.2.1">debug : retain url params when sorting</history>
-	<history version="1.2">apply {allowSort} argument and allow click header to sort</history>
-	<history version="1.1.2">debug : default {listFilter} to {1 = 1} to make scaffold compatible to both RedBean 3.x and 4.x</history>
-	<history version="1.1.1">debug : allow no seq field</history>
-	<history version="1.1">
+	<history version="0.9">apply {scriptPath} for further customization on user interface</history>
+	<history version="0.8.2">debug : deselect all checkbox and remove all one-to-many/many-to-many relations</history>
+	<history version="0.8.1">debug : ajax upload file-with-space-in-name will cause filename url-encoded</history>
+	<history version="0.8">apply {writeLog} argument and write CRUD operation log</history>
+	<history version="0.7.1">debug : retain url params when sorting</history>
+	<history version="0.7">apply {allowSort} argument and allow click header to sort</history>
+	<history version="0.6.2">debug : default {listFilter} to {1 = 1} to make scaffold compatible to both RedBean 3.x and 4.x</history>
+	<history version="0.6.1">debug : allow no seq field</history>
+	<history version="0.6">
 		- accept <fieldConfig> as <editField>
 		- apply <editMode=classic>
 		- separate <modal.php> from <list.php>
 	</history>
-	<history version="1.0">
+	<history version="0.5">
 		- scaffold config
 		- can define layout
 		- can choose columns in listing
@@ -55,8 +56,6 @@
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
 				<boolean name="allowSort" optional="yes" default="false" />
-				<string name="paramNew" optional="yes" comments="extra url-param for [new] button" />
-				<string name="paramEdit" optional="yes" comments="extra url-param for [edit] button" />
 				<string name="editMode" optional="yes" comments="inline|modal|classic" />
 				<string name="modalSize" optional="yes" comments="normal|large|max" />
 				<array_or_string name="listFilter" optional="yes">
@@ -162,10 +161,6 @@ $scaffold['allowEdit'] = isset($scaffold['allowEdit']) ? $scaffold['allowEdit'] 
 $scaffold['allowToggle'] = isset($scaffold['allowToggle']) ? $scaffold['allowToggle'] : true;
 $scaffold['allowDelete'] = isset($scaffold['allowDelete']) ? $scaffold['allowDelete'] : false;
 $scaffold['allowSort'] = isset($scaffold['allowSort']) ? $scaffold['allowSort'] : false;
-
-// param default : extra param
-$scaffold['paramNew'] = isset($scaffold['paramNew']) ? $scaffold['paramNew'] : '';
-$scaffold['paramEdit'] = isset($scaffold['paramEdit']) ? $scaffold['paramEdit'] : '';
 
 // param default : edit mode
 $scaffold['editMode'] = !empty($scaffold['editMode']) ? $scaffold['editMode'] : 'inline';
@@ -334,12 +329,12 @@ switch ( $fusebox->action ) :
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
 			if ( $scaffold['editMode'] != 'inline' ) {
-				$xfa['quick'] = "{$fusebox->controller}.quick_new".$scaffold['paramNew'];
+				$xfa['quick'] = "{$fusebox->controller}.quick_new";
 			}
-			$xfa['new'] = "{$fusebox->controller}.new".$scaffold['paramNew'];
+			$xfa['new'] = "{$fusebox->controller}.new";
 		}
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['paramEdit'];
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
 		}
 		if ( $scaffold['allowDelete'] ) {
 			$xfa['delete'] = "{$fusebox->controller}.delete";
@@ -382,7 +377,7 @@ switch ( $fusebox->action ) :
 		// define exit point
 		// ===> refer to index
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['paramEdit'];
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
 		}
 		if ( $scaffold['allowDelete'] ) {
 			$xfa['delete'] = "{$fusebox->controller}.delete";
