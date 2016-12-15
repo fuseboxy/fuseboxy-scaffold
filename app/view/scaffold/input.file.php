@@ -70,7 +70,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
 			style="margin: 5px 0 0 0; width: auto; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 			title="<?php echo basename($field['_value_']); ?>"
 		><img
-			alt=""
+			alt="<?php echo basename($field['_value_']); ?>"
 			src="<?php echo $field['_value_']; ?>"
 		/></a>
 	<?php endif; ?>
