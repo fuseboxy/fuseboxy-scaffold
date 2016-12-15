@@ -627,6 +627,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'myOneToMany' => array('format' => 'one-to-many', 'options' => array('A','B','C','D','E')),
 			'myManyToMany' => array('format' => 'many-to-many', 'options' => array('X','Y','Z')),
 			'myDefault' => array('default' => '999', 'readonly' => true),
+			'myValue' => array('default' => 'abc', 'value' => 'xyz'),
 		);
 		ob_start();
 		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
@@ -656,6 +657,8 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[myDefault]']")->is('input[type=text]') );
 		$this->assertTrue( pq("[name='data[myDefault]']")->val() == 999 );
 		$this->assertTrue( pq("[name='data[myDefault]']")->is('[readonly]') );
+		$this->assertTrue( pq("[name='data[myValue]']")->length == 1 );
+		$this->assertTrue( pq("[name='data[myValue]']")->val() == 'xyz' );
 		// with detail {fieldConfig} specified
 		self::resetScaffoldConfig();
 		$scaffold['editMode'] = 'classic';

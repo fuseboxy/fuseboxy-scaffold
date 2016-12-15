@@ -9,6 +9,8 @@
 			<structure name="$field">
 				<string name="name" />
 				<string name="format" comments="file" />
+				<string name="value" optional="yes" />
+				<string name="default" optional="yes" />
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
 				<string name="style" comments="apply to preview image" />
@@ -43,7 +45,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
 				<button
 					type="button"
 					class="btn btn-sm btn-default btn-remove"
-					style="border-right: 0; <?php if ( empty($field['_value_']) ) : ?>display: none;<?php endif; ?>"
+					style="border-right: 0; <?php if ( empty($field['value']) ) : ?>display: none;<?php endif; ?>"
 				><i class="fa fa-times"></i></button>
 			</span>
 		<?php endif; ?>
@@ -51,7 +53,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
 			type="text"
 			class="form-control input-sm"
 			name="data[<?php echo $field['name']; ?>]"
-			value="<?php echo $field['_value_']; ?>"
+			value="<?php echo $field['value']; ?>"
 			placeholder="No file chosen"
 			readonly
 			<?php if ( !empty($field['required']) ) echo 'required'; ?>
@@ -62,16 +64,16 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
 		<div class="col-xs-9 progress-wrap"></div>
 		<div class="col-xs-3 progress-abort"></div>
 	</div>
-	<?php if ( !empty($field['preview']) and !empty($field['_value_']) ) : ?>
+	<?php if ( !empty($field['preview']) and !empty($field['value']) ) : ?>
 		<a
-			href="<?php echo $field['_value_']; ?>"
+			href="<?php echo $field['value']; ?>"
 			class="thumbnail"
 			target="_blank"
 			style="margin: 5px 0 0 0; width: auto; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
-			title="<?php echo basename($field['_value_']); ?>"
+			title="<?php echo basename($field['value']); ?>"
 		><img
-			alt="<?php echo basename($field['_value_']); ?>"
-			src="<?php echo $field['_value_']; ?>"
+			alt="<?php echo basename($field['value']); ?>"
+			src="<?php echo $field['value']; ?>"
 		/></a>
 	<?php endif; ?>
 </div>
