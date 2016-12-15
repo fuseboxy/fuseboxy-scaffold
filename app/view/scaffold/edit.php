@@ -2,6 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<structure name="$xfa">
+				<string name="submit" optional="yes" />
+			</structure>
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" comments="inline|modal|classic" />
