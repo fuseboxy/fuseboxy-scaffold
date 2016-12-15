@@ -9,8 +9,7 @@
 			<structure name="$field">
 				<string name="name" />
 				<string name="format" comments="file" />
-				<string name="value" optional="yes" />
-				<string name="default" optional="yes" />
+				<string name="value" />
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
 				<string name="style" comments="apply to preview image" />
@@ -19,7 +18,6 @@
 				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
 				<boolean name="preview" optional="yes" />
 			</structure>
-			<object name="$bean" comments="for field value" />
 		</in>
 		<out />
 	</io>
