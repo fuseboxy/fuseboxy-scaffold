@@ -661,7 +661,7 @@ switch ( $fusebox->action ) :
 		}
 		// go through every file in upload directory
 		if ( !empty($nonOrphanFiles) ) {
-			foreach (glob($arguments['uploadDir']."*.*") as $filePath) {
+			foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
 				// only remove orphan file older than one day
 				// ===> avoid remove file which ajax-upload by user but not save record yet
 				// ===> (skip file age checking when unit-test)
@@ -671,7 +671,7 @@ switch ( $fusebox->action ) :
 				} else {
 					$isDayOld = true;
 				}
-				$isDeleted = ( pathinfo($path, PATHINFO_EXTENSION) == 'DELETED' );
+				$isDeleted = ( pathinfo($filePath, PATHINFO_EXTENSION) == 'DELETED' );
 				// archive expired file by appending {.DELETED} extension
 				// ===> avoid accidentally removing any precious data
 				// ===> (rely on server administrator to remove the {*.DELETE} files explicitly)
