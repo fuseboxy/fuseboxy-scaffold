@@ -664,8 +664,13 @@ switch ( $fusebox->action ) :
 			foreach (glob($arguments['uploadDir']."*.*") as $filePath) {
 				// only remove orphan file older than one day
 				// ===> avoid remove file which ajax-upload by user but not save record yet
+				// ===> (skip file age checking when unit-test)
 				$isOrphan = !in_array(basename($filePath), $nonOrphanFiles);
-				$isDayOld = ( filemtime($filePath) < strtotime(date('-1 day')) );
+				if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
+					$isDayOld = ( filemtime($filePath) < strtotime(date('-1 day')) );
+				} else {
+					$isDayOld = true;
+				}
 				if ( $isOrphan and $isDayOld ) unlink($filePath);
 			}
 		}
