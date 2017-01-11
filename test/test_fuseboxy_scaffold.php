@@ -1505,14 +1505,14 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($output);
 		// define essential param
 		$arguments['fieldName'] = 'poster';
-		$arguments['uploadDir'] = $fusebox->config['uploadDir'].'/'.$scaffold['beanType'].'/'.$arguments['fieldName'];
+		$arguments['uploadDir'] = "{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/{$arguments['fieldName']}/";
 		// create dummy records
 		self::resetScaffoldConfig();
 		for ($i=0; $i<5; $i++) {
 			$bean = R::dispense($scaffold['beanType']);
 			$bean->import(array(
 				'name' => "Foo Bar #{$i}",
-				'poster' => $fusebox->config['uploadBaseUrl'].'/'.$scaffold['beanType'].'/'.$arguments['fieldName'],
+				'poster' => "{$fusebox->config['uploadBaseUrl']}/{$scaffold['beanType']}/{$arguments['fieldName']}/poster_{$i}.png",
 			));
 			$this->assertTrue( R::store($bean) );
 		}
@@ -1520,22 +1520,23 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		try {
 			$hasError = false;
-			ob_start();
 			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
-			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
 			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertFalse($hasError);
-
-
-		// (UNDER CONSTRUCTION)
-
-
-
+		$hasFile = false;
+		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
+			$hasFile = true;
+			$this->assertTrue( pathinfo($filePath, PATHINFO_EXTENSION) == 'DELETED' );
+		}
+		$this->assertTrue($hasFile);
 		unset($output);
 		// clean-up
+		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
+			rename($filePath, substr($filePath, 0, strlen($filePath)-8));
+		}
 		R::wipe($scaffold['beanType']);
 	}
 
