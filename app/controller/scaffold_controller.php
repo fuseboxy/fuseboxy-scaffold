@@ -671,7 +671,14 @@ switch ( $fusebox->action ) :
 				} else {
 					$isDayOld = true;
 				}
-				if ( $isOrphan and $isDayOld ) unlink($filePath);
+				$isDeleted = ( pathinfo($path, PATHINFO_EXTENSION) == 'DELETED' );
+				// archive expired file by appending {.DELETED} extension
+				// ===> avoid accidentally removing any precious data
+				// ===> (rely on server administrator to remove the {*.DELETE} files explicitly)
+				if ( $isOrphan and $isDayOld and !$isDeleted ) {
+					$renameResult = rename($filePath, "{$filePath}.DELETED");
+					F::error('Error occurred while renaming expired file', !$renameResult);
+				}
 			}
 		}
 		break;
