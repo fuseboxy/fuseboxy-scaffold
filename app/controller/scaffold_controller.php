@@ -449,26 +449,21 @@ switch ( $fusebox->action ) :
 		F::error("id was not specified", empty($arguments['id']));
 		F::error("argument [disabled] is required", !isset($arguments['disabled']));
 		// save record
-		try {
-			$bean = R::load($scaffold['beanType'], $arguments['id']);
-			$bean->disabled = $arguments['disabled'];
-			$id = R::store($bean);
-			// write log (when necessary)
-			if ( $scaffold['writeLog'] ) {
-				$logResult = Log::write(array(
-					'action' => empty($arguments['disabled']) ? "ENABLE_{$scaffold['beanType']}" : "DISABLE_{$scaffold['beanType']}",
-					'entity_type' => $scaffold['beanType'],
-					'entity_id' => $arguments['id'],
-				));
-				F::error(Log::error(), !$logResult);
-			}
-			// back to list
-			F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest());
-			F::redirect($fusebox->controller, !F::ajaxRequest());
-		// catch any error
-		} catch (Exception $e) {
-			F::error($e->getMessage());
+		$bean = R::load($scaffold['beanType'], $arguments['id']);
+		$bean->disabled = $arguments['disabled'];
+		$id = R::store($bean);
+		// write log (when necessary)
+		if ( $scaffold['writeLog'] ) {
+			$logResult = Log::write(array(
+				'action' => empty($arguments['disabled']) ? "ENABLE_{$scaffold['beanType']}" : "DISABLE_{$scaffold['beanType']}",
+				'entity_type' => $scaffold['beanType'],
+				'entity_id' => $arguments['id'],
+			));
+			F::error(Log::error(), !$logResult);
 		}
+		// back to list
+		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest());
+		F::redirect($fusebox->controller, !F::ajaxRequest());
 		break;
 
 
@@ -477,67 +472,62 @@ switch ( $fusebox->action ) :
 		F::error('data were not submitted', empty($arguments['data']));
 		F::error('create record not allowed', !$scaffold['allowNew'] and empty($arguments['data']['id']));
 		F::error('update record not allowed', !$scaffold['allowEdit'] and !empty($arguments['data']['id']));
-		try {
-			// get current bean or create new bean
-			if ( !empty($arguments['data']['id']) ) {
-				$bean = R::load($scaffold['beanType'], $arguments['data']['id']);
-				if ( $scaffold['writeLog'] ) $beanBeforeSave = $bean->export();
+		// get current bean or create new bean
+		if ( !empty($arguments['data']['id']) ) {
+			$bean = R::load($scaffold['beanType'], $arguments['data']['id']);
+			if ( $scaffold['writeLog'] ) $beanBeforeSave = $bean->export();
+		} else {
+			$bean = R::dispense($scaffold['beanType']);
+		}
+		// fix submitted multi-selection value
+		foreach ( $scaffold['fieldConfig'] as $fieldName => $field ) {
+			// remove empty item from submitted checkboxes
+			if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
+				$arguments['data'][$fieldName] = array_filter($arguments['data'][$fieldName], 'strlen');
+			}
+			// extract {one-to-many|many-to-many} from submitted data before saving
+			if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
+				$associateName = str_replace('_id', '', $fieldName);
+				$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
+				$bean->{$propertyName} = array();
+				foreach ( $arguments['data'][$fieldName] as $associateID ) {
+					$associateBean = R::load($associateName, $associateID);
+					$bean->{$propertyName}[] = $associateBean;
+				}
+				unset($arguments['data'][$fieldName]);
+			// turn checkbox into pipe-delimited list
+			} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
+				$arguments['data'][$fieldName] = implode('|', $arguments['data'][$fieldName]);
+			}
+		}
+		// put submitted data into bean
+		$bean->import($arguments['data']);
+		// default value
+		// ===> allow no <seq> field, but <disabled> field is compulsory
+		if ( !isset($bean->disabled) or $bean->disabled == '' ) {
+			$bean->disabled = 0;
+		}
+		if ( isset($bean->seq) and $bean->seq == '' ) {
+			$bean->seq = 0;
+		}
+		// save bean
+		$id = R::store($bean);
+		// write log (when necessary)
+		if ( $scaffold['writeLog'] ) {
+			if ( !empty($arguments['data']['id']) and method_exists('Bean', 'diff') ) {
+				$logRemark = Bean::diff($beanBeforeSave, $bean);
+			} elseif ( empty($arguments['data']['id']) and method_exists('Bean', 'toString') ) {
+				$logRemark = Bean::toString($bean);
 			} else {
-				$bean = R::dispense($scaffold['beanType']);
+				$logRemark = null;
 			}
-			// fix submitted multi-selection value
-			foreach ( $scaffold['fieldConfig'] as $fieldName => $field ) {
-				// remove empty item from submitted checkboxes
-				if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
-					$arguments['data'][$fieldName] = array_filter($arguments['data'][$fieldName], 'strlen');
-				}
-				// extract {one-to-many|many-to-many} from submitted data before saving
-				if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
-					$associateName = str_replace('_id', '', $fieldName);
-					$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
-					$bean->{$propertyName} = array();
-					foreach ( $arguments['data'][$fieldName] as $associateID ) {
-						$associateBean = R::load($associateName, $associateID);
-						$bean->{$propertyName}[] = $associateBean;
-					}
-					unset($arguments['data'][$fieldName]);
-				// turn checkbox into pipe-delimited list
-				} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
-					$arguments['data'][$fieldName] = implode('|', $arguments['data'][$fieldName]);
-				}
-			}
-			// put submitted data into bean
-			$bean->import($arguments['data']);
-			// default value
-			// ===> allow no <seq> field, but <disabled> field is compulsory
-			if ( !isset($bean->disabled) or $bean->disabled == '' ) {
-				$bean->disabled = 0;
-			}
-			if ( isset($bean->seq) and $bean->seq == '' ) {
-				$bean->seq = 0;
-			}
-			// save bean
-			$id = R::store($bean);
-			// write log (when necessary)
-			if ( $scaffold['writeLog'] ) {
-				if ( !empty($arguments['data']['id']) and method_exists('Bean', 'diff') ) {
-					$logRemark = Bean::diff($beanBeforeSave, $bean);
-				} elseif ( empty($arguments['data']['id']) and method_exists('Bean', 'toString') ) {
-					$logRemark = Bean::toString($bean);
-				} else {
-					$logRemark = null;
-				}
-				$logResult = Log::write(array(
-					'action' => empty($arguments['data']['id']) ? "CREATE_{$scaffold['beanType']}" : "UPDATE_{$scaffold['beanType']}",
-					'entity_type' => $scaffold['beanType'],
-					'entity_id' => $id,
-					'remark' => $logRemark,
-				));
-				F::error(Log::error(), !$logResult);
-			}
-		// catch any error...
-		} catch (Exception $e) {
-			F::error($e->getMessage());
+			$logResult = Log::write(array(
+				'action' => empty($arguments['data']['id']) ? "CREATE_{$scaffold['beanType']}" : "UPDATE_{$scaffold['beanType']}",
+				'entity_type' => $scaffold['beanType'],
+				'entity_id' => $id,
+				'remark' => $logRemark,
+			));
+			F::error(Log::error(), !$logResult);
 		}
 		// finish
 		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest());
@@ -550,14 +540,9 @@ switch ( $fusebox->action ) :
 		F::error('delete is not allowed', !$scaffold['allowDelete']);
 		F::error('id was not specified', empty($arguments['id']));
 		// delete record
-		try {
-			$bean = R::load($scaffold['beanType'], $arguments['id']);
-			if ( $scaffold['writeLog'] ) $beanBeforeDelete = $bean->export();
-			R::trash($bean);
-		// catch any error...
-		} catch (Exception $e) {
-			F::error($e->getMessage());
-		}
+		$bean = R::load($scaffold['beanType'], $arguments['id']);
+		if ( $scaffold['writeLog'] ) $beanBeforeDelete = $bean->export();
+		R::trash($bean);
 		// write log (when necessary)
 		if ( $scaffold['writeLog'] ) {
 			$logResult = Log::write(array(
@@ -610,7 +595,8 @@ switch ( $fusebox->action ) :
 				mkdir($uploadDir, 0766, true);
 			}
 			// remove expired file
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+			// ===> (skip at unit-test)
+			if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
 				F::invoke("{$fusebox->controller}.remove_expired_file", array(
 					'fieldName' => $arguments['fieldName'],
 					'uploadDir' => $uploadDir,
@@ -636,7 +622,8 @@ switch ( $fusebox->action ) :
 			$uniqueName = pathinfo($originalName, PATHINFO_FILENAME).'_'.uniqid().'.'.pathinfo($originalName, PATHINFO_EXTENSION);
 			$fileUpload->newFileName = $uniqueName;
 			// start upload
-			if ( empty($GLOBALS['FUSEBOX_UNIT_TEST']) ) {
+			// ===> (skip at unit-test)
+			if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
 				$uploadResult = $fileUpload->handleUpload();
 				$uploadFileName = $fileUpload->getFileName();
 			} else {
@@ -661,7 +648,7 @@ switch ( $fusebox->action ) :
 
 	// remove uploaded files which have parent record deleted
 	case 'remove_expired_file':
-		F::error('invalid access', !F::isInvoke() and empty($GLOBALS['FUSEBOX_UNIT_TEST']));
+		F::error('invalid access', !F::isInvoke() and Framework::$mode != Framework::FUSEBOX_UNIT_TEST);
 		F::error('argument [fieldName] is required', empty($arguments['fieldName']));
 		F::error('argument [uploadDir] is required', empty($arguments['uploadDir']));
 		// get all records of specific field

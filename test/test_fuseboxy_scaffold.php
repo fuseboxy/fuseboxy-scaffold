@@ -4,25 +4,25 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 	function __construct() {
 		global $fusebox;
-		// unit test mode
-		$GLOBALS['FUSEBOX_UNIT_TEST'] = true;
 		// load library
 		if ( !class_exists('Framework') ) {
-			include dirname(__FILE__).'/utility-scaffold/framework/1.0.1/fuseboxy.php';
+			include __DIR__.'/utility-scaffold/framework/1.0.2/fuseboxy.php';
 		}
 		if ( !class_exists('F') ) {
-			include dirname(__FILE__).'/utility-scaffold/framework/1.0.1/F.php';
+			include __DIR__.'/utility-scaffold/framework/1.0.2/F.php';
 		}
+		// unit test mode
+		Framework::$mode = Framework::FUSEBOX_UNIT_TEST;
 		// run essential process
 		Framework::createAPIObject();
-		Framework::loadDefaultConfig();
-		$fusebox->config['appPath'] = dirname(dirname(__FILE__)).'/app/';
+		Framework::loadConfig();
+		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		$fusebox->controller = 'unitTest';
 		Framework::setMyself();
 		// load library
-		include dirname(__FILE__).'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
-		include dirname(dirname(__FILE__)).'/lib/redbeanphp/4.3.3/rb.php';
-		R::setup('sqlite:'.dirname(__FILE__).'/unit_test.db');
+		include __DIR__.'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
+		include dirname(__DIR__).'/lib/redbeanphp/4.3.3/rb.php';
+		R::setup('sqlite:'.__DIR__.'/unit_test.db');
 		R::freeze(false);
 	}
 
@@ -31,7 +31,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$scaffold = array(
 			'beanType' => 'unittestbean',
-			'layoutPath' => dirname(__FILE__).'/utility-scaffold/layout.php',
+			'layoutPath' => __DIR__.'/utility-scaffold/layout.php',
 		);
 	}
 
@@ -43,7 +43,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// check default permission
 		self::resetScaffoldConfig();
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( $scaffold['allowNew'] );
@@ -74,7 +74,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// default breadcrumb
 		self::resetScaffoldConfig();
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
@@ -83,7 +83,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['breadcrumb'] = array('Unit Test', 'Listing', 'All');
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'Unit Test' );
@@ -94,7 +94,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -107,7 +107,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['beanType'] = 'unknown';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -117,7 +117,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowToggle'] = true;
 		$scaffold['listFilter'] = 'disabled = 0';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -129,7 +129,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowToggle'] = true;
 		$scaffold['listFilter'] = array('disabled = ?', array(true));
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -167,7 +167,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowToggle'] = true;
 		$scaffold['allowSort'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -183,7 +183,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'modal';
 		$scaffold['allowNew'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -219,7 +219,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowToggle'] = false;
 		$scaffold['allowSort'] = false;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -253,22 +253,22 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['id'] = null;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/id was not specified/i', $output);
 		unset($output, $arguments);
 		// existing record
 		self::resetScaffoldConfig();
 		$arguments['id'] = $id;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -278,7 +278,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['id'] = -1;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -312,7 +312,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowDelete'] = true;
 		$scaffold['allowToggle'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -348,7 +348,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowDelete'] = false;
 		$scaffold['allowToggle'] = false;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -379,22 +379,22 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['id'] = null;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/id was not specified/i', $output);
 		unset($output, $arguments);
 		// default breadcrumb
 		self::resetScaffoldConfig();
 		$arguments['id'] = $id;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
@@ -405,7 +405,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$arguments['breadcrumb'] = array('UNIT TEST', 'EDIT', 'FOO BAR');
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'UNIT TEST' );
@@ -420,7 +420,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -442,7 +442,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -461,7 +461,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'classic';
 		$arguments['id'] = $id;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -502,7 +502,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -516,7 +516,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -529,7 +529,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'classic';
 		$arguments['id'] = $id;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -548,7 +548,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// default breadcrumb
 		self::resetScaffoldConfig();
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
@@ -558,7 +558,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['breadcrumb'] = array('Unit Test', 'New', '*');
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and $arguments['breadcrumb'][0] == 'Unit Test' );
@@ -569,7 +569,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -585,7 +585,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'inline';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -602,7 +602,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'modal';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -632,7 +632,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'myValue' => array('default' => 'abc', 'value' => 'xyz'),
 		);
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -679,7 +679,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'seq' => array('format' => 'date'),
 		);
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -705,7 +705,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'photo',
 		);
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -729,7 +729,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -745,7 +745,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'inline';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -761,7 +761,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['editMode'] = 'modal';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -784,7 +784,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -808,7 +808,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$doc = phpQuery::newDocument($output);
 		$this->assertNoPattern('/PHP ERROR/i', $output);
@@ -839,53 +839,53 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = false;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/toggle is not allowed/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
-		$this->assertFalse( $bean->disabled );
+		$this->assertFalse($bean->disabled);
 		// missing parameter : no [id] specified
 		self::resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = null;
 		$arguments['disabled'] = null;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/id was not specified/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
-		$this->assertFalse( $bean->disabled );
+		$this->assertFalse($bean->disabled);
 		unset($output, $arguments);
 		// missing parameter : no [disabled] specified
 		self::resetScaffoldConfig();
 		$arguments['id'] = $id;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/argument \[disabled\] is required/i', $output);
 		$bean = R::load($scaffold['beanType'], $id);
-		$this->assertFalse( $bean->disabled );
+		$this->assertFalse($bean->disabled);
 		unset($output, $arguments);
 		// successfully disable
 		self::resetScaffoldConfig();
@@ -893,19 +893,17 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 1;
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		$bean = R::load($scaffold['beanType'], $id);
-		$this->assertTrue( $bean->disabled );
+		$this->assertTrue($bean->disabled);
 		unset($output, $arguments);
 		// successfully enable
 		self::resetScaffoldConfig();
@@ -913,19 +911,17 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 0;
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		$bean = R::load($scaffold['beanType'], $id);
-		$this->assertFalse( $bean->disabled );
+		$this->assertFalse($bean->disabled);
 		unset($output, $arguments);
 		// clean-up
 		R::wipe($scaffold['beanType']);
@@ -940,15 +936,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$arguments['data'] = array();
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/data were not submitted/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );  // no record created
 		unset($output, $arguments);
@@ -961,16 +957,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'seq' => 999,
 		);
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertPattern('/FUSEBOX-REDIRECT/i', $output);
+		$this->assertTrue($hasRedirect);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );  // new record created
 		$bean = R::findOne($scaffold['beanType']);
 		$this->assertTrue( !empty($bean->id) );
@@ -986,16 +981,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'seq' => null,
 		);
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertPattern('/FUSEBOX-REDIRECT/i', $output);
+		$this->assertTrue($hasRedirect);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );  // no new record
 		$bean = R::load($scaffold['beanType'], $arguments['data']['id']);
 		$this->assertTrue( $arguments['data']['id'] == $bean->id );
@@ -1011,15 +1005,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'seq' => 111,
 		);
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/create record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		unset($output, $arguments);
@@ -1034,15 +1028,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			'seq' => 222,
 		);
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/update record not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		$this->assertTrue( $bean->alias != 'aaa-bbb-ccc' and $bean->name != 'XXX YYY ZZZ' and $bean->seq != 222 );
@@ -1078,20 +1072,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			"multiple" => array('A','B','C','x','y','z'),
 		);
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		// check page response
-		$this->assertTrue( $hasRun );
-		$this->assertFalse( $hasError );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		// check base record
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertTrue( $bean->alias == 'foo-bar' );
@@ -1148,20 +1138,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			"{$childBeanType}_id" => $childBeanIDs,
 		);
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		// check page response
-		$this->assertTrue( $hasRun );
-		$this->assertFalse( $hasError );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		// check base record
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertTrue( $bean->alias == 'foo-bar' );
@@ -1223,20 +1209,16 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			"{$anotherBeanType}_id" => $anotherBeanIDs,
 		);
 		try {
-			$hasRun = false;
+			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
 		// check page response
-		$this->assertTrue( $hasRun );
-		$this->assertFalse( $hasError );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		// check base record
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertTrue( $bean->alias == 'foo-bar' );
@@ -1279,15 +1261,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['allowDelete'] = false;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/delete is not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		// no id specified
@@ -1295,15 +1277,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = null;
 		try {
-			$hasRun = false;
+			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 			$output = $e->getMessage();
 		}
-		$this->assertTrue( $hasRun );
+		$this->assertTrue($hasError);
 		$this->assertPattern('/id was not specified/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		unset($output, $arguments);
@@ -1312,18 +1294,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = $id;
 		try {
-			$hasRun = false;
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
 		unset($output, $arguments);
 		// delete non-existing record
@@ -1333,18 +1312,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = -1;
 		try {
-			$hasRun = false;
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
-			$hasRun = true;
 			$output = $e->getMessage();
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertTrue( $hasRun );
-		$this->assertTrue( $hasRedirect );
+		$this->assertTrue($hasRedirect);
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );
 		unset($output, $arguments);
 		// delete in ajax-request
@@ -1356,13 +1332,13 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		try {
 			$hasRedirect = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
-			$hasRedirect = preg_match('/FUSEBOX-REDIRECT/i', $output);
+			$hasRedirect = ( $e->getCode() == Framework::FUSEBOX_REDIRECT );
 		}
-		$this->assertFalse( $hasRedirect );
+		$this->assertFalse($hasRedirect);
 		$this->assertTrue( trim($output) == '' );
 		unset($output, $arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// clean-up
@@ -1381,11 +1357,11 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertTrue($hasError);
 		$this->assertPattern('/configuration \$fusebox->config\[\"uploadDir\"\] is required/i', $output);
@@ -1394,15 +1370,15 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertTrue($hasError);
 		$this->assertPattern('/configuration \$fusebox->config\[\"uploadBaseUrl\"\] is required/i', $output);
@@ -1410,10 +1386,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// missing parameter : uploaderID & fieldName
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$json = json_decode($output);
@@ -1425,12 +1401,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// missing data : file name passed by {uploaderID}
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		$arguments['uploaderID'] = 'foobar_uploader_123456789';
 		$arguments['fieldName'] = 'foobar';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$json = json_decode($output);
@@ -1441,13 +1417,13 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// missing field-config
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		$arguments['uploaderID'] = 'foobar_uploader_123456789';
 		$arguments['fieldName'] = 'foobar';
 		$arguments[$arguments['uploaderID']] = 'unit_test_photo.jpg';
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$json = json_decode($output);
@@ -1458,14 +1434,14 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// invalid field-config
 		self::resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		$arguments['uploaderID'] = 'foobar_uploader_123456789';
 		$arguments['fieldName'] = 'foobar';
 		$arguments[$arguments['uploaderID']] = 'unit_test_photo.jpg';
 		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'checkbox') );
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$json = json_decode($output);
@@ -1477,7 +1453,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// ===> should have directory created
 		// ===> response should have uploaded file
 		self::resetScaffoldConfig();
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		$arguments['uploaderID'] = 'foobar_uploader_123456789';
 		$arguments['fieldName'] = 'foobar';
@@ -1485,7 +1461,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		ob_start();
-		include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$json = json_decode($output);
@@ -1511,18 +1487,18 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $fusebox;
 		global $scaffold;
 		$fusebox->action = 'remove_expired_file';
-		$fusebox->config['uploadDir'] = dirname(__FILE__).'/utility-scaffold/upload';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		// missing parameter
 		self::resetScaffoldConfig();
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertTrue($hasError);
 		$this->assertPattern('/argument \[fieldName\] is required/i', $output);
@@ -1545,11 +1521,11 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		try {
 			$hasError = false;
 			ob_start();
-			include dirname(dirname(__FILE__)).'/app/controller/scaffold_controller.php';
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 			$output = ob_get_clean();
 		} catch (Exception $e) {
 			$output = $e->getMessage();
-			$hasError = preg_match('/FUSEBOX-ERROR/i', $output);
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertFalse($hasError);
 
