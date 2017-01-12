@@ -23,7 +23,7 @@
 	</io>
 </fusedoc>
 */
-$uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
+$uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 ?>
 <div
 	id="<?php echo $uniqid; ?>"

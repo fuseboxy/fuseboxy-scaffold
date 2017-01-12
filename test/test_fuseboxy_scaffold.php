@@ -20,6 +20,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$fusebox->controller = 'unitTest';
 		Framework::setMyself();
 		// load library
+		include dirname(__DIR__).'/app/model/UUID.php';
 		include __DIR__.'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
 		include dirname(__DIR__).'/lib/redbeanphp/4.3.3/rb.php';
 		R::setup('sqlite:'.__DIR__.'/unit_test.db');

@@ -15,7 +15,7 @@
 	</io>
 </fusedoc>
 */
-$uniqid = uniqid();
+$uniqid = uuid();
 $editor_uniqid = "{$scaffold['beanType']}-input-{$field['name']}-{$uniqid}";
 $hidden_uniqid = "{$scaffold['beanType']}-hidden-{$field['name']}-{$uniqid}";
 ?>

@@ -31,7 +31,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<?php $recordID = empty($bean->id) ? uniqid() : $bean->id; ?>
+<?php $recordID = empty($bean->id) ? uuid() : $bean->id; ?>
 <form
 	id="<?php echo $scaffold['beanType']; ?>-edit"
 	class="scaffold-edit form-horizontal"
