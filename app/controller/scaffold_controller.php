@@ -1,5 +1,9 @@
 <?php /*
 <fusedoc>
+	<history version="1.0.1">
+		- apply UUID to make sure event row/input are having unique id (PHP function uniqid() does not guarantee uniqueness...)
+		- fix bug of scaffold file upload preview
+	</history>
 	<history version="1.0">
 		- apply custom breadcrumb
 		- apply {format=wysiwyg} input field
