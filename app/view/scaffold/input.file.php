@@ -62,12 +62,12 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uniqid();
 		<div class="col-xs-9 progress-wrap"></div>
 		<div class="col-xs-3 progress-abort"></div>
 	</div>
-	<?php if ( !empty($field['preview']) and !empty($field['value']) ) : ?>
+	<?php if ( !empty($field['preview']) ) : ?>
 		<a
 			href="<?php echo $field['value']; ?>"
 			class="thumbnail"
 			target="_blank"
-			style="margin: 5px 0 0 0; width: auto; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
+			style="margin: 5px 0 0 0; width: auto; <?php if ( empty($field['value']) ) echo 'display: none;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 			title="<?php echo basename($field['value']); ?>"
 		><img
 			alt="<?php echo basename($field['value']); ?>"
