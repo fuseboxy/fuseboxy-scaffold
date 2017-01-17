@@ -10,6 +10,7 @@
 				<string name="name" />
 				<string name="format" comments="file" />
 				<string name="value" />
+				<string name="placeholder" />
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
 				<string name="style" comments="apply to preview image" />
@@ -52,7 +53,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 			class="form-control input-sm"
 			name="data[<?php echo $field['name']; ?>]"
 			value="<?php echo $field['value']; ?>"
-			placeholder="No file chosen"
+			placeholder="<?php if ( !empty($field['placeholder']) ) echo $field['placeholder']; ?>"
 			readonly
 			<?php if ( !empty($field['required']) ) echo 'required'; ?>
 		 />

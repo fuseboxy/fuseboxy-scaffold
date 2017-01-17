@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.0.2">
+		- apply placeholder for [type=file]
+	</history>
 	<history version="1.0.1">
 		- apply UUID to make sure event row/input are having unique id (PHP function uniqid() does not guarantee uniqueness...)
 		- fix bug of scaffold file upload preview
