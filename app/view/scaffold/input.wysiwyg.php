@@ -23,7 +23,7 @@ $hidden_uniqid = "{$scaffold['beanType']}-hidden-{$field['name']}-{$uniqid}";
 <!-- sync value of html-editor and hidden-field by javascript -->
 <div
 	id="<?php echo $editor_uniqid; ?>"
-	class="form-control input-sm"
+	class="scaffold-input-wysiwyg form-control input-sm"
 	<?php if ( empty($field['readonly']) ) : ?>
 		contenteditable="true"
 		onblur="$('#<?php echo $hidden_uniqid; ?>').val( $(this).html() );"
@@ -42,15 +42,4 @@ $hidden_uniqid = "{$scaffold['beanType']}-hidden-{$field['name']}-{$uniqid}";
 			<?php if ( !empty($field['required']) ) echo 'required'; ?>
 		><?php echo $field['value']; ?></textarea>
 	</div>
-<?php endif; ?>
-
-
-<!-- transform ckeditor explicitly (when ajax request) -->
-<?php if ( empty($field['readonly']) and F::ajaxRequest() ) : ?>
-	<script>
-		// wait row or modal to appear
-		window.setTimeout(function(){
-			CKEDITOR.inline('<?php echo $editor_uniqid; ?>');
-		}, 1000);
-	</script>
 <?php endif; ?>
