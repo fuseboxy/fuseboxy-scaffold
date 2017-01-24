@@ -60,8 +60,8 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 	</div>
 	<div class="alert alert-danger" style="display: none; margin-bottom: 0; margin-top: 5px;"></div>
 	<div class="row" style="display: none; margin-top: 5px;">
-		<div class="col-xs-9 progress-wrap"></div>
-		<div class="col-xs-3 progress-abort"></div>
+		<div class="col-xs-9 progress-wrap" style="padding-right: 1px;"></div>
+		<div class="col-xs-3 progress-abort" style="padding-left: 1px;"></div>
 	</div>
 	<?php if ( !empty($field['preview']) ) : ?>
 		<a
@@ -151,7 +151,7 @@ $(function(){
 				// Dynamically add a "Cancel" button to be displayed when upload begins
 				// By doing it here ensures that it will only be added in browsers which 
 				// support cancelling uploads
-				var $cancelBtn = $('<button class="btn btn-xs btn-block btn-info btn-cancel-upload">Cancel</button>');
+				var $cancelBtn = $('<span class="btn-cancel-upload"><button class="btn btn-xs btn-block btn-info">Cancel</button></span>');
 				$fieldWrap.find('.progress-abort').append( $cancelBtn );
 				// Adds click event listener that will cancel the upload
 				// The second argument is whether the button should be removed after the upload
