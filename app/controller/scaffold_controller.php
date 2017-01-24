@@ -4,7 +4,7 @@
 		- apply {Scaffold} component in order to simplify controller logic
 		- apply {script.scaffold.js} to consolidate javascript logic
 		- apply placeholder to input of [format=file]
-		- allow file upload to {S3 Bucket} of AWS
+		- allow file upload to {AWS S3} and {FTP}
 	</history>
 	<history version="1.0.1">
 		- apply UUID to make sure event row/input are having unique id (PHP function uniqid() does not guarantee uniqueness...)
