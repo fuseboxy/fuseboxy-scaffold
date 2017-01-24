@@ -43,6 +43,7 @@ $(function(){
 					var $field = $fieldWrap.find('input[type=text]');
 					var $uploadBtn = $fieldWrap.find('.btn-upload');
 					var $removeBtn = $fieldWrap.find('.btn-remove');
+					var $undoBtn = $fieldWrap.find('.btn-undo');
 					var $progressWrap = $fieldWrap.find('.progress-wrap');
 					var $preview = $fieldWrap.find('.thumbnail');
 					var $alert = $fieldWrap.find('.alert');
@@ -51,7 +52,16 @@ $(function(){
 						evt.preventDefault();
 						$field.val('');
 						$preview.html('').hide();
+						$undoBtn.show();
 						$removeBtn.hide();
+					});
+					// click button to restore to original image
+					$undoBtn.on('click', function(evt){
+						evt.preventDefault();
+						$field.val( $undoBtn.attr('data-original-image') );
+						$preview.show().html('<a href="'+$undoBtn.attr('data-original-image')+'" target="_blank"><img src="'+$undoBtn.attr('data-original-image')+'" alt="" /></a>');
+						$undoBtn.hide();
+						$removeBtn.show();
 					});
 					// validation
 					if ( !$fieldWrap.attr('data-upload-url') ) {
@@ -128,7 +138,12 @@ $(function(){
 							if ( response.success ) {
 								$field.val(response.fileUrl);
 								$preview.show().html('<a href="'+response.fileUrl+'" target="_blank"><img src="'+response.fileUrl+'" alt="" /></a>');
-								$removeBtn.show();
+								if ( $undoBtn.length ) {
+									$undoBtn.show();
+									$removeBtn.hide();
+								} else {
+									$removeBtn.show();
+								}
 								$progressWrap.closest('.row').hide();
 							} else {
 								$alert.html( response.msg ? response.msg : responseText ).show();
