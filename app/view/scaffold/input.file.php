@@ -161,15 +161,15 @@ $(function(){
 			},
 			// show upload preview (and show remove button)
 			// ===> hide alert, hide progress bar
-			onComplete: function(filename, response) {
-				if ( response != null && response.success ) {
+			onComplete: function(filename, responseText) {
+				var response = $.parseJSON(responseText);
+				if ( response.success ) {
 					$field.val(response.fileUrl);
 					$preview.show().html('<a href="'+response.fileUrl+'" target="_blank"><img src="'+response.fileUrl+'" alt="" /></a>');
 					$removeBtn.show();
 					$progressWrap.closest('.row').hide();
 				} else {
-					var msg = ( response != null && response.msg != null ) ? response.msg : 'Unable to upload file';
-					$alert.html(msg).show();
+					$alert.html( response.msg ? response.msg : responseText ).show();
 				}
 			}
 		});
