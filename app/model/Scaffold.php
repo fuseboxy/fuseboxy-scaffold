@@ -29,9 +29,35 @@ class Scaffold {
 
 	// create directory at remote FTP server (when not exists)
 	public static function createFolder__FTP($newFolder) {
-		self::$error = 'Method [Scaffold::createFolder__FTP] is under construction';
-		return false;
+		$connString = self::parseConnectionString();
+		if ( $connString == false ) return false;
+		// check through each directory
+		$folder2check = '';
+		$newFolder = explode('/', trim($newFolder, '/'));
+		foreach ( $newFolder as $dir ) {
+			$folder2check .= "/{$dir}";
+			// connect to server
+			$ftpConn = self::getFTPConnection();
+			// create folder remotely (when necessary)
+			if ( !file_exists("{$connString['protocol']}://{$connString['username']}:{$connString['password']}@{$connString['hostname']}{$folder2check}") ) {
+				// create folder
+				$mkdirResult = ftp_mkdir($ftpConn, $folder2check);
+				if ( $mkdirResult === false ) {
+					self::$error = "Error occurred while creating folder at FTP server (folder={$folder2check})";
+					return false;
+				}
+				// change folder permission
+				// ===> suppress error for Windows server
+				// ===> dirty temporary solution...
+				$chmodResult = @ftp_chmod($ftpConn, 0766, $folder2check);
+			}
+			// disconnect...
+			ftp_close($ftpConn);
+		}
+		// done!
+		return true;
 	}
+
 
 	// create directory at local server (when not exists)
 	public static function createFolder__LocalServer($newFolder) {
@@ -45,10 +71,10 @@ class Scaffold {
 	// create folder at S3 bucket (when not exists)
 	public static function createFolder__S3($newFolder) {
 		$connString = self::parseConnectionString();
+		if ( $connString == false ) return false;
+		// get client for S3 operation
 		$s3 = self::getS3Client();
-		// fix parameter
-		// ===> remove leading slash
-		// ===> append trailing slash
+		// fix parameter (remove leading slash & append trailing slash)
 		if ( substr($newFolder, 0, 1) == '/' ) $newFolder = substr($newFolder, 1);
 		if ( substr($newFolder, -1) != '/' ) $newFolder .= '/';
 		// create folder remotely (when necessary)
@@ -163,6 +189,138 @@ class Scaffold {
 	}
 
 
+	/**
+	<fusedoc>
+		<description>
+			get list of files in specific directory according to protocol
+		</description>
+		<io>
+			<in>
+				<string name="$dir" />
+			</in>
+			<out>
+				<array name="~return~">
+					<structure name="+">
+						<string   name="path" />
+						<string   name="name" />
+						<string   name="ext" />
+						<datetime name="mtime" />
+					</structure>
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function getFileList($dir) {
+		$protocol = self::getUploadProtocol();
+		// check protocol...
+		if ( $protocol == 's3' ) {
+			return self::getFileList__S3($dir);
+		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
+			return self::getFileList__FTP($dir);
+		} else {
+			return self::getFileList__LocalServer($dir);
+		}
+	}
+
+
+	// get list of files in specific directory at FTP server
+	public static function getFileList__FTP($dir) {
+		$result = array();
+		// connect to server
+		$ftpConn = self::getFTPConnection();
+		// get file list
+		$fileList = ftp_nlist($ftpConn, $dir);
+		$rawFileList = ftp_rawlist($ftpConn, $dir);
+		// only put file into result container
+		foreach ( $fileList as $key => $filePath ) {
+			$rawFile = $rawFileList[$key];
+			$isDir  = ( substr($rawFile, 0, 1) == 'd' or strpos($rawFile, '<DIR>') !== false );
+			$isLink = ( substr($rawFile, 0, 1) == 'l' or strpos($rawFile, '<SYMLINKD>') !== false or strpos($rawFile, '<JUNCTION>') !== false );
+			$isFile = !( $isDir or $isLink );
+			if ( !$isDir and !$isLink ) {
+				$result[] = array(
+					'path'  => $filePath,
+					'name'  => basename($filePath),
+					'ext'   => pathinfo($filePath, PATHINFO_EXTENSION),
+					'mtime' => ftp_mdtm($ftpConn, $filePath),
+				);
+			}
+		}
+		// disconnect...
+		ftp_close($ftpConn);
+		// done!
+		return $result;
+	}
+
+
+	// get list of files in specific directory at local server
+	public static function getFileList__LocalServer($dir) {
+		$result = array();
+		// go through each file in directory
+		foreach ( glob($dir."*.*") as $filePath ) {
+			$result[] = array(
+				'path'  => $filePath,
+				'name'  => basename($filePath),
+				'ext'   => pathinfo($filePath, PATHINFO_EXTENSION),
+				'mtime' => filemtime($filePath),
+			);
+		}
+		// done!
+		return $result;
+	}
+
+
+	// get list of files in specific directory at S3 bucket
+	public static function getFileList__S3($dir) {
+		$result = array();
+		$connString = self::parseConnectionString();
+		// fix parameter (remove leading slash & append trailing slash)
+		if ( substr($dir, 0, 1) == '/' ) $dir = substr($dir, 1);
+		if ( substr($dir, -1) != '/' ) $dir .= '/';
+		// obtain objects from bucket
+		$s3 = self::getS3Client();
+		$iterator = $s3->getIterator('ListObjects', array(
+			'Bucket' => $connString['bucket'],
+			'Prefix' => $dir,
+		));
+		// only put file into result container (skip directory)
+		foreach ( $iterator as $object ) {
+			if ( substr($object['Key'], -1) != '/' ) {
+				$result[] = array(
+					'path' => $object['Key'],
+					'name' => basename($object['Key']),
+					'ext' => pathinfo($object['Key'], PATHINFO_EXTENSION),
+					'mtime' => strtotime($object['LastModified']->jsonSerialize()),
+				);
+			}
+		}
+		// done!
+		return $result;
+	}
+
+
+	// get ftp connection
+	public static function getFTPConnection() {
+		$connString = self::parseConnectionString();
+		if ( $connString == false ) return false;
+		// create connection
+		$conn = ftp_connect($connString['hostname']);
+		if ( $conn == false ) {
+			self::$error = "Cannot connect to FTP server ({$connString['hostname']})";
+			return false;
+		}
+		// login to server
+		$loginResult = ftp_login($conn, $connString['username'], $connString['password']);
+		if ( $loginResult === false ) {
+			self::$error = "Error occurred while logging in FTP server";
+			return false;
+		}
+		// done!
+		return $conn;
+	}
+
+
 	// get upload client for S3
 	public static function getS3Client() {
 		$connString = self::parseConnectionString();
@@ -256,6 +414,7 @@ class Scaffold {
 	public static function parseConnectionString__FTP() {
 		global $fusebox;
 		// load connection string from config
+		$protocol = self::getUploadProtocol();
 		$conn = substr($fusebox->config['uploadDir'], $protocol == 'ftp' ? 6 : 7);
 		$conn = str_replace('\\', '/', $conn);
 		// extract username
@@ -280,7 +439,7 @@ class Scaffold {
 		$conn = explode('/', $conn, 2);
 		$hostname = $conn[0];
 		$folder = isset($conn[1]) ? $conn[1] : '';
-		if ( empty($bucket) ) {
+		if ( empty($hostname) ) {
 			self::$error = "[Hostname] is missing from the connection string ({$fusebox->config['uploadDir']})";
 			return false;
 		}
@@ -350,35 +509,6 @@ class Scaffold {
 	// remove expired file according to protocol
 	public static function removeExpiredFile($fieldName, $uploadDir) {
 		$protocol = self::getUploadProtocol();
-		// skip when unit-test
-		if ( Framework::$mode != Framework::FUSEBOX_UNIT_TEST ) {
-			return true;
-		// take action according to protocol
-		} elseif ( $protocol == 's3' ) {
-			return self::removeExpiredFile__S3($fieldName, $uploadDir);
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			return self::removeExpiredFile__FTP($fieldName, $uploadDir);
-		} else {
-			return self::removeExpiredFile__LocalServer($fieldName, $uploadDir);
-		}
-	}
-
-
-	// archive expired file at S3 bucket
-	public static function removeExpiredFile__S3($fieldName, $uploadDir) {
-		return true;
-	}
-
-
-	// archive expired file at FTP server
-	public static function removeExpiredFile__FTP($fieldName, $uploadDir) {
-		self::$error = 'Method [Scaffold::removeExpiredFile__FTP] is under construction';
-		return false;
-	}
-
-
-	// archive expired file at local server
-	public static function removeExpiredFile__LocalServer($fieldName, $uploadDir) {
 		// get all records of specific field
 		// ===> only required file name
 		$nonOrphanFiles = R::getCol("SELECT {$fieldName} FROM ".self::$config['beanType']." WHERE {$fieldName} IS NOT NULL");
@@ -389,25 +519,90 @@ class Scaffold {
 		}
 		// go through every file in upload directory
 		if ( !empty($nonOrphanFiles) ) {
-			foreach ( glob($uploadDir."*.*" ) as $filePath ) {
+			$fileList = self::getFileList($uploadDir);
+			foreach ( $fileList as $file ) {
 				// only remove orphan file older than 1 day
 				// ===> avoid remove file which ajax-upload by user but not save record yet
 				// ===> (do not check lifespan when unit-test)
-				$isOrphan = !in_array(basename($filePath), $nonOrphanFiles);
- 				$isExpired = ( filemtime($filePath) < strtotime(date("-1 day")) or Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
-				$isDeleted = ( pathinfo($filePath, PATHINFO_EXTENSION) == 'DELETED' );
+				$isOrphan = !in_array($file['name'], $nonOrphanFiles);
+				$isExpired = ( $file['mtime'] < strtotime(date("-1 day")) or Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
+				$isDeleted = ( $file['ext'] == 'DELETED' );
 				// archive expired file by appending {.DELETED} extension
 				// ===> avoid accidentally removing any precious data
 				// ===> (rely on server administrator to remove the {*.DELETE} files explicitly)
 				if ( $isOrphan and $isExpired and !$isDeleted ) {
-					$renameResult = rename($filePath, "{$filePath}.DELETED");
-					if ( !$renameResult ) {
-						self::$error = 'Error occurred while archiving expired file';
-						return false;
-					}
+					$renameResult = self::renameFile($file['path'], "{$file['path']}.DELETED");
+					if ( !$renameResult ) return false;
 				} // if-orphan-expired-deleted
 			} // foreach-uploadDir
 		} // if-not-empty-nonOrphanFiles
+		// done!
+		return true;
+	}
+
+
+	// rename file at server according to protocol
+	public static function renameFile($source, $destination) {
+		$protocol = self::getUploadProtocol();
+		// take action according to protocol
+		if ( $protocol == 's3' ) {
+			return self::renameFile__S3($source, $destination);
+		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
+			return self::renameFile__FTP($source, $destination);
+		} else {
+			return self::renameFile__LocalServer($source, $destination);
+		}
+	}
+
+
+	// rename file at local server
+	public static function renameFile__LocalServer($source, $destination) {
+		if ( !rename($filePath, "{$filePath}.DELETED") ) {
+			self::$error = "Error occurred while archiving expired file (source={$source})";
+			return false;
+		}
+		return true;
+	}
+
+
+	// rename file at FTP server
+	public static function renameFile__FTP($source, $destination) {
+		$result = array();
+		// connect to server
+		$ftpConn = self::getFTPConnection();
+		// get file list
+		$renameResult = ftp_rename($ftpConn, $source, $destination);
+		if ( $renameResult === false ) {
+			self::$error = "Error occurred while archiving expired on FTP server (source={$source})";
+		}
+		// disconnect...
+		ftp_close($ftpConn);
+		// done!
+		return true;
+	}
+
+
+	// rename file at S3 bucket
+	public static function renameFile__S3($source, $destination) {
+		$connString = self::parseConnectionString();
+		// rename file at remote bucket
+		$s3 = self::getS3Client();
+		try {
+			$s3->copyObject(array(
+				'Bucket' => $connString['bucket'],
+				'Key'    => $destination,
+				'CopySource' => "{$connString['bucket']}/{$source}",
+			));
+			$s3->deleteObject(array(
+				'Bucket' => $connString['bucket'],
+				'Key'    => $source,
+			));
+		} catch (S3Exception $e) {
+			self::$error = $e->getMessage();
+			return false;
+		}
+		// done!
+		return true;
 	}
 
 
@@ -635,8 +830,32 @@ class Scaffold {
 
 	// proceed upload to remote FTP server
 	public static function startUpload__FTP(&$handler, $uploadDir) {
-		self::$error = 'Method [Scaffold::startUpload__FTP] is under construction';
-		return false;
+		$connString = self::parseConnectionString();
+		if ( $connString == false ) return false;
+		// upload to temp directory at local server first
+		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
+		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
+		$handler->uploadDir = $tmpUploadDir;
+		$uploadResult = $handler->handleUpload();
+		// validate upload result to local server
+		if ( !$uploadResult ) {
+			self::$error = $handler->getErrorMsg();
+			return false;
+		}
+		// connect to server
+		$ftpConn = self::getFTPConnection();
+		// upload to target directory at remote server
+		$destination = $uploadDir.$handler->getFileName();
+		$source = $tmpUploadDir.$handler->getFileName();
+		$uploadResult = ftp_put($ftpConn, $destination, $source, FTP_BINARY);
+		if ( $uploadResult === false ) {
+			self::$error = "Error occurred while uploading file to FTP server";
+			return false;
+		}
+		// disconnect...
+		ftp_close($ftpConn);
+		// done!
+		return $handler->getFileName();
 	}
 
 
@@ -657,9 +876,8 @@ class Scaffold {
 	// proceed upload to S3 bucket
 	public static function startUpload__S3(&$handler, $uploadDir) {
 		$connString = self::parseConnectionString();
-		// fix parameter
-		// ===> remove leading slash
-		// ===> append trailing slash
+		if ( $connString == false ) return false;
+		// fix parameter (remove leading slash & append trailing slash)
 		if ( substr($uploadDir, 0, 1) == '/' ) $uploadDir = substr($uploadDir, 1);
 		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
 		// upload to temp directory at local server first
@@ -675,10 +893,12 @@ class Scaffold {
 		// upload to target folder at remote bucket
 		$s3 = self::getS3Client();
 		try {
+			$destination = $uploadDir.$handler->getFileName();
+			$source = $tmpUploadDir.$handler->getFileName();
 			$newFile = $s3->putObject(array(
 				'Bucket' => $connString['bucket'],
-				'Key' => $uploadDir.$handler->getFileName(),
-				'SourceFile' => $tmpUploadDir.$handler->getFileName(),
+				'Key' => $destination,
+				'SourceFile' => $source,
 				'ACL' => 'public-read'
 			));
 		} catch (S3Exception $e) {
@@ -747,8 +967,10 @@ class Scaffold {
 			self::$error = implode("\n", $err);
 			return false;
 		}
-		// fix config
+		// get connection info
 		$connString = self::parseConnectionString();
+		if ( $connString == false ) return false;
+		// fix config
 		$uploadDir  = str_replace('\\', '/', $connString['folder']);
 		$uploadDir .= ( substr($uploadDir, -1) == '/' ) ? '' : '/';
 		$uploadDir .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
