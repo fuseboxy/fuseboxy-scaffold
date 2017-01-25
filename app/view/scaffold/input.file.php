@@ -68,8 +68,8 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 	</div>
 	<div class="alert alert-danger" style="display: none; margin-bottom: 0; margin-top: 5px;"></div>
 	<div class="row" style="display: none; margin-top: 5px;">
-		<div class="col-xs-9 progress-wrap" style="padding-right: 1px;"></div>
-		<div class="col-xs-3 progress-abort" style="padding-left: 1px;"></div>
+		<div class="col-xs-9 progress-wrap" style="padding-right: 2px;"></div>
+		<div class="col-xs-3 progress-abort" style="padding-left: 2px;"></div>
 	</div>
 	<?php if ( !empty($field['preview']) ) : ?>
 		<a
