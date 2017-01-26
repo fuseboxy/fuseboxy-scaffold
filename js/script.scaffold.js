@@ -154,7 +154,7 @@ $(function(){
 					$(this).addClass('simple-ajax-uploader-ready');
 				});
 			});
-		}, 100); // window-setTimeout
+		}, 500); // window-setTimeout
 	}); // document-on
 
 
@@ -167,7 +167,7 @@ $(function(){
 				// mark flag
 				$(this).addClass('ckeditor-ready');
 			});
-		}, 100);
+		}, 500);
 	});
 
 
