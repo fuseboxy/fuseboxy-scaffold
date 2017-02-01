@@ -8,7 +8,7 @@
 			</structure>
 			<structure name="$field">
 				<string name="name" />
-				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|one-to-many|many-to-many|wysiwyg" default="text" />
+				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|date|time|datetime|one-to-many|many-to-many|wysiwyg" default="text" />
 				<string name="value" optional="yes" />
 				<string name="default" optional="yes" />
 				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
@@ -181,8 +181,8 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <!-- text -->
 <?php else : ?>
 	<input
-		type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-		class="form-control input-sm"
+		type="<?php echo ( empty($field['format']) or in_array($field['format'], array('date', 'time', 'datetime')) ) ? 'text' : $field['format']; ?>"
+		class="form-control input-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo $field['value']; ?>"
 		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>

@@ -4,6 +4,7 @@
 		- apply {Scaffold} component in order to simplify controller logic
 		- apply {script.scaffold.js} to consolidate javascript logic
 		- apply placeholder to input of [format=file]
+		- apply input of [format=date|time|datetime]
 		- allow file upload to {AWS S3} and {FTP}
 	</history>
 	<history version="1.0.1">

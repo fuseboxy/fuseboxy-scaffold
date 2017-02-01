@@ -34,7 +34,7 @@ $(function(){
 	// init simple-ajax-uploader when document/row/modal show
 	$(document).on('ready ajaxLoad.bsx shown.bs.modal', function(evt){
 		window.setTimeout(function(){
-			$('.scaffold-input-file:not(.simple-ajax-uploader-ready)').each(function(){
+			$('.scaffold-input-file').not('.simple-ajax-uploader-ready').each(function(){
 				var elementID = $(this).attr('id');
 				// apply ajax-upload to this single field
 				$('#'+elementID).each(function(){
@@ -159,13 +159,37 @@ $(function(){
 
 
 	// init ckeditor when row/modal show
+	// ===> (auto-init by CKeditor core when document show)
 	$(document).on('ajaxLoad.bsx shown.bs.modal', function(evt){
 		window.setTimeout(function(){
-			$('.scaffold-input-wysiwyg:not(.ckeditor-ready)').each(function(){
+			$('.scaffold-input-wysiwyg').not('.ckeditor-ready').each(function(){
 				var elementID = $(this).attr('id');
 				CKEDITOR.inline(elementID);
 				// mark flag
 				$(this).addClass('ckeditor-ready');
+			});
+		}, 500);
+	});
+
+
+	// init datetime picker when document/row/modal show
+	$(document).on('ready ajaxLoad.bsx shown.bs.modal', function(evt){
+		window.setTimeout(function(){
+			$('.scaffold-input-date,.scaffold-input-time,.scaffold-input-datetime').not('.datetimepicker-ready').each(function(){
+				if ( $(this).hasClass('scaffold-input-date') ) {
+					var format = 'YYYY-MM-DD';
+				} else if ( $(this).hasClass('scaffold-input-time') ) {
+					var format = 'HH:mm';
+				} else {
+					var format = 'YYYY-MM-DD HH:mm';
+				}
+				// transform
+				$(this).datetimepicker({
+					'format' : format,
+					'sideBySide' : true
+				});
+				// mark flag
+				$(this).addClass('datetimepicker-ready');
 			});
 		}, 500);
 	});
