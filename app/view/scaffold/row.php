@@ -38,6 +38,7 @@
 								$isObject = is_object($bean[$objectName]);
 								$isFile = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
 								$isHidden = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
+								$isWYSIWYG = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'wysiwyg' );
 							?>
 							<div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>">
 								<!-- preview : show thumbnail -->
@@ -105,7 +106,7 @@
 									</div>
 								<!-- show text -->
 								<?php else : ?>
-									<?php echo nl2br($bean[$col]); ?>
+									<?php echo $isWYSIWYG ? $bean[$col] : nl2br($bean[$col]); ?>
 								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
