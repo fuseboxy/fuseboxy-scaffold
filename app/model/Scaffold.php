@@ -13,54 +13,57 @@ class Scaffold {
 
 	// create folder at upload directory according to protocol
 	public static function createFolder($newFolder) {
-		$protocol = self::getUploadProtocol();
-		// take action according to protocol
-		if ( $protocol == 's3' ) {
-			$result = self::createFolder__S3($newFolder);
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			$result = self::createFolder__FTP($newFolder);
-		} else {
-			$result = self::createFolder__LocalServer($newFolder);
+		switch ( self::parseConnectionString(null, 'protocol') ) {
+			case 's3':
+				return self::createFolder__S3($newFolder);
+				break;
+			case 'ftp':
+			case 'ftps':
+				return self::createFolder__FTP($newFolder);
+				break;
+			default:
+				return self::createFolder__Local($newFolder);
 		}
-		// done!
-		return $result;
 	}
 
 
 	// create directory at remote FTP server (when not exists)
-	public static function createFolder__FTP($newFolder) {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
+	// ===> append directory with folder in connection string (if any)
+	public static function createFolder__FTP($newFolder, $connString=null) {
+		// connect to server
+		$ftpConn = self::getConnection__FTP($connString);
+		if ( $ftpConn === false ) return false;
+		// parse connection string
+		$cs = self::parseConnectionString__FTP($connString);
+		if ( $cs === false ) return false;
 		// check through each directory
-		$folder2check = '';
+		$dirStack = $cs['folder'];
 		$newFolder = explode('/', trim($newFolder, '/'));
 		foreach ( $newFolder as $dir ) {
-			$folder2check .= "/{$dir}";
-			// connect to server
-			$ftpConn = self::getFTPConnection();
+			$dirStack .= !empty($dirStack) ? "/{$dir}" : $dir;
 			// create folder remotely (when necessary)
-			if ( !file_exists("{$connString['protocol']}://{$connString['username']}:{$connString['password']}@{$connString['hostname']}{$folder2check}") ) {
+			if ( !file_exists("{$cs['protocol']}://{$cs['username']}:{$cs['password']}@{$cs['hostname']}/{$dirStack}") ) {
 				// create folder
-				$mkdirResult = ftp_mkdir($ftpConn, $folder2check);
+				$mkdirResult = ftp_mkdir($ftpConn, $dirStack);
 				if ( $mkdirResult === false ) {
-					self::$error = "Error occurred while creating folder at FTP server (folder={$folder2check})";
+					self::$error = "Error occurred while creating folder at FTP server (folder={$dirStack})";
 					return false;
 				}
 				// change folder permission
 				// ===> suppress error for Windows server
 				// ===> dirty temporary solution...
-				$chmodResult = @ftp_chmod($ftpConn, 0766, $folder2check);
+				$chmodResult = @ftp_chmod($ftpConn, 0766, $dirStack);
 			}
-			// disconnect...
-			ftp_close($ftpConn);
 		}
+		// disconnect...
+		ftp_close($ftpConn);
 		// done!
 		return true;
 	}
 
 
 	// create directory at local server (when not exists)
-	public static function createFolder__LocalServer($newFolder) {
+	public static function createFolder__Local($newFolder) {
 		if ( !file_exists($newFolder) ) {
 			mkdir($newFolder, 0766, true);
 		}
@@ -69,20 +72,23 @@ class Scaffold {
 
 
 	// create folder at S3 bucket (when not exists)
-	public static function createFolder__S3($newFolder) {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
+	// ===> append directory with folder in connection string (if any)
+	public static function createFolder__S3($newFolder, $connString=null) {
 		// get client for S3 operation
-		$s3 = self::getS3Client();
+		$s3 = self::getConnection__S3($connString);
+		if ( $s3 === false ) return false;
+		// parse connection string
+		$cs = self::parseConnectionString__S3($connString);
+		if ( $cs === false ) return false;
 		// fix parameter (remove leading slash & append trailing slash)
 		if ( substr($newFolder, 0, 1) == '/' ) $newFolder = substr($newFolder, 1);
 		if ( substr($newFolder, -1) != '/' ) $newFolder .= '/';
 		// create folder remotely (when necessary)
-		if ( !$s3->doesObjectExist($connString['bucket'], $newFolder) ) {
+		if ( !$s3->doesObjectExist($cs['bucket'], $cs['folder'].$newFolder) ) {
 			try {
 				$putObjectResult = $s3->putObject(array(
-					'Bucket' => $connString['bucket'],
-					'Key' => $newFolder,
+					'Bucket' => $cs['bucket'],
+					'Key' => $cs['folder'].$newFolder,
 					'Body' => '',
 					'ACL' => 'public-read',
 				));
@@ -189,6 +195,48 @@ class Scaffold {
 	}
 
 
+	// get ftp connection
+	public static function getConnection__FTP($connString=null) {
+		$cs = self::parseConnectionString($connString);
+		if ( $cs === false ) return false;
+		// create connection
+		$conn = ftp_connect($cs['hostname']);
+		if ( $conn == false ) {
+			self::$error = "Cannot connect to FTP server ({$cs['hostname']})";
+			return false;
+		}
+		// login to server
+		$loginResult = ftp_login($conn, $cs['username'], $cs['password']);
+		if ( $loginResult === false ) {
+			self::$error = "Error occurred while logging in FTP server";
+			return false;
+		}
+		// done!
+		return $conn;
+	}
+
+
+	// get upload client for S3
+	public static function getConnection__S3($connString=null) {
+		$cs = self::parseConnectionString($connString);
+		if ( $cs === false ) return false;
+		// config for factory
+		$config = array(
+			'credentials' => array('key' => $cs['accessKeyID'], 'secret' => $cs['secretAccessKey']),
+			'region' => 'us-east-1',
+			'version' => '2006-03-01',
+		);
+		// create object to retrieve bucket location
+		$client = Aws\S3\S3Client::factory($config);
+		$bucketLocation = $client->getBucketLocation(array('Bucket' => $cs['bucket']));
+		// re-create object with correct region specified
+		$config['region'] = $bucketLocation->get('LocationConstraint');
+		$client = Aws\S3\S3Client::factory($config);
+		// done!
+		return $client;
+	}
+
+
 	/**
 	<fusedoc>
 		<description>
@@ -212,26 +260,33 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getFileList($dir) {
-		$protocol = self::getUploadProtocol();
-		// check protocol...
-		if ( $protocol == 's3' ) {
-			return self::getFileList__S3($dir);
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			return self::getFileList__FTP($dir);
-		} else {
-			return self::getFileList__LocalServer($dir);
+		switch ( self::parseConnectionString(null, 'protocol') ) {
+			case 's3':
+				return self::getFileList__S3($dir, $connString);
+				break;
+			case 'ftp':
+			case 'ftps':
+				return self::getFileList__FTP($dir, $connString);
+				break;
+			default:
+				return self::getFileList__Local($dir);
 		}
 	}
 
 
 	// get list of files in specific directory at FTP server
-	public static function getFileList__FTP($dir) {
+	// ===> append directory with the folder specified in connection string (if any)
+	public static function getFileList__FTP($dir, $connString=null) {
 		$result = array();
 		// connect to server
-		$ftpConn = self::getFTPConnection();
+		$ftpConn = self::getConnection__FTP($connString);
+		if ( $ftpConn === false ) return false;
+		// parse connection string
+		$cs = self::parseConnectionString__FTP($connString);
+		if ( $cs === false ) return false;
 		// get file list
-		$fileList = ftp_nlist($ftpConn, $dir);
-		$rawFileList = ftp_rawlist($ftpConn, $dir);
+		$fileList = ftp_nlist($ftpConn, $cs['folder'].$dir);
+		$rawFileList = ftp_rawlist($ftpConn, $cs['folder'].$dir);
 		// only put file into result container
 		foreach ( $fileList as $key => $filePath ) {
 			$rawFile = $rawFileList[$key];
@@ -255,7 +310,7 @@ class Scaffold {
 
 
 	// get list of files in specific directory at local server
-	public static function getFileList__LocalServer($dir) {
+	public static function getFileList__Local($dir) {
 		$result = array();
 		// go through each file in directory
 		foreach ( glob($dir."*.*") as $filePath ) {
@@ -272,17 +327,22 @@ class Scaffold {
 
 
 	// get list of files in specific directory at S3 bucket
-	public static function getFileList__S3($dir) {
+	// ===> append directory with the folder specified in connection string (if any)
+	public static function getFileList__S3($dir, $connString=null) {
 		$result = array();
-		$connString = self::parseConnectionString();
+		// get S3 client
+		$s3 = self::getConnection__S3($connString);
+		if ( $s3 === false ) return false;
+		// parse connection string
+		$cs = self::parseConnectionString($connString);
+		if ( $cs === false ) return false;
 		// fix parameter (remove leading slash & append trailing slash)
 		if ( substr($dir, 0, 1) == '/' ) $dir = substr($dir, 1);
 		if ( substr($dir, -1) != '/' ) $dir .= '/';
 		// obtain objects from bucket
-		$s3 = self::getS3Client();
 		$iterator = $s3->getIterator('ListObjects', array(
-			'Bucket' => $connString['bucket'],
-			'Prefix' => $dir,
+			'Bucket' => $cs['bucket'],
+			'Prefix' => $cs['folder'].$dir,
 		));
 		// only put file into result container (skip directory)
 		foreach ( $iterator as $object ) {
@@ -300,63 +360,6 @@ class Scaffold {
 	}
 
 
-	// get ftp connection
-	public static function getFTPConnection() {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
-		// create connection
-		$conn = ftp_connect($connString['hostname']);
-		if ( $conn == false ) {
-			self::$error = "Cannot connect to FTP server ({$connString['hostname']})";
-			return false;
-		}
-		// login to server
-		$loginResult = ftp_login($conn, $connString['username'], $connString['password']);
-		if ( $loginResult === false ) {
-			self::$error = "Error occurred while logging in FTP server";
-			return false;
-		}
-		// done!
-		return $conn;
-	}
-
-
-	// get upload client for S3
-	public static function getS3Client() {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
-		// config for factory
-		$config = array(
-			'credentials' => array('key' => $connString['accessKeyID'], 'secret' => $connString['secretAccessKey']),
-			'region' => 'us-east-1',
-			'version' => '2006-03-01',
-		);
-		// create object to retrieve bucket location
-		$client = Aws\S3\S3Client::factory($config);
-		$bucketLocation = $client->getBucketLocation(array('Bucket' => $connString['bucket']));
-		// re-create object with correct region specified
-		$config['region'] = $bucketLocation->get('LocationConstraint');
-		$client = Aws\S3\S3Client::factory($config);
-		// done!
-		return $client;
-	}
-
-
-	// get protocol from upload directory
-	public static function getUploadProtocol() {
-		global $fusebox;
-		if ( substr($fusebox->config['uploadDir'], 0, 5) == 's3://' ) {
-			return 's3';
-		} elseif ( substr($fusebox->config['uploadDir'], 0, 6) == 'ftp://' ) {
-			return 'ftp';
-		} elseif ( substr($fusebox->config['uploadDir'], 0, 7) == 'ftps://' ) {
-			return 'ftps';
-		} else {
-			return 'local-server';
-		}
-	}
-
-
 	/**
 	<fusedoc>
 		<description>
@@ -364,12 +367,11 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
-				<structure name="config" scope="$fusebox">
-					<string name="uploadDir" />
-				</structure>
+				<string name="$connString" optional="yes" default="$fusebox->config['uploadDir']" />
+				<string name="$key" optional="yes" comments="return value of specific key" />
 			</in>
 			<out>
-				<structure name="~return~" optional="yes" oncondition="when success">
+				<structure name="~return~" optional="yes" oncondition="when success (key not specified)">
 					<!-- S3 -->
 					<string name="protocol" />
 					<string name="accessKeyID" optional="yes" oncondition="s3" />
@@ -386,61 +388,115 @@ class Scaffold {
 					<string name="protocol" />
 					<string name="folder" />
 				</structure>
+				<string name="~return~" optional="yes" oncondition="when success (key specified)" />
 				<boolean name="~return~" value="false" optional="yes" oncondition="when failure" />
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function parseConnectionString() {
+	public static function parseConnectionString($connString=null, $key=null) {
 		global $fusebox;
+		// check against framework config or passed parameter
+		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
 		// parse according to protocol
-		$protocol = self::getUploadProtocol();
-		if ( $protocol == 's3' ) {
-			return self::parseConnectionString__S3();
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			return self::parseConnectionString__FTP();
+		if ( substr($connString, 0, 5) == 's3://' ) {
+			$result = self::parseConnectionString__S3($connString);
+		} elseif ( substr($connString, 0, 6) == 'ftp://' or substr($connString, 0, 7) == 'ftps://' ) {
+			$result = self::parseConnectionString__FTP($connString);
 		// no parse for local server
 		} else {
-			return array(
-				'protocol' => self::getUploadProtocol(),
-				'folder' => $fusebox->config['uploadDir'],
-			);
+			$result = array('protocol' => 'local', 'folder' => $connString);
+		}
+		// failure...
+		if ( $result === false ) {
+			return false;
+		// success!
+		} elseif ( $key === null ) {
+			return $result;
+		} elseif ( isset($result[$key]) ) {
+			return $result[$key];
+		// key not found...
+		} else {
+			$keyList = implode(',', array_keys($result));
+			self::$error = "Key [{$key}] is invalid (valid={$keyList})";
+			return false;
 		}
 	}
 
 
-	// parse FTP connection string
-	// ===> {ftp|ftps}://{username}:{password}@{hostname}/{folder}
-	public static function parseConnectionString__FTP() {
+	/**
+	<fusedoc>
+		<description>
+			parse FTP connection string
+			===> {ftp|ftps}://{username}:{password}@{hostname}/{folder}
+		</description>
+		<io>
+			<in>
+				<string name="$connString" optional="yes" />
+			</in>
+			<out>
+				<structure name="~return~" optional="yes" oncondition="when success">
+					<string name="protocol" />
+					<string name="username" />
+					<string name="password" />
+					<string name="hostname" />
+					<string name="folder" />
+				</structure>
+				<boolean name="~return~" value="false" optional="yes" oncondition="when failure" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function parseConnectionString__FTP($connString=null) {
 		global $fusebox;
-		// load connection string from config
-		$protocol = self::getUploadProtocol();
-		$conn = substr($fusebox->config['uploadDir'], $protocol == 'ftp' ? 6 : 7);
-		$conn = str_replace('\\', '/', $conn);
-		// extract username
-		if ( strpos($conn, ':') !== false ) {
-			$conn = explode(':', $conn, 2);
-			$username = $conn[0];
-			$conn = $conn[1];
-		} else {
-			self::$error = "[Username] is missing from the connection string ({$fusebox->config['uploadDir']})";
-			return false;
+		// parse framework config or passed parameter
+		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
+		// unify path-delim
+		$conn = str_replace('\\', '/', $connString);
+		// extract protocol
+		$token = '://';
+		if ( strpos($conn, $token) !== false ) {
+			$protocol = strtolower(substr($conn, 0, strpos($conn, $token)));
+			$conn = substr($conn, strlen("{$protocol}{$token}"));
 		}
-		// extract password
-		if ( strpos($conn, '@') !== false ) {
-			$conn = explode('@', $conn, 2);
-			$password = $conn[0];
-			$conn = $conn[1];
+		// dedupe path-delim
+		$conn = trim($conn, '/');
+		do {
+			$conn = str_replace('//', '/', $conn);
+		} while ( strpos($conn, '//') !== false );
+		// extract credential
+		$token = '@';
+		if ( strpos($conn, $token) !== false ) {
+			$conn = explode($token, $conn, 2);
+			$credential = $conn[0];
+			$conn = isset($conn[1]) ? $conn[1] : '';
 		} else {
-			self::$error = "[Password] is missing from the connection string ({$fusebox->config['uploadDir']})";
-			return false;
+			$credential = '';
 		}
+		$credential = explode(':', $credential, 2);
+		$username = isset($credential[0]) ? $credential[0] : '';
+		$password = isset($credential[1]) ? $credential[1] : '';
 		// extract hostname & folder (if any)
 		$conn = explode('/', $conn, 2);
 		$hostname = $conn[0];
 		$folder = isset($conn[1]) ? $conn[1] : '';
-		if ( empty($hostname) ) {
-			self::$error = "[Hostname] is missing from the connection string ({$fusebox->config['uploadDir']})";
+		// validate protocol
+		if ( empty($protocol) ) {
+			self::$error = "[Protocol] is missing from connection string ({$connString})";
+			return false;
+		} elseif ( !in_array($protocol, array('ftp','ftps')) ) {
+			self::$error = "[Protocol] is invalid ({$protocol})";
+			return false;
+		// validate credential
+		} elseif ( empty($username) ) {
+			self::$error = "[Username] is missing from connection string ({$connString})";
+			return false;
+		} elseif ( empty($password) ) {
+			self::$error = "[Password] is missing from connection string ({$connString})";
+			return false;
+		// validate hostname
+		} elseif ( empty($hostname) ) {
+			self::$error = "[Hostname] is missing from connection string ({$connString})";
 			return false;
 		}
 		// add trailing slash to folder (when necessary)
@@ -449,7 +505,7 @@ class Scaffold {
 		}
 		// done!
 		return array(
-			'protocol' => self::getUploadProtocol(),
+			'protocol' => $protocol,
 			'username' => $username,
 			'password' => $password,
 			'hostname' => $hostname,
@@ -458,37 +514,79 @@ class Scaffold {
 	}
 
 
-	// parse S3 connection string
-	// ===> s3://{accessKeyID}:{secretAccessKey}@{bucket}/{folder}
-	public static function parseConnectionString__S3() {
+	/**
+	<fusedoc>
+		<description>
+			parse S3 connection string
+			===> s3://{accessKeyID}:{secretAccessKey}@{bucket}/{folder}
+		</description>
+		<io>
+			<in>
+				<string name="$connString" optional="yes" />
+			</in>
+			<out>
+				<structure name="~return~" optional="yes" oncondition="when success">
+					<string name="protocol" />
+					<string name="accessKeyID" />
+					<string name="secretAccessKey" />
+					<string name="bucket" />
+					<string name="folder" />
+				</structure>
+				<boolean name="~return~" value="false" optional="yes" oncondition="when failure" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function parseConnectionString__S3($connString=null) {
 		global $fusebox;
-		// load connection string from config
-		$conn = substr($fusebox->config['uploadDir'], 5);
-		$conn = str_replace('\\', '/', $conn);
-		// extract access-key-id
-		if ( strpos($conn, ':') !== false ) {
-			$conn = explode(':', $conn, 2);
-			$accessKeyID = $conn[0];
-			$conn = $conn[1];
-		} else {
-			self::$error = "[Access Key ID] is missing from the connection string ({$fusebox->config['uploadDir']})";
-			return false;
+		// parse framework config or passed parameter
+		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
+		// unify path-delim
+		$conn = str_replace('\\', '/', $connString);
+		// extract protocol
+		$token = '://';
+		if ( strpos($conn, $token) !== false ) {
+			$protocol = strtolower(substr($conn, 0, strpos($conn, $token)));
+			$conn = substr($conn, strlen("{$protocol}{$token}"));
 		}
-		// extract secret-access-key
-		if ( strpos($conn, '@') !== false ) {
-			$conn = explode('@', $conn, 2);
-			$secretAccessKey = $conn[0];
-			$conn = $conn[1];
+		// dedupe path-delim
+		$conn = trim($conn, '/');
+		do {
+			$conn = str_replace('//', '/', $conn);
+		} while ( strpos($conn, '//') !== false );
+		// extract credential
+		$token = '@';
+		if ( strpos($conn, $token) !== false ) {
+			$conn = explode($token, $conn, 2);
+			$credential = $conn[0];
+			$conn = isset($conn[1]) ? $conn[1] : '';
 		} else {
-			self::$error = "[Secret Access Key] is missing from the connection string ({$fusebox->config['uploadDir']})";
-			return false;
+			$credential = '';
 		}
-		// extract bucket & folder (if any)
+		$credential = explode(':', $credential, 2);
+		$username = isset($credential[0]) ? $credential[0] : '';
+		$password = isset($credential[1]) ? $credential[1] : '';
+		// extract hostname & folder (if any)
 		$conn = explode('/', $conn, 2);
-		$bucket = $conn[0];
+		$hostname = $conn[0];
 		$folder = isset($conn[1]) ? $conn[1] : '';
-		if ( empty($bucket) ) {
-			self::$error = "[Bucket] is missing from the connection string ({$fusebox->config['uploadDir']})";
+		// validate protocol
+		if ( empty($protocol) ) {
+			self::$error = "[Protocol] is missing from connection string ({$connString})";
+			return false;
+		} elseif ( $protocol != 's3' ) {
+			self::$error = "[Protocol] is invalid ({$protocol})";
+			return false;
+		// validate credential
+		} elseif ( empty($username) ) {
+			self::$error = "[Access Key ID] is missing from connection string ({$connString})";
+			return false;
+		} elseif ( empty($password) ) {
+			self::$error = "[Secret Access Key] is missing from connection string ({$connString})";
+			return false;
+		// validate hostname
+		} elseif ( empty($hostname) ) {
+			self::$error = "[Bucket] is missing from connection string ({$connString})";
 			return false;
 		}
 		// add trailing slash to folder (when necessary)
@@ -497,18 +595,17 @@ class Scaffold {
 		}
 		// done!
 		return array(
-			'protocol' => self::getUploadProtocol(),
-			'accessKeyID' => $accessKeyID,
-			'secretAccessKey' => $secretAccessKey,
-			'bucket' => $bucket,
-			'folder' => $folder,
+			'protocol' => $protocol,
+			'accessKeyID' => $username,
+			'secretAccessKey' => $password,
+			'bucket' => $hostname,
+			'folder'   => $folder,
 		);
 	}
 
 
 	// remove expired file according to protocol
 	public static function removeExpiredFile($fieldName, $uploadDir) {
-		$protocol = self::getUploadProtocol();
 		// get all records of specific field
 		// ===> only required file name
 		$nonOrphanFiles = R::getCol("SELECT {$fieldName} FROM ".self::$config['beanType']." WHERE {$fieldName} IS NOT NULL");
@@ -542,38 +639,35 @@ class Scaffold {
 
 
 	// rename file at server according to protocol
-	public static function renameFile($source, $destination) {
-		$protocol = self::getUploadProtocol();
-		// take action according to protocol
-		if ( $protocol == 's3' ) {
-			return self::renameFile__S3($source, $destination);
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			return self::renameFile__FTP($source, $destination);
-		} else {
-			return self::renameFile__LocalServer($source, $destination);
+	public static function renameFile($source, $destination, $connString=null) {
+		switch ( self::parseConnectionString(null, 'protocol') ) {
+			case 's3':
+				return self::renameFile__S3($source, $destination);
+				break;
+			case 'ftp':
+			case 'ftps':
+				return self::renameFile__FTP($source, $destination);
+				break;
+			default:
+				return self::renameFile__Local($source, $destination);
 		}
-	}
-
-
-	// rename file at local server
-	public static function renameFile__LocalServer($source, $destination) {
-		if ( !rename($filePath, "{$filePath}.DELETED") ) {
-			self::$error = "Error occurred while archiving expired file (source={$source})";
-			return false;
-		}
-		return true;
 	}
 
 
 	// rename file at FTP server
-	public static function renameFile__FTP($source, $destination) {
+	// ===> append source and destination with folder in connection string (if any)
+	public static function renameFile__FTP($source, $destination, $connString=null) {
 		$result = array();
 		// connect to server
-		$ftpConn = self::getFTPConnection();
+		$ftpConn = self::getConnection__FTP($connString);
+		if ( $ftpConn === false ) return false;
+		// parse connection string
+		$cs = self::parseConectionString__FTP($connString);
+		if ( $cs === false ) return false;
 		// get file list
-		$renameResult = ftp_rename($ftpConn, $source, $destination);
+		$renameResult = ftp_rename($ftpConn, $cs['folder'].$source, $cs['folder'].$destination);
 		if ( $renameResult === false ) {
-			self::$error = "Error occurred while archiving expired on FTP server (source={$source})";
+			self::$error = "Error occurred while renaming expired file on FTP server (source={$source}, destination={$destination}, folder={$cs['folder']})";
 		}
 		// disconnect...
 		ftp_close($ftpConn);
@@ -582,20 +676,35 @@ class Scaffold {
 	}
 
 
+	// rename file at local server
+	public static function renameFile__Local($source, $destination) {
+		if ( !rename($filePath, "{$filePath}.DELETED") ) {
+			self::$error = "Error occurred while renaming expired file (source={$source}, destination={$destination})";
+			return false;
+		}
+		return true;
+	}
+
+
 	// rename file at S3 bucket
-	public static function renameFile__S3($source, $destination) {
-		$connString = self::parseConnectionString();
+	// ===> append source and destination with folder in connection string (if any)
+	public static function renameFile__S3($source, $destination, $connString=null) {
+		// connect to server
+		$s3 = self::getConnection__S3($connString);
+		if ( $s3 === false ) return false;
+		// parse connection string
+		$cs = self::parseConnectionString($connString);
+		if ( $cs === false ) return false;
 		// rename file at remote bucket
-		$s3 = self::getS3Client();
 		try {
 			$s3->copyObject(array(
-				'Bucket' => $connString['bucket'],
-				'Key'    => $destination,
-				'CopySource' => "{$connString['bucket']}/{$source}",
+				'Bucket' => $cs['bucket'],
+				'Key'    => $cs['folder'].$destination,
+				'CopySource' => $cs['bucket'].'/'.$cs['folder'].$source,
 			));
 			$s3->deleteObject(array(
-				'Bucket' => $connString['bucket'],
-				'Key'    => $source,
+				'Bucket' => $cs['bucket'],
+				'Key'    => $cs['folder'].$source,
 			));
 		} catch (S3Exception $e) {
 			self::$error = $e->getMessage();
@@ -813,25 +922,30 @@ class Scaffold {
 
 	// proceed upload according to protocol
 	public static function startUpload(&$handler, $uploadDir) {
-		$protocol = self::getUploadProtocol();
 		// skip when unit-test
 		if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 			return $handler->getNewFileName();
+		}
 		// take action according to protocol
-		} elseif ( $protocol == 's3' ) {
-			return self::startUpload__S3($handler, $uploadDir);
-		} elseif ( $protocol == 'ftp' or $protocol == 'ftps' ) {
-			return self::startUpload__FTP($handler, $uploadDir);
-		} else {
-			return self::startUpload__LocalServer($handler, $uploadDir);
+		switch ( self::parseConnectionString(null, 'protocol') ) {
+			case 's3':
+				return self::startUpload__S3($handler, $uploadDir);
+				break;
+			case 'ftp':
+			case 'ftps':
+				return self::startUpload__FTP($handler, $uploadDir);
+				break;
+			default:
+				return self::startUpload__Local($handler, $uploadDir);
 		}
 	}
 
 
 	// proceed upload to remote FTP server
+	// ===> append upload directory with folder in connection string (if any)
 	public static function startUpload__FTP(&$handler, $uploadDir) {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
+		$cs = self::parseConnectionString();
+		if ( $cs === false ) return false;
 		// upload to temp directory at local server first
 		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
 		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
@@ -843,9 +957,10 @@ class Scaffold {
 			return false;
 		}
 		// connect to server
-		$ftpConn = self::getFTPConnection();
+		$ftpConn = self::getConnection__FTP();
+		if ( $ftpConn === false ) return false;
 		// upload to target directory at remote server
-		$destination = $uploadDir.$handler->getFileName();
+		$destination = $cs['folder'].$uploadDir.$handler->getFileName();
 		$source = $tmpUploadDir.$handler->getFileName();
 		$uploadResult = ftp_put($ftpConn, $destination, $source, FTP_BINARY);
 		if ( $uploadResult === false ) {
@@ -860,7 +975,7 @@ class Scaffold {
 
 
 	// proceed upload to local server
-	public static function startUpload__LocalServer(&$handler, $uploadDir) {
+	public static function startUpload__Local(&$handler, $uploadDir) {
 		$handler->uploadDir = $uploadDir;
 		$uploadResult = $handler->handleUpload();
 		// validate upload result
@@ -874,9 +989,10 @@ class Scaffold {
 
 
 	// proceed upload to S3 bucket
+	// ===> append upload directory with folder in connection string (if any)
 	public static function startUpload__S3(&$handler, $uploadDir) {
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
+		$cs = self::parseConnectionString();
+		if ( $cs === false ) return false;
 		// fix parameter (remove leading slash & append trailing slash)
 		if ( substr($uploadDir, 0, 1) == '/' ) $uploadDir = substr($uploadDir, 1);
 		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
@@ -890,13 +1006,15 @@ class Scaffold {
 			self::$error = $handler->getErrorMsg();
 			return false;
 		}
+		// get S3 client for upload operation
+		$s3 = self::getConnection__S3();
+		if ( $s3 === false ) return false;
 		// upload to target folder at remote bucket
-		$s3 = self::getS3Client();
 		try {
-			$destination = $uploadDir.$handler->getFileName();
+			$destination = $cs['folder'].$uploadDir.$handler->getFileName();
 			$source = $tmpUploadDir.$handler->getFileName();
 			$newFile = $s3->putObject(array(
-				'Bucket' => $connString['bucket'],
+				'Bucket' => $cs['bucket'],
 				'Key' => $destination,
 				'SourceFile' => $source,
 				'ACL' => 'public-read'
@@ -968,12 +1086,10 @@ class Scaffold {
 			return false;
 		}
 		// get connection info
-		$connString = self::parseConnectionString();
-		if ( $connString == false ) return false;
+		$cs = self::parseConnectionString();
+		if ( $cs === false ) return false;
 		// fix config
-		$uploadDir  = str_replace('\\', '/', $connString['folder']);
-		$uploadDir .= ( substr($uploadDir, -1) == '/' ) ? '' : '/';
-		$uploadDir .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
+		$uploadDir = self::$config['beanType'].'/'.$arguments['fieldName'].'/';
 		$uploadBaseUrl  = str_replace('\\', '/', $fusebox->config['uploadBaseUrl']);
 		$uploadBaseUrl .= ( substr($uploadBaseUrl, -1) == '/' ) ? '' : '/';
 		$uploadBaseUrl .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
