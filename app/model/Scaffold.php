@@ -262,11 +262,11 @@ class Scaffold {
 	public static function getFileList($dir) {
 		switch ( self::parseConnectionString(null, 'protocol') ) {
 			case 's3':
-				return self::getFileList__S3($dir, $connString);
+				return self::getFileList__S3($dir);
 				break;
 			case 'ftp':
 			case 'ftps':
-				return self::getFileList__FTP($dir, $connString);
+				return self::getFileList__FTP($dir);
 				break;
 			default:
 				return self::getFileList__Local($dir);
@@ -639,7 +639,7 @@ class Scaffold {
 
 
 	// rename file at server according to protocol
-	public static function renameFile($source, $destination, $connString=null) {
+	public static function renameFile($source, $destination) {
 		switch ( self::parseConnectionString(null, 'protocol') ) {
 			case 's3':
 				return self::renameFile__S3($source, $destination);
