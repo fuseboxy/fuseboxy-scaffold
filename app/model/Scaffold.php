@@ -785,6 +785,7 @@ class Scaffold {
 
 	// assign default value to parameters
 	public static function setParamDefault() {
+		global $arguments;
 		// obtain all columns of specified table
 		// ===> if no column (or non-exist table)
 		// ===> rely on {fieldConfig} (if any)
