@@ -744,6 +744,7 @@ class Scaffold {
 		}
 		// put submitted data into bean
 		$bean->import($data);
+		foreach ( $bean as $key => $val ) if ( $val === '' ) $bean[$key] = null;
 		// default value
 		// ===> allow no <seq> field, but <disabled> field is compulsory
 		if ( !isset($bean->disabled) or $bean->disabled == '' ) {
