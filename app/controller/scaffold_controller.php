@@ -88,7 +88,7 @@
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
 						<string name="label" optional="yes" comments="display name at table/form header">
-						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many|wysiwyg" default="text" />
+						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many|wysiwyg|url" default="text" />
 						<array name="options" optional="yes" comments="show dropdown when specified">
 							<string name="~key is option-value~" comments="value is option-text" />
 						</array>
