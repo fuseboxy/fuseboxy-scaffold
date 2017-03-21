@@ -6,10 +6,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $fusebox;
 		// load library
 		if ( !class_exists('Framework') ) {
-			include __DIR__.'/utility-scaffold/framework/1.0.2/fuseboxy.php';
+			require_once __DIR__.'/utility-scaffold/framework/1.0.2/fuseboxy.php';
 		}
 		if ( !class_exists('F') ) {
-			include __DIR__.'/utility-scaffold/framework/1.0.2/F.php';
+			require_once __DIR__.'/utility-scaffold/framework/1.0.2/F.php';
 		}
 		// unit test mode
 		Framework::$mode = Framework::FUSEBOX_UNIT_TEST;
@@ -19,16 +19,576 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$fusebox->config['appPath'] = dirname(__DIR__).'/app/';
 		$fusebox->controller = 'unitTest';
 		Framework::setMyself();
-		// load library
+		// load scaffold library
+		include dirname(__DIR__).'/app/model/Scaffold.php';
 		include dirname(__DIR__).'/app/model/UUID.php';
+		// load database library
 		include __DIR__.'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
 		include dirname(__DIR__).'/lib/redbeanphp/4.3.3/rb.php';
-		R::setup('sqlite:'.__DIR__.'/unit_test.db');
-		R::freeze(false);
+		include __DIR__.'/utility-scaffold/config/rb_config.php';
 	}
 
 
-	function resetScaffoldConfig() {
+	function test__Scaffold__createFolder() {
+
+	}
+
+
+	function test__Scaffold__createFolder__FTP() {
+
+	}
+
+
+	function test__Scaffold__createFolder__Local() {
+
+	}
+
+
+	function test__Scaffold__createFolder__S3() {
+
+	}
+
+
+	function test__Scaffold__deleteBean() {
+		Scaffold::$config = array('beanType' => 'unittest');
+		Scaffold::setParamDefault();
+		// create dummy record
+		$dummy = R::dispense(Scaffold::$config['beanType']);
+		$dummy->name = 'foobar';
+		$id = R::store($dummy);
+		$this->assertTrue($id);
+		// proceed to delete
+		$result = Scaffold::deleteBean($id);
+		$this->assertTrue($result);
+		// check record existence
+		$bean = R::load(Scaffold::$config['beanType'], $id);
+		$this->assertFalse($bean->id);
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__fixParam() {
+		global $fusebox;
+		$fusebox->controller = 'unit';
+		$fusebox->action = 'test';
+		Scaffold::$config = array(
+			'editMode' => 'foobar',
+			'fieldConfig' => array(
+				'field_Byte' => array('format' => 'file', 'filesize' => '100'),
+				'field_KB'   => array('format' => 'file', 'filesize' => '1kb'),
+				'field_MB'   => array('format' => 'file', 'filesize' => '2Mb'),
+				'field_GB'   => array('format' => 'file', 'filesize' => '3GB'),
+				'field_TB'   => array('format' => 'file', 'filesize' => '4tB'),
+			),
+		);
+		Scaffold::fixParam();
+		// edit mode
+		$this->assertFalse(Scaffold::$config['editMode'] == 'foobar');
+		$this->assertTrue(Scaffold::$config['editMode'] == 'inline');
+		// file size
+		$this->assertTrue(Scaffold::$config['fieldConfig']['field_Byte']['filesize_numeric'] == 100);
+		$this->assertTrue(Scaffold::$config['fieldConfig']['field_KB']['filesize_numeric'] == 1024);
+		$this->assertTrue(Scaffold::$config['fieldConfig']['field_MB']['filesize_numeric'] == 2*1024*1024);
+		$this->assertTrue(Scaffold::$config['fieldConfig']['field_GB']['filesize_numeric'] == 3*1024*1024*1024);
+		$this->assertTrue(Scaffold::$config['fieldConfig']['field_TB']['filesize_numeric'] == 4*1024*1024*1024*1024);
+		// clean-up
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__getBean() {
+		Scaffold::$config = array('beanType' => 'unittest');
+		Scaffold::setParamDefault();
+		// create dummy record
+		$dummy = R::dispense(Scaffold::$config['beanType']);
+		$dummy->name = 'foobar';
+		$id = R::store($dummy);
+		$this->assertTrue($id);
+		// empty bean (when nothing specified)
+		$emptyBean = Scaffold::getBean();
+		$this->assertFalse($emptyBean->id);
+		$this->assertTrue($emptyBean->getMeta('type') == 'unittest');
+		// existing bean (when id specified)
+		$bean = Scaffold::getBean($id);
+		$this->assertTrue($bean->id);
+		$this->assertTrue($bean->id == $id);
+		$this->assertTrue($emptyBean->getMeta('type') == 'unittest');
+		// non-existing record (wrong id)
+		$wrongBean = Scaffold::getBean(-999);
+		$this->assertFalse($wrongBean);
+		$this->assertPattern('/record not found/i', Scaffold::error());
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__getBeanList() {
+		Scaffold::$config = array('beanType' => 'foobar');
+		Scaffold::setParamDefault();
+		// create dummy records
+		for ($i=0; $i<10; $i++) {
+			$dummy = R::dispense(Scaffold::$config['beanType']);
+			$dummy->name = "foobar ({$i})";
+			$dummy->disabled = ( $i%2 == 0 );
+			R::store($dummy);
+		}
+		// no filter specified (rely on default)
+		$beans = Scaffold::getBeanList();
+		$this->assertTrue(count($beans) == 10);
+		// filter as string
+		Scaffold::$config['listFilter'] = 'disabled = 0';
+		$beans = Scaffold::getBeanList();
+		$this->assertTrue(count($beans) == 5);
+		Scaffold::$config['listFilter'] = null;
+		// filter as array
+		Scaffold::$config['listFilter'] = array('name <> ?', array('foobar (0)'));
+		$beans = Scaffold::getBeanList();
+		$this->assertTrue(count($beans) == 9);
+		Scaffold::$config['listFilter'] = null;
+		// order ascending
+		Scaffold::$config['listOrder'] = 'ORDER BY name ASC';
+		$beans = Scaffold::getBeanList();
+		$firstBean = array_shift($beans);
+		$lastBean  = array_pop($beans);
+		$this->assertTrue($firstBean->name == 'foobar (0)');
+		$this->assertTrue($lastBean->name  == 'foobar (9)');
+		Scaffold::$config['listOrder'] = null;
+		// order descending
+		Scaffold::$config['listOrder'] = 'ORDER BY name DESC';
+		$beans = Scaffold::getBeanList();
+		$firstBean = array_shift($beans);
+		$lastBean  = array_pop($beans);
+		$this->assertTrue($firstBean->name == 'foobar (9)');
+		$this->assertTrue($lastBean->name  == 'foobar (0)');
+		Scaffold::$config['listOrder'] = null;
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__getConnection__FTP() {
+
+	}
+
+
+	function test__Scaffold__getConnection__S3() {
+
+	}
+
+
+	function test__Scaffold__getFileList() {
+
+	}
+
+
+	function test__Scaffold__getFileList__FTP() {
+
+	}
+
+
+	function test__Scaffold__getFileList__Local() {
+
+	}
+
+
+	function test__Scaffold__getFileList__S3() {
+
+	}
+
+
+	function test__Scaffold__parseConnectionString() {
+
+
+		// clean-up
+		$fusebox->config['uploadDir'] = null;
+	}
+
+
+	function test__Scaffold__parseConnectionString__FTP() {
+		global $fusebox;
+		// failure : missing protocol
+		$conn = Scaffold::parseConnectionString__FTP('unit:test@ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is missing from connection string/i', Scaffold::error());
+		$conn = Scaffold::parseConnectionString__FTP('://unit:test@ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is missing from connection string/i', Scaffold::error());
+		// failure : invalid protocol
+		$conn = Scaffold::parseConnectionString__FTP('http://unit:test@ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is invalid/i', Scaffold::error());
+		// failure : missing username
+		$conn = Scaffold::parseConnectionString__FTP('ftp://ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Username\] is missing from connection string/i', Scaffold::error());
+		$conn = Scaffold::parseConnectionString__FTP('ftp://@ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Username\] is missing from connection string/i', Scaffold::error());
+		// failure : missing password
+		$conn = Scaffold::parseConnectionString__FTP('ftp://unit@ftp.foobar.net');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Password\] is missing from connection string/i', Scaffold::error());
+		// failure : missing hostname
+		$conn = Scaffold::parseConnectionString__FTP('ftp://unit:test@');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Hostname\] is missing from connection string/i', Scaffold::error());
+		// success : no folder
+		$conn = Scaffold::parseConnectionString__FTP('ftp://foo:bar@ftp.unit-test.com/');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 'ftp');
+		$this->assertTrue($conn['username'] == 'foo');
+		$this->assertTrue($conn['password'] == 'bar');
+		$this->assertTrue($conn['hostname'] == 'ftp.unit-test.com');
+		$this->assertTrue($conn['folder'] == '');
+		// success : has folder
+		$conn = Scaffold::parseConnectionString__FTP('FTPS://unit:test@ftp.foobar.net/path/to/folder');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 'ftps');
+		$this->assertTrue($conn['username'] == 'unit');
+		$this->assertTrue($conn['password'] == 'test');
+		$this->assertTrue($conn['hostname'] == 'ftp.foobar.net');
+		$this->assertTrue($conn['folder'] == 'path/to/folder/');  // has trailing slash
+		// success : excessive slash
+		$conn = Scaffold::parseConnectionString__FTP('ftp://////username:password@hostname///path/to///folder//////');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 'ftp');
+		$this->assertTrue($conn['username'] == 'username');
+		$this->assertTrue($conn['password'] == 'password');
+		$this->assertTrue($conn['hostname'] == 'hostname');
+		$this->assertTrue($conn['folder'] == 'path/to/folder/');
+		// parse framework config
+		$fusebox->config['uploadDir'] = 'ftp://uid:pwd@svr/dir';
+		$conn = Scaffold::parseConnectionString__FTP();
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 'ftp');
+		$this->assertTrue($conn['username'] == 'uid');
+		$this->assertTrue($conn['password'] == 'pwd');
+		$this->assertTrue($conn['hostname'] == 'svr');
+		$this->assertTrue($conn['folder'] == 'dir/');
+		// parse passed argument instead of config
+		$conn = Scaffold::parseConnectionString__FTP('ftps://foo:bar@unit.test.org/UPLOAD/');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 'ftps');
+		$this->assertTrue($conn['username'] == 'foo');
+		$this->assertTrue($conn['password'] == 'bar');
+		$this->assertTrue($conn['hostname'] == 'unit.test.org');
+		$this->assertTrue($conn['folder'] == 'UPLOAD/');
+		// clean-up
+		$fusebox->config['uploadDir'] = null;
+	}
+
+
+	function test__Scaffold__parseConnectionString__S3() {
+		global $fusebox;
+		// failure : missing protocol
+		$conn = Scaffold::parseConnectionString__S3('foo:bar@unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is missing from connection string/i', Scaffold::error());
+		$conn = Scaffold::parseConnectionString__S3('://foo:bar@unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is missing from connection string/i', Scaffold::error());
+		// failure : invalid protocol
+		$conn = Scaffold::parseConnectionString__S3('ftp://foo:bar@unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Protocol\] is invalid/i', Scaffold::error());
+		// failure : missing access-key-id
+		$conn = Scaffold::parseConnectionString__S3('s3://unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Access Key ID\] is missing from connection string/i', Scaffold::error());
+		$conn = Scaffold::parseConnectionString__S3('s3://@unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Access Key ID\] is missing from connection string/i', Scaffold::error());
+		// failure : missing secret-access-key
+		$conn = Scaffold::parseConnectionString__S3('s3://foo@unit-test-bucket');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Secret Access Key\] is missing from connection string/i', Scaffold::error());
+		// failure : missing bucket
+		$conn = Scaffold::parseConnectionString__S3('s3://foo:bar@');
+		$this->assertFalse($conn);
+		$this->assertPattern('/\[Bucket\] is missing from connection string/i', Scaffold::error());
+		// success : no folder
+		$conn = Scaffold::parseConnectionString__S3('s3://abcde:12345@unit-test-bucket/');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 's3');
+		$this->assertTrue($conn['accessKeyID'] == 'abcde');
+		$this->assertTrue($conn['secretAccessKey'] == '12345');
+		$this->assertTrue($conn['bucket'] == 'unit-test-bucket');
+		$this->assertTrue($conn['folder'] == '');
+		// success : has folder
+		$conn = Scaffold::parseConnectionString__S3('S3://abcde:12345@unit-test-bucket/path/to/folder');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 's3');
+		$this->assertTrue($conn['accessKeyID'] == 'abcde');
+		$this->assertTrue($conn['secretAccessKey'] == '12345');
+		$this->assertTrue($conn['bucket'] == 'unit-test-bucket');
+		$this->assertTrue($conn['folder'] == 'path/to/folder/');  // has trailing slash
+		// success : excessive slash
+		$conn = Scaffold::parseConnectionString__S3('s3://////abcde:12345@unit-test-bucket///path/to///folder//////');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 's3');
+		$this->assertTrue($conn['accessKeyID'] == 'abcde');
+		$this->assertTrue($conn['secretAccessKey'] == '12345');
+		$this->assertTrue($conn['bucket'] == 'unit-test-bucket');
+		$this->assertTrue($conn['folder'] == 'path/to/folder/');
+		// parse framework config
+		$fusebox->config['uploadDir'] = 's3://uid:pwd@bucket/dir';
+		$conn = Scaffold::parseConnectionString__S3();
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 's3');
+		$this->assertTrue($conn['accessKeyID'] == 'uid');
+		$this->assertTrue($conn['secretAccessKey'] == 'pwd');
+		$this->assertTrue($conn['bucket'] == 'bucket');
+		$this->assertTrue($conn['folder'] == 'dir/');
+		// parse passed argument instead of config
+		$conn = Scaffold::parseConnectionString__S3('s3://unit.test:1234567890@foo-bar-bucket/UPLOAD/');
+		$this->assertTrue($conn);
+		$this->assertTrue($conn['protocol'] == 's3');
+		$this->assertTrue($conn['accessKeyID'] == 'unit.test');
+		$this->assertTrue($conn['secretAccessKey'] == '1234567890');
+		$this->assertTrue($conn['bucket'] == 'foo-bar-bucket');
+		$this->assertTrue($conn['folder'] == 'UPLOAD/');
+		// clean-up
+		$fusebox->config['uploadDir'] = null;
+	}
+
+
+	function test__Scaffold__removeExpiredFile() {
+/*
+		global $fusebox;
+		global $scaffold;
+		$fusebox->action = 'remove_expired_file';
+		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
+		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
+		// missing parameter
+		self::__resetScaffoldConfig();
+		try {
+			$hasError = false;
+			ob_start();
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
+			$output = ob_get_clean();
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
+		}
+		$this->assertTrue($hasError);
+		$this->assertPattern('/argument \[fieldName\] is required/i', $output);
+		unset($output);
+		// define essential param
+		$arguments['fieldName'] = 'poster';
+		$arguments['uploadDir'] = "{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/{$arguments['fieldName']}/";
+		// create dummy records
+		self::__resetScaffoldConfig();
+		for ($i=0; $i<5; $i++) {
+			$bean = R::dispense($scaffold['beanType']);
+			$bean->import(array(
+				'name' => "Foo Bar #{$i}",
+				'poster' => "{$fusebox->config['uploadBaseUrl']}/{$scaffold['beanType']}/{$arguments['fieldName']}/poster_{$i}.png",
+			));
+			$this->assertTrue( R::store($bean) );
+		}
+		// remove expired file successfully
+		self::__resetScaffoldConfig();
+		try {
+			$hasError = false;
+			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
+		} catch (Exception $e) {
+			$output = $e->getMessage();
+			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
+		}
+		$this->assertFalse($hasError);
+		$hasFile = false;
+		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
+			$hasFile = true;
+			$this->assertTrue( pathinfo($filePath, PATHINFO_EXTENSION) == 'DELETED' );
+		}
+		$this->assertTrue($hasFile);
+		unset($output);
+		// clean-up
+		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
+			rename($filePath, substr($filePath, 0, strlen($filePath)-8));
+		}
+		R::wipe($scaffold['beanType']);
+*/
+	}
+
+
+	function test__Scaffold__renameFile() {
+
+	}
+
+
+	function test__Scaffold__renameFile__FTP() {
+
+	}
+
+
+	function test__Scaffold__renameFile__Local() {
+
+	}
+
+
+	function test__Scaffold__renameFile__S3() {
+
+	}
+
+
+	function test__Scaffold__saveBean() {
+		Scaffold::$config = array('beanType' => 'unittest');
+		Scaffold::setParamDefault();
+		// create new record
+		$newID = Scaffold::saveBean(array(
+			'alias' => 'foobar',
+			'name'  => 'Foo Bar',
+		));
+		$this->assertTrue($newID);
+		$bean = Scaffold::getBean($newID);
+		$this->assertTrue($bean->alias == 'foobar');
+		// update existing record
+		$id = Scaffold::saveBean(array(
+			'id'    => $newID,
+			'alias' => 'unittest',
+			'name'  => 'Unit Test',
+		));
+		$this->assertTrue($id);
+		$bean = Scaffold::getBean($newID);
+		$this->assertTrue($bean->alias == 'unittest');
+		// update non-existing record
+		$wrongID = Scaffold::saveBean(array(
+			'id'    => -999,
+			'alias' => 'nobody',
+			'name'  => 'Nobody',
+		));
+		$this->assertFalse($wrongID);
+		$this->assertPattern('/record not found/i', Scaffold::error());
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__setParamDefault() {
+		Scaffold::$config = array('beanType' => 'unittest');
+		Scaffold::setParamDefault();
+		// check param existence
+		$this->assertTrue( isset(Scaffold::$config['allowNew']) );
+		$this->assertTrue( isset(Scaffold::$config['allowEdit']) );
+		$this->assertTrue( isset(Scaffold::$config['allowToggle']) );
+		$this->assertTrue( isset(Scaffold::$config['allowDelete']) );
+		$this->assertTrue( isset(Scaffold::$config['allowSort']) );
+		$this->assertTrue( isset(Scaffold::$config['listFilter']) );
+		$this->assertTrue( isset(Scaffold::$config['listOrder']) );
+		$this->assertTrue( isset(Scaffold::$config['writeLog']) );
+		// check param value
+		$this->assertTrue(Scaffold::$config['allowNew']);
+		$this->assertTrue(Scaffold::$config['allowEdit']);
+		$this->assertTrue(Scaffold::$config['allowToggle']);
+		$this->assertFalse(Scaffold::$config['allowDelete']);
+		$this->assertFalse(Scaffold::$config['allowSort']);
+		$this->assertFalse(Scaffold::$config['writeLog']);
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__startUpload() {
+
+	}
+
+
+	function test__Scaffold__startUpload__FTP() {
+
+	}
+
+
+	function test__Scaffold__startUpload__Local() {
+
+	}
+
+
+	function test__Scaffold__startUpload__S3() {
+
+	}
+
+
+	function test__Scaffold__toggleBean() {
+		Scaffold::$config = array('beanType' => 'unittest');
+		Scaffold::setParamDefault();
+		// create dummy record
+		$dummy = R::dispense(Scaffold::$config['beanType']);
+		$dummy->name = 'foobar';
+		$id = R::store($dummy);
+		$this->assertTrue($id);
+		// enable record
+		$result = Scaffold::toggleBean($id, 1);
+		$this->assertTrue($result);
+		$bean = Scaffold::getBean($id);
+		$this->assertFalse($bean->disabled);
+		// disable record
+		$result = Scaffold::toggleBean($id, 0);
+		$this->assertTrue($result);
+		$bean = Scaffold::getBean($id);
+		$this->assertTrue($bean->disabled);
+		// toggle non-existing record
+		$result = Scaffold::toggleBean(-999, 1);
+		$this->assertFalse($result);
+		$this->assertPattern('/record not found/i', Scaffold::error());
+		// clean-up
+		R::wipe(Scaffold::$config['beanType']);
+		Scaffold::$config = null;
+	}
+
+
+	function test__Scaffold__uploadFile() {
+
+	}
+
+
+	function test__Scaffold__validateConfig() {
+		global $fusebox;
+		// missing bean type
+		$result = Scaffold::validateConfig();
+		$this->assertFalse($result);
+		$this->assertPattern('/scaffold config \[beanType\] is required/i', Scaffold::error());
+		// invalid bean type
+		Scaffold::$config['beanType'] = 'unit_test';
+		$result = Scaffold::validateConfig();
+		$this->assertFalse($result);
+		$this->assertPattern('/cannot contain underscore/i', Scaffold::error());
+		// missing layout path
+		Scaffold::$config['beanType'] = 'unittest';
+		$result = Scaffold::validateConfig();
+		$this->assertFalse($result);
+		$this->assertPattern('/scaffold config \[layoutPath\] is required/i', Scaffold::error());
+		// no need for upload directory (when no file field)
+		Scaffold::$config['layoutPath'] = '/foo/bar/layout.php';
+		$result = Scaffold::validateConfig();
+		$this->assertTrue($result);
+		// missing upload directory (when has file field)
+		Scaffold::$config['fieldConfig'] = array('myField' => array('format' => 'file'));
+		$result = Scaffold::validateConfig();
+		$this->assertFalse($result);
+		$this->assertPattern('/fusebox config \[uploadDir\] is required/i', Scaffold::error());
+		// missing upload base-url (when has file field)
+		$fusebox->config['uploadDir'] = '/unit/test/upload/';
+		$result = Scaffold::validateConfig();
+		$this->assertFalse($result);
+		$this->assertPattern('/fusebox config \[uploadBaseUrl\] is required/i', Scaffold::error());
+		// all pass!
+		$fusebox->config['uploadBaseUrl'] = 'http://www.foobar.com/unit/test/upload/';
+		$result = Scaffold::validateConfig();
+		$this->assertTrue($result);
+		// clean-up
+		Scaffold::$config = null;
+		$fusebox->config['uploadDir'] = $fusebox->config['uploadBaseUrl'] = null;
+	}
+
+
+	/*function __resetScaffoldConfig() {
 		global $scaffold;
 		$scaffold = array(
 			'beanType' => 'unittestbean',
@@ -37,32 +597,12 @@ class TestFuseboxyScaffold extends UnitTestCase {
 	}
 
 
-	function test__defaultConfig() {
-		global $fusebox;
-		global $scaffold;
-		$fusebox->action = 'emptyRow';
-		// check default permission
-		self::resetScaffoldConfig();
-		ob_start();
-		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
-		$output = ob_get_clean();
-		$this->assertNoPattern('/PHP ERROR/i', $output);
-		$this->assertTrue( $scaffold['allowNew'] );
-		$this->assertTrue( $scaffold['allowEdit'] );
-		$this->assertTrue( $scaffold['allowToggle'] );
-		$this->assertFalse( $scaffold['allowDelete'] );
-		$this->assertFalse( $scaffold['allowSort'] );
-		// clean-up
-		R::wipe($scaffold['beanType']);
-	}
-
-
 	function test__index() {
 		global $fusebox;
 		global $scaffold;
 		$fusebox->action = 'index';
 		// create dummy records
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		for ($i=0; $i<10; $i++) {
 			$bean = R::dispense($scaffold['beanType']);
 			$bean->import(array(
@@ -73,7 +613,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$this->assertTrue( R::store($bean) );
 		}
 		// default breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -81,7 +621,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][0]) and strtolower($arguments['breadcrumb'][0]) == $scaffold['beanType'] );
 		unset($output, $arguments);
 		// custom breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['breadcrumb'] = array('Unit Test', 'Listing', 'All');
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -92,7 +632,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == 'All' );
 		unset($output, $arguments);
 		// check number of rows
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -105,7 +645,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-disable')->length == 5 );
 		// non-existing table
 		// ===> should pass and nothing happen
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['beanType'] = 'unknown';
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -114,7 +654,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertNoPattern('/PHP ERROR/i', $output);
 		$this->assertFalse( pq('.scaffold-row')->length );
 		// config {listFilter} in string
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$scaffold['listFilter'] = 'disabled = 0';
 		ob_start();
@@ -126,7 +666,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-disable')->length == 5 );
 		$this->assertFalse( pq('.scaffold-btn-enable')->length );
 		// config {listFilter} in array
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$scaffold['listFilter'] = array('disabled = ?', array(true));
 		ob_start();
@@ -149,7 +689,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'index';
 		// create dummy records
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		for ($i=0; $i<10; $i++) {
 			$bean = R::dispense($scaffold['beanType']);
 			$bean->import(array(
@@ -160,7 +700,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$this->assertTrue( R::store($bean) );
 		}
 		// enable all features
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['editMode'] = 'inline';
 		$scaffold['allowNew'] = true;
 		$scaffold['allowEdit'] = true;
@@ -180,7 +720,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-sort')->length );
 		$this->assertFalse( pq('.scaffold-btn-quick-new')->length );
 		// quick new button
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['editMode'] = 'modal';
 		$scaffold['allowNew'] = true;
 		ob_start();
@@ -202,7 +742,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'index';
 		// create dummy records
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		for ($i=0; $i<10; $i++) {
 			$bean = R::dispense($scaffold['beanType']);
 			$bean->import(array(
@@ -213,7 +753,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$this->assertTrue( R::store($bean) );
 		}
 		// disable all features
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowNew'] = false;
 		$scaffold['allowEdit'] = false;
 		$scaffold['allowDelete'] = false;
@@ -241,7 +781,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'row';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -251,7 +791,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// missing parameter
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = null;
 		try {
 			$hasError = false;
@@ -266,7 +806,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/id was not specified/i', $output);
 		unset($output, $arguments);
 		// existing record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -276,7 +816,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-row')->length == 1 );
 		unset($output, $doc, $arguments);
 		// non-existing record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = -1;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -297,7 +837,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'row';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -307,7 +847,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// allow {edit|delete|toggle}
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		$scaffold['allowEdit'] = true;
 		$scaffold['allowDelete'] = true;
@@ -333,7 +873,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'row';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -343,7 +883,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// not allow {edit|delete|toggle}
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		$scaffold['allowEdit'] = false;
 		$scaffold['allowDelete'] = false;
@@ -367,7 +907,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'edit';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -377,7 +917,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// missing parameter
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = null;
 		try {
 			$hasError = false;
@@ -392,7 +932,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/id was not specified/i', $output);
 		unset($output, $arguments);
 		// default breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -402,7 +942,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][1]) and strtolower($arguments['breadcrumb'][1]) == 'edit' );
 		unset($output, $arguments);
 		// custom breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		$arguments['breadcrumb'] = array('UNIT TEST', 'EDIT', 'FOO BAR');
 		ob_start();
@@ -415,7 +955,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($output, $arguments);
 		// inline edit
 		// ===> must be ajax-request
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['editMode'] = 'inline';
 		$arguments['id'] = $id;
@@ -437,7 +977,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($output, $doc, $arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// modal edit
 		// ===> must be ajax-request
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['editMode'] = 'modal';
 		$arguments['id'] = $id;
@@ -458,7 +998,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($output, $doc, $arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// classic edit (in separate page)
 		// ===> non-ajax-request
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['editMode'] = 'classic';
 		$arguments['id'] = $id;
 		ob_start();
@@ -487,7 +1027,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'edit';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -497,7 +1037,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// inline edit : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$scaffold['editMode'] = 'inline';
 		$arguments['id'] = $id;
@@ -511,7 +1051,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[id]']")->val() == $id );
 		unset($output, $doc, $arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// modal edit : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$scaffold['editMode'] = 'modal';
 		$arguments['id'] = $id;
@@ -525,7 +1065,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[id]']")->val() == $id );
 		unset($output, $doc, $arguments, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// classic edit : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$scaffold['editMode'] = 'classic';
 		$arguments['id'] = $id;
@@ -547,7 +1087,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'new';
 		// default breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
 		$output = ob_get_clean();
@@ -556,7 +1096,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][1]) and strtolower($arguments['breadcrumb'][1]) == 'new' );
 		unset($output, $arguments);
 		// custom breadcrumb
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['breadcrumb'] = array('Unit Test', 'New', '*');
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -567,7 +1107,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( isset($arguments['breadcrumb'][2]) and $arguments['breadcrumb'][2] == '*' );
 		unset($output, $arguments);
 		// classic : allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -581,7 +1121,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		// inline : allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['editMode'] = 'inline';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
@@ -598,7 +1138,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		unset($output, $doc, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// modal : allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['editMode'] = 'modal';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
@@ -615,7 +1155,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		unset($output, $doc, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// check input field type
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['editMode'] = 'classic';
 		$scaffold['fieldConfig'] = array(
@@ -672,7 +1212,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq("[name='data[myValue]']")->length == 1 );
 		$this->assertTrue( pq("[name='data[myValue]']")->val() == 'xyz' );
 		// with detail {fieldConfig} specified
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['editMode'] = 'classic';
 		$scaffold['fieldConfig'] = array(
 			'name' => array('format' => 'textarea'),
@@ -696,7 +1236,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $scaffold['fieldConfig']['id']['readonly'] );  // field {id} must be read-only
 		// non-exist table & no {fieldConfig} specified
 		// ===> only specify field name
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['beanType'] = 'unknown';
 		$scaffold['editMode'] = 'classic';
 		$scaffold['fieldConfig'] = array(
@@ -727,7 +1267,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'new';
 		// classic : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -741,7 +1281,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( pq('.scaffold-btn-cancel')->length == 1 );
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		// inline : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$scaffold['editMode'] = 'inline';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
@@ -757,7 +1297,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( empty(pq("[name='data[id]']")->val()) );
 		unset($output, $doc, $_SERVER['HTTP_X_REQUESTED_WITH']);
 		// modal : not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$scaffold['editMode'] = 'modal';
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
@@ -782,7 +1322,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'quick_new';
 		// allow save (no parameter is required)
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -806,7 +1346,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'quick_new';
 		// not allow save
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		ob_start();
 		include dirname(__DIR__).'/app/controller/scaffold_controller.php';
@@ -828,7 +1368,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'toggle';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean->import(array(
 			'name' => 'foo bar',
@@ -837,7 +1377,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// not allow toggle
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = false;
 		try {
 			$hasError = false;
@@ -853,7 +1393,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$bean = R::load($scaffold['beanType'], $id);
 		$this->assertFalse($bean->disabled);
 		// missing parameter : no [id] specified
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = null;
 		$arguments['disabled'] = null;
@@ -872,7 +1412,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertFalse($bean->disabled);
 		unset($output, $arguments);
 		// missing parameter : no [disabled] specified
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['id'] = $id;
 		try {
 			$hasError = false;
@@ -889,7 +1429,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertFalse($bean->disabled);
 		unset($output, $arguments);
 		// successfully disable
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 1;
@@ -907,7 +1447,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue($bean->disabled);
 		unset($output, $arguments);
 		// successfully enable
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowToggle'] = true;
 		$arguments['id'] = $id;
 		$arguments['disabled'] = 0;
@@ -934,7 +1474,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'save';
 		// check no data
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$arguments['data'] = array();
 		try {
 			$hasError = false;
@@ -950,7 +1490,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( R::count($scaffold['beanType']) == 0 );  // no record created
 		unset($output, $arguments);
 		// check create record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowNew'] = true;
 		$arguments['data'] = array(
 			'alias' => 'foobar',
@@ -973,7 +1513,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( $bean->alias == 'foobar' and $bean->name == 'Foo BAR' and $bean->seq == 999 );
 		unset($output, $arguments);
 		// check update record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$arguments['data'] = array(
 			'id' => $bean->id,
@@ -998,7 +1538,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( empty($bean->seq) );
 		unset($output, $arguments);
 		// check not allow create
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowNew'] = false;
 		$arguments['data'] = array(
 			'alias' => 'abc',
@@ -1019,7 +1559,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		unset($output, $arguments);
 		// check not allow update
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = false;
 		$bean = R::findOne($scaffold['beanType']);
 		$arguments['data'] = array(
@@ -1060,7 +1600,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// save record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
 			'alias' => array('format' => 'text'),
@@ -1126,7 +1666,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$bIndex++;
 		}
 		// save children beans
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
 			'alias' => array('format' => 'text'),
@@ -1197,7 +1737,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$this->assertTrue( $anotherBeanIDs[count($anotherBeanIDs)-1] );
 		}
 		// save related beans
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowEdit'] = true;
 		$scaffold['fieldConfig'] = array(
 			'alias' => array('format' => 'text'),
@@ -1253,13 +1793,13 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'delete';
 		// create dummy record
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$bean = R::dispense($scaffold['beanType']);
 		$bean['name'] = 'foo bar';
 		$id = R::store($bean);
 		$this->assertTrue($id);
 		// not allow delete
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowDelete'] = false;
 		try {
 			$hasError = false;
@@ -1274,7 +1814,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/delete is not allowed/i', $output);
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		// no id specified
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = null;
 		try {
@@ -1291,7 +1831,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertTrue( R::count($scaffold['beanType']) == 1 );
 		unset($output, $arguments);
 		// successfully delete
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = $id;
 		try {
@@ -1309,7 +1849,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// delete non-existing record
 		// ===> nothing happen (no error)
 		// ===> redirect to index page (when normal request)
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = -1;
 		try {
@@ -1326,7 +1866,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		unset($output, $arguments);
 		// delete in ajax-request
 		// ===> no redirect & show nothing
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$_SERVER['HTTP_X_REQUESTED_WITH'] = 'xmlhttprequest';
 		$scaffold['allowDelete'] = true;
 		$arguments['id'] = 999;
@@ -1352,7 +1892,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $scaffold;
 		$fusebox->action = 'upload_file';
 		// missing config : fusebox-config (uploadDir)
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		try {
@@ -1365,10 +1905,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertTrue($hasError);
-		$this->assertPattern('/configuration \$fusebox->config\[\"uploadDir\"\] is required/i', $output);
+		$this->assertPattern('/Fusebox config \[uploadDir\] is required/i', $output);
 		unset($output, $arguments);
 		// missing config : fusebox-config (uploadBaseUrl)
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$scaffold['fieldConfig'] = array( 'foobar' => array('format' => 'file') );
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
@@ -1382,10 +1922,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
 		}
 		$this->assertTrue($hasError);
-		$this->assertPattern('/configuration \$fusebox->config\[\"uploadBaseUrl\"\] is required/i', $output);
+		$this->assertPattern('/Fusebox config \[uploadBaseUrl\] is required/i', $output);
 		unset($output, $arguments, $fusebox->config['uploadDir']);
 		// missing parameter : uploaderID & fieldName
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
@@ -1400,7 +1940,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/argument \[fieldName\] is required/i', $json->msg);
 		unset($output, $json);
 		// missing data : file name passed by {uploaderID}
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
@@ -1416,7 +1956,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern("/data of \[{$arguments['uploaderID']}\] was not submitted/i", $json->msg);
 		unset($output, $json);
 		// missing field-config
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
@@ -1433,7 +1973,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		$this->assertPattern('/field config for \[foobar\] is required/i', $json->msg);
 		unset($output, $json, $arguments);
 		// invalid field-config
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$scaffold['libPath'] = dirname($fusebox->config['appPath']).'/lib/';
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
@@ -1453,7 +1993,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		// upload file successfully
 		// ===> should have directory created
 		// ===> response should have uploaded file
-		self::resetScaffoldConfig();
+		self::__resetScaffoldConfig();
 		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
 		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
 		$arguments['uploaderID'] = 'foobar_uploader_123456789';
@@ -1481,65 +2021,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 
 		// clean-up
 		R::wipe($scaffold['beanType']);
-	}
-
-
-	function test__removeExpiredFile() {
-		global $fusebox;
-		global $scaffold;
-		$fusebox->action = 'remove_expired_file';
-		$fusebox->config['uploadDir'] = __DIR__.'/utility-scaffold/upload';
-		$fusebox->config['uploadBaseUrl'] = dirname($_SERVER['SCRIPT_NAME']).'/utility-scaffold/upload';
-		// missing parameter
-		self::resetScaffoldConfig();
-		try {
-			$hasError = false;
-			ob_start();
-			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
-			$output = ob_get_clean();
-		} catch (Exception $e) {
-			$output = $e->getMessage();
-			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
-		}
-		$this->assertTrue($hasError);
-		$this->assertPattern('/argument \[fieldName\] is required/i', $output);
-		unset($output);
-		// define essential param
-		$arguments['fieldName'] = 'poster';
-		$arguments['uploadDir'] = "{$fusebox->config['uploadDir']}/{$scaffold['beanType']}/{$arguments['fieldName']}/";
-		// create dummy records
-		self::resetScaffoldConfig();
-		for ($i=0; $i<5; $i++) {
-			$bean = R::dispense($scaffold['beanType']);
-			$bean->import(array(
-				'name' => "Foo Bar #{$i}",
-				'poster' => "{$fusebox->config['uploadBaseUrl']}/{$scaffold['beanType']}/{$arguments['fieldName']}/poster_{$i}.png",
-			));
-			$this->assertTrue( R::store($bean) );
-		}
-		// remove expired file successfully
-		self::resetScaffoldConfig();
-		try {
-			$hasError = false;
-			include dirname(__DIR__).'/app/controller/scaffold_controller.php';
-		} catch (Exception $e) {
-			$output = $e->getMessage();
-			$hasError = ( $e->getCode() == Framework::FUSEBOX_ERROR );
-		}
-		$this->assertFalse($hasError);
-		$hasFile = false;
-		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
-			$hasFile = true;
-			$this->assertTrue( pathinfo($filePath, PATHINFO_EXTENSION) == 'DELETED' );
-		}
-		$this->assertTrue($hasFile);
-		unset($output);
-		// clean-up
-		foreach ( glob($arguments['uploadDir']."*.*" ) as $filePath ) {
-			rename($filePath, substr($filePath, 0, strlen($filePath)-8));
-		}
-		R::wipe($scaffold['beanType']);
-	}
+	}*/
 
 
 }
