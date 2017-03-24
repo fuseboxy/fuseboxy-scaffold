@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.1.1">
+		- split header/inline-edit/row buttons into seperate files
+	</history>
 	<history version="1.1">
 		- apply {Scaffold} component in order to simplify controller logic
 		- apply {script.scaffold.js} to consolidate javascript logic
