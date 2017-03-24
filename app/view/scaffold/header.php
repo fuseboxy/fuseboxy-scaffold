@@ -26,7 +26,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-header" class="scaffold-header">
+<div id="<?php echo $scaffold['beanType']; ?>-header" class="scaffold-header small">
 	<table class="table table-condensed" style="margin-bottom: 0;">
 		<thead>
 			<tr>

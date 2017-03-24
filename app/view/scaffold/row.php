@@ -21,7 +21,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row">
+<div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
 	<table class="table table-hover table-condensed" style="margin-bottom: 0;">
 		<tbody>
 			<tr class="<?php if ( isset($bean->disabled) and $bean->disabled ) echo 'warning text-muted'; ?>">
