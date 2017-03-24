@@ -24,7 +24,7 @@
 <div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
 	<table class="table table-hover table-condensed" style="margin-bottom: 0;">
 		<tbody>
-			<tr class="<?php if ( isset($bean->disabled) and $bean->disabled ) echo 'warning text-muted'; ?>">
+			<tr <?php if ( !empty($bean->disabled) ) : ?>style="background: #ddd; opacity: .5;"<?php endif; ?>>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
 					<?php $cols = explode('|', is_numeric($key) ? $val : $key); ?>
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
