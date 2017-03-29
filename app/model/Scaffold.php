@@ -1044,7 +1044,7 @@ class Scaffold {
 		// write log (when necessary)
 		if ( self::$config['writeLog'] ) {
 			$logResult = Log::write(array(
-				'action' => ( empty($active) ? 'ENABLE' : 'DISABLE' ).'_'.self::$config['beanType'],
+				'action' => ( !empty($active) ? 'ENABLE' : 'DISABLE' ).'_'.self::$config['beanType'],
 				'entity_type' => self::$config['beanType'],
 				'entity_id' => $id,
 			));
