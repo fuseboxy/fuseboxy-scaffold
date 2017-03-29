@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.1.2">
+		- fix serious bug of write log in toggleBean method
+	</history>
 	<history version="1.1.1">
 		- split header/inline-edit/row buttons into seperate files
 		- minor change on style of disabled row
