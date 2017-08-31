@@ -96,7 +96,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 					<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
 					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
 					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-				 /><?php echo $optText; ?>
+				 /><small><?php echo $optText; ?></small>
 			</label>
 		</div>
 		<?php $optIndex++; ?>
@@ -120,7 +120,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 					<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
 					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
 					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-				 /><?php echo $optText; ?>
+				 /><small><?php echo $optText; ?></small>
 			</label>
 		</div>
 		<?php $optIndex++; ?>

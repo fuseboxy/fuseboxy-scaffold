@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.1.3">
+		- minor adjustment on font size of checkbox/radio
+	</history>
 	<history version="1.1.2">
 		- fix serious bug of write log in toggleBean method
 	</history>
