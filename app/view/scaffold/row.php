@@ -61,7 +61,7 @@
 									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo basename($bean[$col]); ?></a>
 								<!-- checkbox : turn list into items -->
 								<?php elseif ( $isCheckbox and !empty($bean[$col]) ) : ?>
-									<div><?php echo str_replace('_', '</div><div>', $bean[$col]); ?></div>
+									<div><?php echo str_replace('|', '</div><div>', $bean[$col]); ?></div>
 								<!-- many-to-many : show alias/name/etc. -->
 								<?php elseif ( $isManyToMany ) : ?>
 									<?php foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) : ?>
