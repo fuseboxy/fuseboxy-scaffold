@@ -18,7 +18,8 @@
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
 				<string name="placeholder" />
 				<string name="style" />
-				<string name="help" />
+				<string name="pre-help" comments="help text show before input field" />
+				<string name="help" comments="help text show after input field" />
 				<!-- below are for [format=file] only -->
 				<string name="filesize" optional="yes" comments="max file size in bytes" />
 				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
@@ -76,6 +77,12 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	}
 }
 ?>
+
+
+<!-- pre-help -->
+<?php if ( !empty($field['pre-help']) ) : ?>
+	<div><?php echo $field['pre-help']; ?></div>
+<?php endif; ?>
 
 
 <!-- output -->

@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.2">
+		- apply [pre-help] on field config
+	</history>
 	<history version="1.1.3">
 		- minor adjustment on font size of checkbox/radio
 		- fix bug in showing checkbox value
@@ -109,7 +112,8 @@
 						<string name="value" optional="yes" comments="force filling with this value even if field has value" />
 						<string name="default" optional="yes" comments="filling with this value if field has no value" />
 						<string name="style" optional="yes" />
-						<string name="help" optional="yes" />
+						<string name="pre-help" optional="yes" comments="help text show before input field" />
+						<string name="help" optional="yes" comments="help text show after input field" />
 						<!-- below are for [format=file] only -->
 						<string name="filesize" optional="yes" comments="max file size in bytes" />
 						<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
