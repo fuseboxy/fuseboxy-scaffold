@@ -3,6 +3,7 @@
 	<history version="1.2">
 		- apply [pre-help] on [fieldConfig]
 		- apply horizontal line on [listField]
+		- apply style [break-word] to link displayed in row
 	</history>
 	<history version="1.1.3">
 		- minor adjustment on font size of checkbox/radio

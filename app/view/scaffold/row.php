@@ -59,7 +59,11 @@
 									</div>
 								<!-- file : show link -->
 								<?php elseif ( $isFile and !empty($bean[$col]) ) : ?>
-									<a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo basename($bean[$col]); ?></a>
+									<a
+										href="<?php echo $bean[$col]; ?>"
+										style="word-break: break-all;"
+										target="_blank"
+									><?php echo basename($bean[$col]); ?></a>
 								<!-- checkbox : turn list into items -->
 								<?php elseif ( $isCheckbox and !empty($bean[$col]) ) : ?>
 									<div><?php echo str_replace('|', '</div><div>', $bean[$col]); ?></div>
@@ -102,7 +106,11 @@
 									?></div>
 								<!-- url : show link -->
 								<?php elseif ( $isURL ) : ?>
-									<div><a href="<?php echo $bean[$col]; ?>" target="_blank"><?php echo $bean[$col]; ?></a></div>
+									<div><a
+										href="<?php echo $bean[$col]; ?>"
+										style="word-break: break-all;"
+										target="_blank"
+									><?php echo $bean[$col]; ?></a></div>
 								<!-- wysiwyg : show html -->
 								<?php elseif ( $isWYSIWYG ) : ?>
 									<div><?php echo $bean[$col]; ?></div>
