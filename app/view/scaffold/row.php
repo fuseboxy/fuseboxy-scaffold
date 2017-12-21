@@ -26,20 +26,21 @@
 		<tbody>
 			<tr <?php if ( !empty($bean->disabled) ) : ?>style="background: #ddd; opacity: .5;"<?php endif; ?>>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
-					<?php $cols = explode('|', is_numeric($key) ? $val : $key); ?>
+					<?php $cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key)); ?>
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
 					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
 						<?php foreach ( $cols as $i => $col ) : ?>
 							<?php
-								$objectName = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
+								$objectName   = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
 								$isManyToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'many-to-many' );
-								$isOneToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'one-to-many' );
-								$isCheckbox = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' );
-								$isObject = is_object($bean[$objectName]);
-								$isFile = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
-								$isHidden = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
-								$isWYSIWYG = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'wysiwyg' );
-								$isURL = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'url' );
+								$isOneToMany  = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'one-to-many' );
+								$isCheckbox   = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' );
+								$isObject     = is_object($bean[$objectName]);
+								$isFile       = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
+								$isHidden     = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
+								$isWYSIWYG    = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'wysiwyg' );
+								$isURL        = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'url' );
+								$isHR         = ( strlen($col) and !strlen(str_replace('-', '', $col)) );
 							?>
 							<div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>">
 								<!-- preview : show thumbnail -->
@@ -105,6 +106,9 @@
 								<!-- wysiwyg : show html -->
 								<?php elseif ( $isWYSIWYG ) : ?>
 									<div><?php echo $bean[$col]; ?></div>
+								<!-- horizontal line -->
+								<?php elseif ( $isHR ) : ?>
+									<div><hr style="margin: .75em 0;" /></div>
 								<!-- show text -->
 								<?php else : ?>
 									<div><?php echo nl2br($bean[$col]); ?></div>

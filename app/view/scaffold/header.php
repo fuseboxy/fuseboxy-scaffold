@@ -31,31 +31,34 @@
 		<thead>
 			<tr>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
-					<?php $cols = explode('|', is_numeric($key) ? $val : $key); ?>
+					<?php $cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key)); ?>
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
 					<th class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>">
 						<?php foreach ( $cols as $colIndex => $col ) : ?>
-							<?php
-								$isSortByThisField = ( isset($arguments['sortField']) and $arguments['sortField'] == $col );
-								$isAscendingOrder = ( empty($arguments['sortRule']) or strtolower($arguments['sortRule']) == 'asc' );
-								if ( isset($xfa['sort']) ) {
-									$sortUrl = "{$xfa['sort']}&sortField={$col}";
-									if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
-								}
-								$headerText = $scaffold['fieldConfig'][$col]['label'];
-								if ( $isSortByThisField and !empty($headerText) ) {
-									$headerIcon = $isAscendingOrder ? 'fa fa-caret-up' : 'fa fa-caret-down';
-									$headerText .= " <i class='{$headerIcon}'></i>";
-								}
-								if ( $colIndex > 0 and !empty($headerText) ) {
-									$headerText = "<small class='text-muted'>/ {$headerText}</small>";
-								}
-								$headerText = "<span class='col-{$col} text-nowrap'>{$headerText}</span>";
-							?>
-							<?php if ( isset($xfa['sort']) ) : ?>
-								<a href="<?php echo F::url($sortUrl); ?>" class="scaffold-btn-sort"><?php echo $headerText; ?></a>
-							<?php else : ?>
-								<?php echo $headerText; ?>
+							<?php $isHR = ( strlen($col) and !strlen(str_replace('-', '', $col))); ?>
+							<?php if ( !$isHR ) : ?>
+								<?php
+									$isSortByThisField = ( isset($arguments['sortField']) and $arguments['sortField'] == $col );
+									$isAscendingOrder = ( empty($arguments['sortRule']) or strtolower($arguments['sortRule']) == 'asc' );
+									if ( isset($xfa['sort']) ) {
+										$sortUrl = "{$xfa['sort']}&sortField={$col}";
+										if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
+									}
+									$headerText = $scaffold['fieldConfig'][$col]['label'];
+									if ( $isSortByThisField and !empty($headerText) ) {
+										$headerIcon = $isAscendingOrder ? 'fa fa-caret-up' : 'fa fa-caret-down';
+										$headerText .= " <i class='{$headerIcon}'></i>";
+									}
+									if ( $colIndex > 0 and !empty($headerText) ) {
+										$headerText = "<small class='text-muted'>/ {$headerText}</small>";
+									}
+									$headerText = "<span class='col-{$col} text-nowrap'>{$headerText}</span>";
+								?>
+								<?php if ( isset($xfa['sort']) ) : ?>
+									<a href="<?php echo F::url($sortUrl); ?>" class="scaffold-btn-sort"><?php echo $headerText; ?></a>
+								<?php else : ?>
+									<?php echo $headerText; ?>
+								<?php endif; ?>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					</th>

@@ -1,7 +1,8 @@
 <?php /*
 <fusedoc>
 	<history version="1.2">
-		- apply [pre-help] on field config
+		- apply [pre-help] on [fieldConfig]
+		- apply horizontal line on [listField]
 	</history>
 	<history version="1.1.3">
 		- minor adjustment on font size of checkbox/radio
