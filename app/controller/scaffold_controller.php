@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.2.1">
+		- apply htmlspecialchars to input value to avoid problem of double-quote
+	</history>
 	<history version="1.2">
 		- apply [pre-help] on [fieldConfig]
 		- apply horizontal line on [listField]

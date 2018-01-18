@@ -99,7 +99,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 				<input
 					type="radio"
 					name="data[<?php echo $field['name']; ?>]"
-					value="<?php echo $optValue; ?>"
+					value="<?php echo htmlspecialchars($optValue); ?>"
 					<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
 					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
 					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
@@ -109,7 +109,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		<?php $optIndex++; ?>
 	<?php endforeach; ?>
 	<?php if ( !empty($field['readonly']) ) : ?>
-		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo $field['value']; ?>" />
+		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" />
 	<?php endif; ?>
 
 
@@ -123,7 +123,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 				<input
 					type="checkbox"
 					name="data[<?php echo $field['name']; ?>][]"
-					value="<?php echo $optValue; ?>"
+					value="<?php echo htmlspecialchars($optValue); ?>"
 					<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
 					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
 					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
@@ -134,7 +134,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	<?php endforeach; ?>
 	<?php if ( !empty($field['readonly']) ) : ?>
 		<?php foreach ( $field['value'] as $val ) : ?>
-			<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="<?php echo $val; ?>" />
+			<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" />
 		<?php endforeach; ?>
 	<?php endif; ?>
 
@@ -181,7 +181,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		<?php endforeach; ?>
 	</select>
 	<?php if ( !empty($field['readonly']) ) : ?>
-		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo $field['value']; ?>" />
+		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" />
 	<?php endif; ?>
 
 
@@ -191,7 +191,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		type="<?php echo ( empty($field['format']) or in_array($field['format'], array('date', 'time', 'datetime')) ) ? 'text' : $field['format']; ?>"
 		class="form-control input-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
-		value="<?php echo $field['value']; ?>"
+		value="<?php echo htmlspecialchars($field['value']); ?>"
 		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
 		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
