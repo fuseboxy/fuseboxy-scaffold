@@ -216,7 +216,24 @@ class Scaffold {
 	}
 
 
-	// get upload client for S3
+	/**
+	<fusedoc>
+		<description>
+			get upload client for S3
+		</description>
+		<io>
+			<in>
+				<string name="$connString" />
+				<structure name="config" scope="$fusebox">
+					<string name="httpProxy" optional="yes" />
+				</structure>
+			</in>
+			<out>
+				<object name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getConnection__S3($connString=null) {
 		$cs = self::parseConnectionString($connString);
 		if ( $cs === false ) return false;
@@ -225,6 +242,7 @@ class Scaffold {
 			'credentials' => array('key' => $cs['accessKeyID'], 'secret' => $cs['secretAccessKey']),
 			'region' => 'us-east-1',
 			'version' => '2006-03-01',
+			'http' => array( 'proxy' => F::config('httpProxy') ),
 		);
 		// create object to retrieve bucket location
 		$client = Aws\S3\S3Client::factory($config);

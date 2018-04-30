@@ -1,5 +1,8 @@
 <?php /*
 <fusedoc>
+	<history version="1.2.2">
+		- debug : apply fusebox-config-httpProxy to aws sdk
+	</hsitory>
 	<history version="1.2.1">
 		- apply htmlspecialchars to input value to avoid problem of double-quote
 	</history>
