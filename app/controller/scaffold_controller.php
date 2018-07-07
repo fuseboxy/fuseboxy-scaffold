@@ -1,5 +1,7 @@
 <?php /*
 <fusedoc>
+	<history version="1.2.3">
+		- debug : fix critical bug of Scaffold::startUpload__Local() and Scaffold::createFolder__Local()
 	<history version="1.2.2">
 		- debug : apply fusebox-config-httpProxy to aws sdk
 	</hsitory>

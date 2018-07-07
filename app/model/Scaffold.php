@@ -64,8 +64,11 @@ class Scaffold {
 
 	// create directory at local server (when not exists)
 	public static function createFolder__Local($newFolder) {
-		if ( !file_exists($newFolder) ) {
-			mkdir($newFolder, 0766, true);
+		$tmpNewFolder  = F::config('uploadDir');
+		$tmpNewFolder .= ( substr($tmpNewFolder, -1) == '/' ) ? '' : '/';
+		$tmpNewFolder .= $newFolder;
+		if ( !file_exists($tmpNewFolder) ) {
+			mkdir($tmpNewFolder, 0766, true);
 		}
 		return true;
 	}
@@ -996,7 +999,10 @@ class Scaffold {
 
 	// proceed upload to local server
 	public static function startUpload__Local(&$handler, $uploadDir) {
-		$handler->uploadDir = $uploadDir;
+		$tmpUploadDir  = F::config('uploadDir');
+		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
+		$tmpUploadDir .= $uploadDir;
+		$handler->uploadDir = $tmpUploadDir;
 		$uploadResult = $handler->handleUpload();
 		// validate upload result
 		if ( !$uploadResult ) {
