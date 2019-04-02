@@ -1,7 +1,12 @@
 <?php /*
 <fusedoc>
+	<history version="1.2.4">
+		- disable upload & remove buttons by default ===> then enable it after behavior init
+		- increate timeout before init behavior of upload button
+	</history>
 	<history version="1.2.3">
 		- debug : fix critical bug of Scaffold::startUpload__Local() and Scaffold::createFolder__Local()
+	</history>
 	<history version="1.2.2">
 		- debug : apply fusebox-config-httpProxy to aws sdk
 	</hsitory>

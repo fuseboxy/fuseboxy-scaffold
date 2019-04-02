@@ -40,6 +40,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 				<button
 					type="button"
 					class="btn btn-sm btn-default btn-upload"
+					disabled
 				>Choose</button>
 				<?php if ( !empty($field['value']) ) : ?>
 					<button
@@ -47,12 +48,14 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 						class="btn btn-sm btn-default btn-undo"
 						data-original-image="<?php echo $field['value']; ?>"
 						style="border-right: 0; display: none;"
+						disabled
 					><i class="fa fa-undo"></i></button>
 				<?php endif; ?>
 				<button
 					type="button"
 					class="btn btn-sm btn-default btn-remove"
 					style="border-right: 0; <?php if ( empty($field['value']) ) : ?>display: none;<?php endif; ?>"
+					disabled
 				><i class="fa fa-times"></i></button>
 			</span>
 		<?php endif; ?>
