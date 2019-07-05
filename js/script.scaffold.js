@@ -197,4 +197,47 @@ $(function(){
 	});
 
 
+	// sticky header
+	$(window).scroll(function(){
+		$('.scaffold-header').each(function(){
+			var header = this;
+			var windowScrollTop = $(window).scrollTop();
+			var headerScrollTop = $(header).offset().top;
+			if ( !$(header).data('original-state') && headerScrollTop < windowScrollTop ) {
+				$(header)
+					// mark flag
+					.addClass('sticky-header')
+					// retain header current state for rollback
+					.data('original-state', {
+						'left'      : $(header).css('left'),
+						'position'  : $(header).css('position'),
+						'top'       : $(header).css('top'),
+						'width'     : $(header).width(),
+						'scrollTop' : headerScrollTop
+					})
+					// make header sticky to top
+					.css({
+						'left'     : $(header).offset().left,
+						'position' : 'fixed',
+						'top'      : 0,
+						'width'    : $(header).width()
+					});
+			} else if ( $(header).data('original-state') && headerScrollTop <= $(header).data('original-state').scrollTop ) {
+				$(header)
+					// clear flag
+					.removeClass('sticky-header')
+					// rollback to original state
+					.css({
+						'left'     : $(header).data('original-state').left,
+						'position' : $(header).data('original-state').position,
+						'top'      : $(header).data('original-state').top,
+						'width'    : $(header).data('original-state').width
+					})
+					// clear retained state
+					.removeData('original-state')
+			}
+		});
+	});
+
+
 });
