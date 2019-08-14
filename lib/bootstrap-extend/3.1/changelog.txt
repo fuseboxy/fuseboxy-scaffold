@@ -1,9 +1,0 @@
-- dynamic modal size [data-modal-size=narrow|normal|lg|max|full]
-- modal [data-backdrop=static-shake]
-- carousel transition
-- .bg-well  (for light gray background without border-radius and box inner shadow)
-- .nav-caret  (reference @ bitbucket <https://bitbucket.org/>)
-- .modal-full  (for full screen modal)
-- class for modal transition effect
-- [data-toggle=ajax-load|ajax-submit][data-toggle-loading={custom-class}]
-- refresh url on push-state of [data-toggle=ajax-load|ajax-submit]
