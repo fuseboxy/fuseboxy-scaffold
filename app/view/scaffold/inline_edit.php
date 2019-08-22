@@ -64,7 +64,7 @@
 					</td>
 				<?php endforeach; ?>
 				<td class="col-button text-nowrap">
-					<div class="pull-right"><?php include 'inline_edit.button.php'; ?></div>
+					<div class="text-right"><?php include 'inline_edit.button.php'; ?></div>
 				</td>
 			</tr>
 		</table>
