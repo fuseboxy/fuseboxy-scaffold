@@ -48,7 +48,7 @@
 					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
 						<?php foreach ( $cols as $i => $col ) : ?>
 							<div class="form-group mb-1">
-								<div class="col-sm-12"><?php
+								<div class="w-100"><?php
 									if ( isset($scaffold['fieldConfig'][$col]) ) :
 										$field = $scaffold['fieldConfig'][$col];
 										$field['name'] = $col;
