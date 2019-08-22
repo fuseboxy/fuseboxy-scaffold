@@ -214,5 +214,5 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- help -->
 <?php if ( !empty($field['help']) ) : ?>
-	<small class="form-text py-1 px-2 rounded bg-light text-info"><?php echo $field['help']; ?></small>
+	<small class="form-text px-1 rounded bg-light text-info"><?php echo $field['help']; ?></small>
 <?php endif; ?>
