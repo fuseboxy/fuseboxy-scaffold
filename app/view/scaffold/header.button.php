@@ -1,7 +1,7 @@
 <?php if ( isset($xfa['quick']) ) : ?>
 	<a
 		href="<?php echo F::url($xfa['quick']); ?>"
-		class="btn btn-sm py-0 px-1 btn-light scaffold-btn-quick-new"
+		class="btn btn-sm py-0 px-1 btn-light scaffold-btn-quick"
 		data-toggle="ajax-load"
 		data-toggle-loading="none"
 		data-toggle-mode="after"
