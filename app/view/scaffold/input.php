@@ -94,17 +94,22 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <?php elseif ( isset($field['format']) and $field['format'] == 'radio' ) : ?>
 	<?php $optIndex = 0; ?>
 	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-		<div class="radio">
-			<label>
-				<input
-					type="radio"
-					name="data[<?php echo $field['name']; ?>]"
-					value="<?php echo htmlspecialchars($optValue); ?>"
-					<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
-					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-				 /><small><?php echo $optText; ?></small>
-			</label>
+		<?php $radioID = uuid(); ?>
+		<div class="form-check">
+			<input
+				id="<?php echo $radioID; ?>"
+				class="form-check-input"
+				type="radio"
+				name="data[<?php echo $field['name']; ?>]"
+				value="<?php echo htmlspecialchars($optValue); ?>"
+				<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
+				<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
+				<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
+			 />
+			<label 
+				for="<?php echo $radioID; ?>" 
+				class="form-check-label small"
+			><?php echo $optText; ?></label>
 		</div>
 		<?php $optIndex++; ?>
 	<?php endforeach; ?>
@@ -118,17 +123,22 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="" />
 	<?php $optIndex = 0; ?>
 	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-		<div class="checkbox">
-			<label>
-				<input
-					type="checkbox"
-					name="data[<?php echo $field['name']; ?>][]"
-					value="<?php echo htmlspecialchars($optValue); ?>"
-					<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
-					<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-					<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-				 /><small><?php echo $optText; ?></small>
-			</label>
+		<?php $checkboxID = uuid(); ?>
+		<div class="form-check">
+			<input
+				id="<?php echo $checkboxID; ?>"
+				class="form-check-input"
+				type="checkbox"
+				name="data[<?php echo $field['name']; ?>][]"
+				value="<?php echo htmlspecialchars($optValue); ?>"
+				<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
+				<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
+				<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
+			 />
+			<label 
+				for="<?php echo $checkboxID; ?>" 
+				class="form-check-label small"
+			><?php echo $optText; ?></label>
 		</div>
 		<?php $optIndex++; ?>
 	<?php endforeach; ?>
