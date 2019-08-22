@@ -40,14 +40,14 @@
 			data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
 		<?php endif; ?>
 	>
-		<table class="table table-hover table-condensed" style="margin-bottom: 0;">
+		<table class="table table-hover table-sm mb-0">
 			<tr>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
 					<?php $cols = explode('|', is_numeric($key) ? $val : $key); ?>
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
 					<td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;">
 						<?php foreach ( $cols as $i => $col ) : ?>
-							<div class="form-group" style="margin-bottom: 5px;">
+							<div class="form-group mb-1">
 								<div class="col-sm-12"><?php
 									if ( isset($scaffold['fieldConfig'][$col]) ) :
 										$field = $scaffold['fieldConfig'][$col];

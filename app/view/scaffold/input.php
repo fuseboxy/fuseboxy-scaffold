@@ -87,7 +87,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- output -->
 <?php if ( isset($field['format']) and $field['format'] == 'output' ) : ?>
-	<p class="form-control-static input-sm"><?php echo $field['value']; ?></p>
+	<p class="form-control-static form-control-sm"><?php echo $field['value']; ?></p>
 
 
 <!-- radio -->
@@ -142,7 +142,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <!-- textarea -->
 <?php elseif ( isset($field['format']) and $field['format'] == 'textarea' ) : ?>
 	<textarea
-		class="form-control input-sm"
+		class="form-control form-control-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
@@ -164,7 +164,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <!-- listbox -->
 <?php elseif ( isset($field['options']) ) : ?>
 	<select
-		class="form-control input-sm"
+		class="custom-select custom-select-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
@@ -189,7 +189,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 <?php else : ?>
 	<input
 		type="<?php echo ( empty($field['format']) or in_array($field['format'], array('date', 'time', 'datetime')) ) ? 'text' : $field['format']; ?>"
-		class="form-control input-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
+		class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo htmlspecialchars($field['value']); ?>"
 		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
