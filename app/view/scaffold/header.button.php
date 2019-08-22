@@ -1,12 +1,12 @@
 <?php if ( isset($xfa['quick']) ) : ?>
 	<a
 		href="<?php echo F::url($xfa['quick']); ?>"
-		class="btn btn-sm py-0 px-1 btn-default scaffold-btn-quick-new"
+		class="btn btn-sm py-0 px-1 btn-light scaffold-btn-quick-new"
 		data-toggle="ajax-load"
 		data-toggle-loading="none"
 		data-toggle-mode="after"
 		data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
-	><i class="fa fa-plus"></i> Quick</a>
+	><i class="fa fa-sort-amount-down"></i> Quick</a>
 <?php endif; ?>
 <?php if ( isset($xfa['new']) ) : ?>
 	<a
