@@ -1,7 +1,7 @@
 <?php if ( isset($xfa['quick']) ) : ?>
 	<a
 		href="<?php echo F::url($xfa['quick']); ?>"
-		class="btn btn-xs btn-default scaffold-btn-quick-new"
+		class="btn btn-sm py-0 px-1 btn-default scaffold-btn-quick-new"
 		data-toggle="ajax-load"
 		data-toggle-loading="none"
 		data-toggle-mode="after"
@@ -11,7 +11,7 @@
 <?php if ( isset($xfa['new']) ) : ?>
 	<a
 		href="<?php echo F::url($xfa['new']); ?>"
-		class="btn btn-xs btn-info scaffold-btn-new"
+		class="btn btn-sm py-0 px-1 btn-info scaffold-btn-new"
 		<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 			data-toggle="modal"
 			data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"

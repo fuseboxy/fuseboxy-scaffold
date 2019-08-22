@@ -22,7 +22,7 @@
 </fusedoc>
 */ ?>
 <div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
-	<table class="table table-hover table-condensed" style="margin-bottom: 0;">
+	<table class="table table-hover table-sm mb-0">
 		<tbody>
 			<tr <?php if ( !empty($bean->disabled) ) : ?>style="background: #ddd; opacity: .5;"<?php endif; ?>>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
@@ -126,7 +126,7 @@
 					</td>
 				<?php endforeach; ?>
 				<td class="col-button text-nowrap">
-					<div class="pull-right"><?php include 'row.button.php'; ?></div>
+					<div class="text-right"><?php include 'row.button.php'; ?></div>
 				</td>
 			</tr>
 		</tbody>

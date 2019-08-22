@@ -27,13 +27,13 @@
 </fusedoc>
 */ ?>
 <div id="<?php echo $scaffold['beanType']; ?>-header" class="scaffold-header small">
-	<table class="table table-condensed" style="margin-bottom: 0;">
+	<table class="table table-sm table-borderless border-bottom mb-0">
 		<thead>
 			<tr>
 				<?php foreach ( $scaffold['listField'] as $key => $val ) : ?>
 					<?php $cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key)); ?>
 					<?php $colWidth = is_numeric($key) ? '' : $val; ?>
-					<th class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>">
+					<th scope="col" class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>">
 						<?php foreach ( $cols as $colIndex => $col ) : ?>
 							<?php $isHR = ( strlen($col) and !strlen(str_replace('-', '', $col))); ?>
 							<?php if ( !$isHR ) : ?>
@@ -64,7 +64,7 @@
 					</th>
 				<?php endforeach; ?>
 				<th class="col-button">
-					<div class="pull-right"><?php include 'header.button.php'; ?></div>
+					<div class="text-right"><?php include 'header.button.php'; ?></div>
 				</th>
 			</tr>
 		</thead>
