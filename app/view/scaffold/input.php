@@ -81,7 +81,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- pre-help -->
 <?php if ( !empty($field['pre-help']) ) : ?>
-	<div><?php echo $field['pre-help']; ?></div>
+	<small class="form-text text-muted mb-1"><?php echo $field['pre-help']; ?></small>
 <?php endif; ?>
 
 
@@ -214,5 +214,5 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- help -->
 <?php if ( !empty($field['help']) ) : ?>
-	<code class="help-block"><?php echo $field['help']; ?></code>
+	<small class="form-text py-1 px-2 rounded bg-light text-info"><?php echo $field['help']; ?></small>
 <?php endif; ?>
