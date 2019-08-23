@@ -87,7 +87,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 
 <!-- output -->
 <?php if ( isset($field['format']) and $field['format'] == 'output' ) : ?>
-	<p class="form-control-static form-control-sm"><?php echo $field['value']; ?></p>
+	<div class="form-control-plaintext form-control-sm"><?php echo $field['value']; ?></div>
 
 
 <!-- radio -->
