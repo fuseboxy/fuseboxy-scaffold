@@ -3,7 +3,7 @@
 	<description>
 		Helper component for Fuseboxy framework
 	</description>
-	<properties name="version" value="1.0.2" />
+	<properties name="version" value="1.0.4" />
 	<io>
 		<in>
 			<string name="$mode" scope="Framework" optional="yes" comments="UNIT_TEST" />
@@ -56,11 +56,14 @@ class F {
 		if ( $condition ) {
 			if ( !headers_sent() ) header("HTTP/1.0 403 Forbidden");
 			$fusebox->error = $msg;
-			if ( !empty($fusebox->config['errorController']) ) {
-				include $fusebox->config['errorController'];
-				die(); // ensure operation aborted
-			} else {
+			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 				throw new Exception(self::command()." - ".$fusebox->error, Framework::FUSEBOX_ERROR);
+			} elseif ( !empty($fusebox->config['errorController']) ) {
+				include $fusebox->config['errorController'];
+				die();
+			} else {
+				echo $fusebox->error;
+				die();
 			}
 		}
 	}
@@ -137,11 +140,14 @@ class F {
 		if ( $condition ) {
 			if ( !headers_sent() ) header("HTTP/1.0 404 Not Found");
 			$fusebox->error = 'Page not found';
-			if ( !empty($fusebox->config['errorController']) ) {
-				include $fusebox->config['errorController'];
-				die(); // ensure operation aborted
-			} else {
+			if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 				throw new Exception(self::command()." - ".$fusebox->error, Framework::FUSEBOX_PAGE_NOT_FOUND);
+			} elseif ( !empty($fusebox->config['errorController']) ) {
+				include $fusebox->config['errorController'];
+				die();
+			} else {
+				echo $fusebox->error;
+				die();
 			}
 		}
 	}
@@ -221,12 +227,63 @@ class F {
 		$qsPath = implode('/', $qs);
 		$qsPath = preg_replace('~^/+|/+$|/(?=/)~', '', $qsPath);  // remove multi-slash
 		$qsPath = trim($qsPath, '/');  // trim leading and trailing slash
-		// compare it against each route pattern
-		/*if ( !empty($fusebox->config['route']) ) {
-			foreach ( $fusebox->config['route'] as $urlPattern => $qsReplacement ) {
-				( exploring solution to turn matched command to routed-url )
-			}
-		}*/
+		// further beautify the url according to route pattern
+		// ===> e.g. convert <article&type=abc&id=1> to <article/abc/1> instead of <article/type=abc/id=1>
+		if ( !empty($fusebox->config['route']) ) {
+			// compare it against each route pattern
+			foreach ( $fusebox->config['route'] as $routePattern => $routeReplacement ) {
+				// parse route-replacement
+				$arr = explode('&', $routeReplacement);
+				$routeReplacement = array();
+				foreach ( $arr as $keyEqVal ) {
+					list($key, $val) = explode('=', $keyEqVal, 2);
+					$routeReplacement[$key] = $val;
+				}
+				// parse input-url
+				$arr = explode('&', self::config('commandVariable').'='.$commandWithQueryString);
+				$inputUrl = array();
+				foreach ( $arr as $keyEqVal ) {
+					list($key, $val) = explode('=', $keyEqVal, 2);
+					$inputUrl[$key] = $val;
+				}
+				// check whether all variables matched
+				$routeReplacementKeys = array_keys($routeReplacement);
+				$inputUrlKeys = array_keys($inputUrl);
+				sort($routeReplacementKeys);
+				sort($inputUrlKeys);
+				$isAllVariablesMatched = ( $routeReplacementKeys == $inputUrlKeys );
+				// check whether command matched
+				$commandVar = self::config('commandVariable');
+				$isCommandMatched = ( isset($routeReplacement[$commandVar]) and isset($inputUrl[$commandVar]) and preg_match('/'.preg_quote($routeReplacement[$commandVar]).'/', $inputUrl[$commandVar]) );
+				// only proceed when all variables matched and command matched
+				if ( $isAllVariablesMatched and $isCommandMatched ) {
+					// get each back-reference value
+					$backRef = array();
+					foreach ( $routeReplacement as $key => $val ) {
+						// check back-reference format
+						if ( substr($val, 0, 1) == '$' and is_numeric(substr($val, 1)) and strpos($val, '.') === false ) {
+							$backRef[$val] = $inputUrl[$key];
+						}
+					}
+					// go through each pair of brackets in route-pattern
+					// ===> replace it with corresponding back-reference value
+					$result = str_replace("\/", '/', $routePattern);
+					preg_match_all("/\(.*?\)/", $routePattern, $matches);
+					if ( !empty($matches) ) {
+						foreach ( $matches[0] as $i => $backRefKey ) {
+							if ( isset($backRef['$'.($i+1)]) ) {
+								$backRefVal = $backRef['$'.($i+1)];
+								$result = preg_replace('/'.preg_quote($backRefKey).'/', $backRefVal, $result, 1);
+							}
+						}
+					}
+					// append the base-url
+					$result = $fusebox->self.$result;
+					$result = str_replace('//', '/', $result);
+					return $result;
+				} // isAllVariablesMatched-and-isCommandMatched
+			} // foreach-fuseboxConfig-route
+		} // if-fuseboxConfig-route
 		// if no route defined or no match
 		// ===> simply prepend self to query-string-path
 		return $fusebox->self.$qsPath;

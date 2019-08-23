@@ -3,7 +3,7 @@
 	<description>
 		Core component of Fuseboxy framework
 	</description>
-	<properties name="version" value="1.0.2" />
+	<properties name="version" value="1.0.4" />
 	<io>
 		<in>
 			<string name="$mode" scope="Framework" optional="yes" comments="for unit-test of helper" />
@@ -112,11 +112,11 @@ class Framework {
 			if ( !headers_sent() ) header("HTTP/1.0 500 Internal Server Error");
 			throw new Exception("Directory specified in config {appPath} does not exist ({$fusebox->config['appPath']})", self::FUSEBOX_INVALID_CONFIG);
 		}
-		// check error-controller
-		if ( !empty($fusebox->config['errorController']) and !is_file($fusebox->config['errorController']) ) {
-			if ( !headers_sent() ) header("HTTP/1.0 500 Internal Server Error");
-			throw new Exception("Error controller does not exist ({$fusebox->config['errorController']})", self::FUSEBOX_INVALID_CONFIG);
-		}
+        // check error-controller
+        if ( !empty($fusebox->config['errorController']) and !is_file($fusebox->config['errorController']) ) {
+            if ( !headers_sent() ) header("HTTP/1.0 500 Internal Server Error");
+            throw new Exception("Error controller does not exist ({$fusebox->config['errorController']})", self::FUSEBOX_INVALID_CONFIG);
+        }
 	}
 
 
@@ -167,10 +167,12 @@ class Framework {
 	// ===> work closely with {$fusebox->config['route']} and F::url()
 	public static function urlRewrite() {
 		global $fusebox;
-		// request <http://{HOST}/{APP}/foo/bar> will have {REQUEST_URI=/{APP}/foo/bar}
-		// request <http://{HOST}/foo/bar> will have {REQUEST_URI=/foo/bar}
-		// request <http://{HOST}/foo/bar?a=1&b=2> will have {REQUEST_URI=/foo/bar?a=1&b=2}
-		if ( !empty($fusebox->config['urlRewrite']) ) {
+		// request <http://{HOST}/{APP}/foo/bar> will have <REQUEST_URI=/{APP}/foo/bar>
+		// request <http://{HOST}/foo/bar> will have <REQUEST_URI=/foo/bar>
+		// request <http://{HOST}/foo/bar?a=1&b=2> will have <REQUEST_URI=/foo/bar?a=1&b=2>
+		$isRoot = dirname($_SERVER['SCRIPT_NAME']) == rtrim($_SERVER['REQUEST_URI'], '/');
+		// only process when necessary
+		if ( !empty($fusebox->config['urlRewrite']) and !$isRoot ) {
 			// cleanse the route config (and keep the sequence)
 			if ( isset($fusebox->config['route']) ) {
 				$fixedRoute = array();
@@ -193,34 +195,40 @@ class Framework {
 				}
 				$fusebox->config['route'] = $fixedRoute;
 			}
-			// cleanse the path-like-query-string
-			$baseDir = dirname($_SERVER['SCRIPT_NAME']);
-			$baseDir = str_replace('\\', '/', $baseDir);
-			if ( substr($baseDir, -1) != '/' ) $baseDir .= '/';
-			$qsPath = preg_replace('/'.preg_quote($baseDir, '/').'/', '', $_SERVER['REQUEST_URI'], 1);  // turn request-uri to path-like-query-string
-			$qsPath = preg_replace('/\?/', '&', $qsPath, 1);
-			$qsPath = str_replace('&', '/', $qsPath);  // fixed delimiter of mixed-query-string
-			$qsPath = str_replace('\\', '/', $qsPath);  // unify to forward-slash
-			do { $qsPath = str_replace('//', '/', $qsPath); } while ( strpos($qsPath, '//') !== false );  // remove multi-(forward-)slash
-			if ( substr($qsPath, 0, 1) != '/' ) $qsPath = '/'.$qsPath;
-			// check if there is route match...
-			// ===> apply query-string-replacement of the first match
+			// start to parse the path
+			$qs = rtrim($_SERVER['REQUEST_URI'], '/');
+			// (1) unify slash
+			$qs = str_replace('\\', '/', $qs);                                   // e.g.  /my/site//foo\bar\999??a=1&b=2&&c=3&  ------->  /my/site//foo/bar/999??a=1&b=2&&c=3&
+			// (2) dupe slash, question-mark, and and-sign
+			$qs = preg_replace('/\/+/', '/', $qs);                               // e.g.  /my/site//foo/bar/999??a=1&b=2&&c=3&  ------->  /my/site/foo/bar/999??a=1&b=2&&c=3&
+			$qs = preg_replace('/\?+/', '?', $qs);                               // e.g.  /my/site/foo/bar/999??a=1&b=2&&c=3&  -------->  /my/site/foo/bar/999?a=1&b=2&&c=3&
+			$qs = preg_replace('/&+/' , '&', $qs);                               // e.g.  /my/site/foo/bar/999??a=1&b=2&&c=3&  -------->  /my/site/foo/bar/999?a=1&b=2&c=3&
+			// (3) extract (potential) query-string from path
+			$baseDir = dirname($_SERVER['SCRIPT_NAME']);                         // e.g.  /my/site/index.php  ------------------------->  \my\site
+			$baseDir = str_replace('\\', '/', $baseDir);                         // e.g.  \my\site  ----------------------------------->  /my/site
+			if ( substr($baseDir, -1) != '/' ) $baseDir .= '/';                  // e.g.  /my/site  ----------------------------------->  /my/site/
+			$baseDirPattern = preg_quote($baseDir, '/');
+			$qs = preg_replace("/{$baseDirPattern}/", '', $qs, 1);               // e.g.  /my/site/foo/bar/999?a=1&b=2&c=3&  ---------->  foo/bar/999?a=1&b=2&c=3&
+			// (4) append leading slash to path
+			if ( substr($qs, 0, 1) != '/' ) $qs = '/'.$qs;                       // e.g.  foo/bar/999?a=1&b=2&c=3&  ------------------->  /foo/bar/999?a=1&b=2&c=3&
+			// (5) check if there is route match, and apply the first match
 			$hasRouteMatch = false;
-			if ( isset($fusebox->config['route']) ) {
-				foreach ( $fusebox->config['route'] as $urlPattern => $qsReplacement ) {
-					// if path-like-query-string match the route pattern...
-					if ( !$hasRouteMatch and preg_match("/{$urlPattern}/", $qsPath) ) {
-						// turn it into a query-string
-						$qs = preg_replace("/{$urlPattern}/", $qsReplacement, $qsPath);
-						// mark flag
-						$hasRouteMatch = true;
-					}
+			$routes = F::config('route') ? F::config('route') : array();
+			foreach ( $routes as $urlPattern => $qsReplacement ) {               // e.g.  /foo/bar/([0-9]+)(.*)  ---------------------->  fuseaction=foo.bar&xyz=$1&$2
+				// if path-like-query-string match the route pattern...
+				if ( !$hasRouteMatch and preg_match("/{$urlPattern}/", $qs) ) {
+					// turn it into true query-string
+					$qs = preg_replace("/{$urlPattern}/", $qsReplacement, $qs);  // e.g.  /foo/bar/999?a=1&b=2&c=3&  ------------------>  fuseaction=foo.bar&xyz=999?a=1&b=2&c=3&
+					// mark flag
+					$hasRouteMatch = true;
 				}
 			}
-			// if path-like-query-string match none of the route...
-			// ===> turn path-info into query-string
+			// (6) unify query-string delim (replace first question-mark only)
+			$qs = preg_replace('/\?/', '&', $qs, 1);                             // e.g.  /foo/bar/999?a=1&b=2&c=3&  ------------------>  /foo/bar/999&a=1&b=2&c=3&
+			// (7) if match none of the route, then turn path into query-string
 			if ( !$hasRouteMatch ) {
-				$arr = explode('/', trim($qsPath, '/'));
+				$qs = str_replace('/', '&', trim($qs, '/'));
+				$arr = explode('&', $qs);
 				if ( count($arr) == 1 and $arr[0] == '' ) $arr = array();
 				$qs = '';
 				// turn path-like-query-string into query-string
@@ -236,16 +244,16 @@ class Framework {
 				// join remaining elements into query-string
 				$qs .= ( '&' . implode('&', $arr) );
 			}
-			// trim leading and-sign from query-string (if any)
-			$qs = trim($qs, '&');
-			// remove any double-and-sign
-			$qs = str_replace('&&', '&', $qs);
-			// put parameters of query-string into {$_GET} scope
+			// (8) remove unnecessary query-string delimiter
+			$qs = trim($qs, '&');                                                // e.g.  fuseaction=foo.bar&xyz=999?a=1&b=2&c=3&  ---->  fuseaction=foo.bar&xyz=999&a=1&b=2&c=3
+			// (9) dupe query-string delimiter again
+			$qs = preg_replace('/&+/' , '&', $qs);
+			// (10) put parameters of query-string into GET scope
 			$qsArray = explode('&', $qs);
 			foreach ( $qsArray as $param ) {
 				$param = explode('=', $param, 2);
-				$paramKey = isset($param[0]) ? $param[0] : '';
-				$paramVal = isset($param[1]) ? $param[1] : '';
+				$paramKey = isset($param[0]) ? urldecode($param[0]) : '';
+				$paramVal = isset($param[1]) ? urldecode($param[1]) : '';
 				if ( !empty($paramKey) ) {
 					// simple parameter
 					if ( strpos($paramKey, '[') === false ) {
@@ -269,9 +277,8 @@ class Framework {
 					}
 				}
 			}
-			// also update request scope
+			// (11) update REQUEST and SERVER scopes as well
 			$_REQUEST += $_GET;
-			// also update query-string in server-scope
 			$_SERVER['QUERY_STRING'] = $qs;
 		} // if-url-rewrite
 	}

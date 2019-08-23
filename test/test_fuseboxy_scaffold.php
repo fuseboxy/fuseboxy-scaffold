@@ -6,10 +6,10 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		global $fusebox;
 		// load library
 		if ( !class_exists('Framework') ) {
-			require_once __DIR__.'/utility-scaffold/framework/1.0.2/fuseboxy.php';
+			require_once __DIR__.'/utility-scaffold/framework/1.0.6/fuseboxy.php';
 		}
 		if ( !class_exists('F') ) {
-			require_once __DIR__.'/utility-scaffold/framework/1.0.2/F.php';
+			require_once __DIR__.'/utility-scaffold/framework/1.0.6/F.php';
 		}
 		// unit test mode
 		Framework::$mode = Framework::FUSEBOX_UNIT_TEST;
@@ -24,7 +24,7 @@ class TestFuseboxyScaffold extends UnitTestCase {
 		include dirname(__DIR__).'/app/model/UUID.php';
 		// load database library
 		include __DIR__.'/utility-scaffold/phpquery/0.9.5/phpQuery.php';
-		include dirname(__DIR__).'/lib/redbeanphp/4.3.3/rb.php';
+		include dirname(__DIR__).'/lib/redbeanphp/5.3.1/rb.php';
 		include __DIR__.'/utility-scaffold/config/rb_config.php';
 	}
 
