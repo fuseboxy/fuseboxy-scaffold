@@ -1,5 +1,9 @@
 <?php /*
 <fusedoc>
+	<description>
+		please load summernote libraries at html head if you are using [format=wysiwyg] field
+		===> https://summernote.org/getting-started
+	</description>
 	<io>
 		<in>
 			<structure name="$field">
@@ -14,32 +18,17 @@
 		<out />
 	</io>
 </fusedoc>
-*/
-$uniqid = uuid();
-$editor_uniqid = "{$scaffold['beanType']}-input-{$field['name']}-{$uniqid}";
-$hidden_uniqid = "{$scaffold['beanType']}-hidden-{$field['name']}-{$uniqid}";
-?>
-<!-- ckeditor will auto-transform div[contenteditable=true] in document! -->
-<!-- sync value of html-editor and hidden-field by javascript -->
-<div
-	id="<?php echo $editor_uniqid; ?>"
-	class="scaffold-input-wysiwyg form-control input-sm"
-	<?php if ( empty($field['readonly']) ) : ?>
-		contenteditable="true"
-		onblur="$('#<?php echo $hidden_uniqid; ?>').val( $(this).html() );"
-	<?php endif; ?>
-	style="height: auto; <?php echo isset($field['style']) ? $field['style'] : 'min-height: 10em;'; ?>"
-><?php echo $field['value']; ?></div>
-
-
-<!-- make it pseudo-invisible in order to keep [required] attribute working -->
+*/ ?>
 <?php if ( empty($field['readonly']) ) : ?>
-	<div style="position: relative; overflow: hidden;">
-		<textarea
-			id="<?php echo $hidden_uniqid; ?>"
-			name="data[<?php echo $field['name']; ?>]"
-			style="position: absolute; top: 0; height: 1px;"
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		><?php echo $field['value']; ?></textarea>
-	</div>
+	<textarea
+		name="data[<?php echo $field['name']; ?>]"
+		class="scaffold-input-wysiwyg form-control form-control-sm"
+		style="min-height: 10em; <?php if ( isset($field['style']) ) echo $field['style']; ?>"
+		<?php if ( !empty($field['required']) ) echo 'required'; ?>
+	><?php echo $field['value']; ?></textarea>
+<?php else : ?>
+	<div 
+		class="scaffold-input-wysiwyg form-control form-control-sm"
+		style="overflow: auto; <?php if ( isset($field['style']) ) echo $field['style']; ?>"
+	><?php echo $field['value']; ?></div>
 <?php endif; ?>

@@ -163,16 +163,16 @@ $(function(){
 	}); // document-on
 
 
-	// init ckeditor when row/modal show
-	// ===> (auto-init by CKeditor core when document show)
+	// init summernote when document load
+	$('.scaffold-input-wysiwyg').each(function(){
+		$(this).summernote({ 'height' : $(this).height() });
+	}).addClass('summernote-ready');
+	// init summernote when row/modal show
 	$(document).on('ajaxLoad.bsx shown.bs.modal', function(evt){
 		window.setTimeout(function(){
-			$('.scaffold-input-wysiwyg').not('.ckeditor-ready').each(function(){
-				var elementID = $(this).attr('id');
-				CKEDITOR.inline(elementID);
-				// mark flag
-				$(this).addClass('ckeditor-ready');
-			});
+			$('.scaffold-input-wysiwyg:not(.summernote-ready)').each(function(){
+				$(this).summernote({ 'height' : $(this).height() });
+			}).addClass('summernote-ready');
 		}, 500);
 	});
 
