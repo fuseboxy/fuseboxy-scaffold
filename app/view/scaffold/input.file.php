@@ -77,13 +77,14 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 	<?php if ( !empty($field['preview']) ) : ?>
 		<a
 			href="<?php echo $field['value']; ?>"
-			class="thumbnail"
 			target="_blank"
-			style="margin: 5px 0 0 0; width: auto; <?php if ( empty($field['value']) ) echo 'display: none;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
+			style="<?php if ( empty($field['value']) ) echo 'display: none;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 			title="<?php echo basename($field['value']); ?>"
+			data-fancybox
 		><img
 			alt="<?php echo basename($field['value']); ?>"
 			src="<?php echo $field['value']; ?>"
+			class="img-thumbnail mt-1"
 		/></a>
 	<?php endif; ?>
 </div>

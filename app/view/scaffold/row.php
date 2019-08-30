@@ -47,14 +47,15 @@
 								<?php if ( !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) : ?>
 									<div>
 										<a
-											href="<?php echo $bean[$col]; ?>"
-											class="thumbnail"
-											target="_blank"
-											style="margin: 5px 0 0 0; max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?>"
 											title="<?php echo basename($bean[$col]); ?>"
+											href="<?php echo $bean[$col]; ?>"
+											target="_blank"
+											data-fancybox
 										><img
 											alt="<?php echo basename($bean[$col]); ?>"
 											src="<?php echo $bean[$col]; ?>"
+											class="img-thumbnail mb-0 mt-1"
+											style="max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?>"
 										/></a>
 									</div>
 								<!-- file : show link -->
