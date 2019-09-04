@@ -109,13 +109,12 @@
 			<?php endif; ?>
 		</div>
 	<?php elseif ( $scaffold['editMode'] == 'classic' ) : ?>
-		<br />
 		<div class="container-fluid">
 			<div class="<?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-sm-10 col-sm-offset-2<?php else : ?>col-sm-9 col-sm-offset-3<?php endif; ?>">
 				<?php if ( isset($xfa['submit']) ) : ?>
-					<button type="submit" class="btn btn-primary btn-lg scaffold-btn-save">Save changes</button>
+					<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
 				<?php endif; ?>
-				<a href="javascript:history.back();" class="btn btn-default btn-lg scaffold-btn-cancel">Cancel</a>
+				<a href="javascript:history.back();" class="btn btn-default scaffold-btn-cancel">Cancel</a>
 			</div>
 		</div>
 	<?php endif; ?>
