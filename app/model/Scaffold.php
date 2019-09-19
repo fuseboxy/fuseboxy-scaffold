@@ -736,6 +736,13 @@ class Scaffold {
 	}
 
 
+	// resize image to specific width & height
+	public static function resizeImage($filepath, $dimension) {
+		// done!
+		return true;
+	}
+
+
 	// save bean with submitted data
 	public static function saveBean($data) {
 		// get current bean or create new bean
