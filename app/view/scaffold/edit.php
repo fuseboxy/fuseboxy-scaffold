@@ -77,8 +77,8 @@
 			<?php else : ?>
 				<?php $colList = explode('|', $colList); ?>
 				<?php $colWidthList = explode('|', $colWidthList); ?>
-				<div class="form-group">
-					<label class="control-label <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-sm-2<?php else : ?>col-sm-3<?php endif; ?>"><?php
+				<div class="form-group row">
+					<label class="control-label col-2 text-right"><?php
 						foreach ( $colList as $i => $col ) :
 							$headerText = $scaffold['fieldConfig'][$col]['label'];
 							if ( $i == 0 ) {
@@ -88,7 +88,7 @@
 							}
 						endforeach;
 					?></label>
-					<div class="row clearfix <?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-sm-10<?php else : ?>col-sm-9<?php endif; ?>">
+					<div class="row clearfix col-10">
 						<?php foreach ( $colList as $i => $col ) : ?>
 							<div class="col-sm-<?php echo $colWidthList[$i]; ?>">
 								<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
@@ -110,7 +110,7 @@
 		</div>
 	<?php elseif ( $scaffold['editMode'] == 'classic' ) : ?>
 		<div class="container-fluid">
-			<div class="<?php if ( isset($scaffold['modalSize']) and $scaffold['modalSize'] == 'max' ) : ?>col-sm-10 col-sm-offset-2<?php else : ?>col-sm-9 col-sm-offset-3<?php endif; ?>">
+			<div class="col-10 offset-2">
 				<?php if ( isset($xfa['submit']) ) : ?>
 					<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
 				<?php endif; ?>
