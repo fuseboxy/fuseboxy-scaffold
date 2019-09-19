@@ -738,6 +738,18 @@ class Scaffold {
 
 	// resize image to specific width & height
 	public static function resizeImage($filepath, $dimension) {
+		// validate dimension
+		if ( preg_match('/^([0-9]+)(x)([0-9]+)$/i', $dimension, $matches) ) {
+			$w = $matches[1];
+			$h = $matches[3];
+		} elseif ( preg_match('/^([0-9]+)(w)$/i', $dimension, $matches) ) {
+			$w = $matches[1];
+		} elseif ( preg_match('/^([0-9]+)(h)$/i', $dimension, $matches) ) {
+			$h = $matches[1];
+		} else {
+			self::$error = "Invalid file dimension ({$dimension})";
+			return false;
+		}
 		// done!
 		return true;
 	}
