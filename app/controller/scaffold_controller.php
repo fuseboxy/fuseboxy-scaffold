@@ -47,6 +47,7 @@
 						<!-- below are for [format=file] only -->
 						<string name="filesize" optional="yes" comments="max file size in bytes" />
 						<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
+						<string name="resize" optional="yes" comments="100w = 100px-max-height; 200h = 200px-max-width; 800x600 = 800px width and 600px height" />
 						<boolean name="preview" optional="yes" />
 					</structure>
 				</structure>
