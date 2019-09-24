@@ -999,6 +999,11 @@ class Scaffold {
 		self::$config['writeLog'] = isset(self::$config['writeLog']) ? self::$config['writeLog'] : false;
 		// param default : pagination
 		self::$config['pagination'] = isset(self::$config['pagination']) ? self::$config['pagination'] : false;
+		if ( !empty(self::$config['pagination']) ) {
+			if ( !is_array(self::$config['pagination']) ) self::$config['pagination'] = array();
+			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 50;
+			self::$config['pagination']['pageVisible'] = isset(self::$config['pagination']['pageVisible']) ? self::$config['pagination']['pageVisible'] : 10;
+		}
 		// done!
 		return true;
 	}
