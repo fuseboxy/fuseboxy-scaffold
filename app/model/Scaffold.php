@@ -132,16 +132,51 @@ class Scaffold {
 	}
 
 
-	// adjust parameters to meet the needs of controller
+
+
+	/**
+	<fusedoc>
+		<description>
+			adjust parameters to meet the needs of controller
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<string name="editMode" />
+					<array name="fieldConfig" />
+						<structure name="+">
+							<string name="fileSize" optional="yes" />
+						</structure>
+					</array>
+					<string name="listFilter" optional="yes" />
+					<string name="listOrder" />
+					<structure name="pagination" optional="yes">
+						<number name="recordCount" />
+						<number name="recordPerPage" />
+						<number name="pageVisible" />
+					</structure>
+					<number name="page" scope="$_GET" optional="yes" />
+				</structure>
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function fixParam() {
 		// param fix : edit mode
+		// ===> enforce normal edit form when not ajax
 		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
 			self::$config['editMode'] = 'classic';
 		}
+		// param fix : edit mode
+		// ===> validate legal edit mode
 		if ( !in_array(self::$config['editMode'], array('inline','modal','classic')) ) {
 			self::$config['editMode'] = 'inline';
 		}
-		// param fix : file size (string to number)
+		// param fix : file size
+		// ===> turn human-readable string to number
 		foreach ( self::$config['fieldConfig'] as $itemName => $item ) {
 			if ( !empty($item['filesize']) ) {
 				$kb = 1024;
@@ -163,12 +198,27 @@ class Scaffold {
 				} else {
 					$item['filesize'] = floatval($item['filesize']);
 				}
+				// put into result
 				self::$config['fieldConfig'][$itemName]['filesize_numeric'] = $item['filesize'];
 			}
+		}
+		// param fix : list filter
+		// ===> turn into array
+		if ( !is_array(self::$config['listFilter']) ) {
+			self::$config['listFilter'] = array( self::$config['listFilter'], array() );
+		}
+		// param fix : list order
+		// ===> add limit and offset to statement
+		if ( !empty(self::$config['pagination']) ) {
+			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
+			$limit = self::$config['pagination']['recordPerPage'];
+			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
 		}
 		// done!
 		return true;
 	}
+
+
 
 
 	// get specific bean (or empty bean)
@@ -201,7 +251,7 @@ class Scaffold {
 					<string name="beanType" />
 					<array name="listFilter">
 						<string name="0" comments="statement" />
-						<array name="1" comments="parameters" />
+						<array  name="1" comments="parameters" />
 					</array>
 				</structure>
 			</in>
@@ -222,7 +272,30 @@ class Scaffold {
 
 
 
-	// get all records
+	/**
+	<fusedoc>
+		<description>
+			get all corresponding records
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<string name="beanType" />
+					<array name="listFilter">
+						<string name="0" comments="statement" />
+						<array name="1" comments="parameters" />
+					</array>
+					<string name="listOrder" />
+				</structure>
+			</in>
+			<out>
+				<structure name="~return~">
+					<object name="~id~" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getBeanList() {
 		if ( is_array(self::$config['listFilter']) ) {
 			return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
@@ -230,6 +303,8 @@ class Scaffold {
 			return R::find(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
 		}
 	}
+
+
 
 
 	// get ftp connection
@@ -1001,6 +1076,7 @@ class Scaffold {
 		self::$config['pagination'] = isset(self::$config['pagination']) ? self::$config['pagination'] : false;
 		if ( !empty(self::$config['pagination']) ) {
 			if ( !is_array(self::$config['pagination']) ) self::$config['pagination'] = array();
+			self::$config['pagination']['recordCount'] = self::getBeanCount();
 			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 50;
 			self::$config['pagination']['pageVisible'] = isset(self::$config['pagination']['pageVisible']) ? self::$config['pagination']['pageVisible'] : 10;
 		}
