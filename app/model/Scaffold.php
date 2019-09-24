@@ -188,6 +188,40 @@ class Scaffold {
 	}
 
 
+
+
+	/**
+	<fusedoc>
+		<description>
+			get number of records matching the filter criteria
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<string name="beanType" />
+					<array name="listFilter">
+						<string name="0" comments="statement" />
+						<array name="1" comments="parameters" />
+					</array>
+				</structure>
+			</in>
+			<out>
+				<number name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function getBeanCount() {
+		if ( is_array(self::$config['listFilter']) ) {
+			return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
+		} else {
+			return R::count(self::$config['beanType'], self::$config['listFilter']);
+		}
+	}
+
+
+
+
 	// get all records
 	public static function getBeanList() {
 		if ( is_array(self::$config['listFilter']) ) {
@@ -217,6 +251,8 @@ class Scaffold {
 		// done!
 		return $conn;
 	}
+
+
 
 
 	/**
@@ -258,6 +294,8 @@ class Scaffold {
 	}
 
 
+
+
 	/**
 	<fusedoc>
 		<description>
@@ -270,9 +308,9 @@ class Scaffold {
 			<out>
 				<array name="~return~">
 					<structure name="+">
-						<string   name="path" />
-						<string   name="name" />
-						<string   name="ext" />
+						<string name="path" />
+						<string name="name" />
+						<string name="ext" />
 						<datetime name="mtime" />
 					</structure>
 				</array>
@@ -293,6 +331,8 @@ class Scaffold {
 				return self::getFileList__Local($dir);
 		}
 	}
+
+
 
 
 	// get list of files in specific directory at FTP server
