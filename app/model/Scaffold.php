@@ -221,20 +221,36 @@ class Scaffold {
 
 
 
-	// get specific bean (or empty bean)
+	/**
+	<fusedoc>
+		<description>
+			get specific bean (or empty bean)
+		</description>
+		<io>
+			<in>
+				<number name="id" optional="yes" comments="create empty object when not specified" />
+			</in>
+			<out>
+				<object name="~return~" optional="yes" oncondition="succeed" />
+				<boolean name="~return~" value="false" optional="yes" oncondition="fail" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getBean($id=null) {
 		// get empty record when no argument
-		if ( $id === null ) {
+		if ( empty($id) ) {
 			return R::dispense(self::$config['beanType']);
-		// get specific record with id was specified
-		} else {
-			$result = R::load(self::$config['beanType'], $id);
-			if ( empty($result->id) ) {
-				self::$error = "Record not found (id={$id})";
-				return false;
-			}
-			return $result;
 		}
+		// get specific record with id was specified
+		$result = R::load(self::$config['beanType'], $id);
+		// validation
+		if ( empty($result->id) ) {
+			self::$error = "Record not found (id={$id})";
+			return false;
+		}
+		// done!
+		return $result;
 	}
 
 
