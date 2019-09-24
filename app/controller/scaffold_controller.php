@@ -61,8 +61,8 @@
 				<!-- advanced settings for pagination -->
 				<boolean name="pagination" optional="yes" comments="simply set true to enable pagination with default settings" />
 				<structure name="pagination" optional="yes" comments="further specify pagination settings">
-					<number name="recordPerPage" optional="yes" />
-					<number name="pageVisible" optional="yes" />
+					<number name="recordPerPage" optional="yes" default="50" />
+					<number name="pageVisible" optional="yes" default="10" />
 				</structure>
 				<!-- advanced settings for file upload -->
 				<string name="libPath" optional="yes" default="~fusebox.config.appPath~/../lib" comments="for simple-ajax-uploader library" />
@@ -139,6 +139,14 @@ switch ( $fusebox->action ) :
 			include $scaffold['scriptPath']['modal'];
 		}
 		$layout['content'] = ob_get_clean();
+		// pagination
+		if ( !empty($scaffold['pagination']) ) {
+			$arguments['pagination'] = array(
+				'recordCount' => Scaffold::getBeanCount(),
+				'recordPerPage' => $scaffold['pagination']['recordPerPage'],
+				'pageVisible' => $scaffold['pagination']['pageVisible'],
+			);
+		}
 		// breadcrumb
 		if ( !isset($arguments['breadcrumb']) ) {
 			$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']));
