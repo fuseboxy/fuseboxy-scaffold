@@ -957,6 +957,8 @@ class Scaffold {
 		self::$config['libPath'] .= in_array(substr(self::$config['libPath'], -1), array('/','\\')) ? '' : '/';
 		// param default : write log
 		self::$config['writeLog'] = isset(self::$config['writeLog']) ? self::$config['writeLog'] : false;
+		// param default : pagination
+		self::$config['pagination'] = isset(self::$config['pagination']) ? self::$config['pagination'] : false;
 		// done!
 		return true;
 	}
