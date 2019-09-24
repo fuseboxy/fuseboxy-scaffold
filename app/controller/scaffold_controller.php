@@ -1,6 +1,5 @@
 <?php /*
 <fusedoc>
-	<property name="version" value="2.0" />
 	<io>
 		<in>
 			<structure name="$scaffold" comments="config">
@@ -47,7 +46,6 @@
 						<!-- below are for [format=file] only -->
 						<string name="filesize" optional="yes" comments="max file size in bytes" />
 						<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
-						<string name="resize" optional="yes" comments="100w = 100px-max-height; 200h = 200px-max-width; 800x600 = 800px width and 600px height" />
 						<boolean name="preview" optional="yes" />
 					</structure>
 				</structure>
@@ -59,6 +57,12 @@
 					<string name="edit" optional="yes" />
 					<string name="inline_edit" optional="yes" />
 					<string name="modal" optional="yes" />
+				</structure>
+				<!-- advanced settings for pagination -->
+				<boolean name="pagination" optional="yes" comments="simply set true to enable pagination with default settings" />
+				<structure name="pagination" optional="yes" comments="further specify pagination settings">
+					<number name="recordPerPage" optional="yes" />
+					<number name="pageVisible" optional="yes" />
 				</structure>
 				<!-- advanced settings for file upload -->
 				<string name="libPath" optional="yes" default="~fusebox.config.appPath~/../lib" comments="for simple-ajax-uploader library" />
