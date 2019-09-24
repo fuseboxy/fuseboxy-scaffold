@@ -148,7 +148,6 @@ class Scaffold {
 							<string name="fileSize" optional="yes" />
 						</structure>
 					</array>
-					<string name="listFilter" optional="yes" />
 					<string name="listOrder" />
 					<structure name="pagination" optional="yes">
 						<number name="recordCount" />
@@ -201,11 +200,6 @@ class Scaffold {
 				// put into result
 				self::$config['fieldConfig'][$itemName]['filesize_numeric'] = $item['filesize'];
 			}
-		}
-		// param fix : list filter
-		// ===> turn into array
-		if ( !is_array(self::$config['listFilter']) ) {
-			self::$config['listFilter'] = array( self::$config['listFilter'], array() );
 		}
 		// param fix : list order
 		// ===> add limit and offset to statement
@@ -265,10 +259,11 @@ class Scaffold {
 			<in>
 				<structure name="$config" scope="self">
 					<string name="beanType" />
-					<array name="listFilter">
+					<array name="listFilter" optional="yes">
 						<string name="0" comments="statement" />
 						<array  name="1" comments="parameters" />
 					</array>
+					<string name="listFilter" optional="yes" />
 				</structure>
 			</in>
 			<out>
@@ -278,7 +273,11 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanCount() {
-		return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
+		if ( is_array(self::$config['listFilter']) ) {
+			return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
+		} else {
+			return R::count(self::$config['beanType'], self::$config['listFilter']);
+		}
 	}
 
 
@@ -293,10 +292,11 @@ class Scaffold {
 			<in>
 				<structure name="$config" scope="self">
 					<string name="beanType" />
-					<array name="listFilter">
+					<array name="listFilter" optional="yes">
 						<string name="0" comments="statement" />
 						<array name="1" comments="parameters" />
 					</array>
+					<string name="listFilter" optional="yes" />
 					<string name="listOrder" />
 				</structure>
 			</in>
@@ -309,7 +309,11 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanList() {
-		return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
+		if ( is_array(self::$config['listFilter']) ) {
+			return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
+		} else {
+			return R::find(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
+		}
 	}
 
 
