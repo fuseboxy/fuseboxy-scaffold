@@ -262,11 +262,7 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanCount() {
-		if ( is_array(self::$config['listFilter']) ) {
-			return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
-		} else {
-			return R::count(self::$config['beanType'], self::$config['listFilter']);
-		}
+		return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
 	}
 
 
@@ -297,11 +293,7 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanList() {
-		if ( is_array(self::$config['listFilter']) ) {
-			return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
-		} else {
-			return R::find(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
-		}
+		return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
 	}
 
 
