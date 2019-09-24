@@ -141,11 +141,7 @@ switch ( $fusebox->action ) :
 		$layout['content'] = ob_get_clean();
 		// pagination
 		if ( !empty($scaffold['pagination']) ) {
-			$arguments['pagination'] = array(
-				'recordCount' => Scaffold::getBeanCount(),
-				'recordPerPage' => $scaffold['pagination']['recordPerPage'],
-				'pageVisible' => $scaffold['pagination']['pageVisible'],
-			);
+			$arguments['pagination'] = $scaffold['pagination'];
 		}
 		// breadcrumb
 		if ( !isset($arguments['breadcrumb']) ) {
