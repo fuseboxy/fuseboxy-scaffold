@@ -78,7 +78,7 @@
 				<?php $colList = explode('|', $colList); ?>
 				<?php $colWidthList = explode('|', $colWidthList); ?>
 				<div class="form-group row">
-					<label class="control-label col-2 text-right"><?php
+					<label class="col-2 col-form-label text-right"><?php
 						foreach ( $colList as $i => $col ) :
 							$headerText = $scaffold['fieldConfig'][$col]['label'];
 							if ( $i == 0 ) {
