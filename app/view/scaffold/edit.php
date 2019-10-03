@@ -34,7 +34,7 @@
 <?php $recordID = empty($bean->id) ? uuid() : $bean->id; ?>
 <form
 	id="<?php echo $scaffold['beanType']; ?>-edit"
-	class="scaffold-edit form-horizontal"
+	class="scaffold-edit"
 	<?php if ( isset($xfa['submit']) ) : ?>
 		method="post"
 		action="<?php echo F::url($xfa['submit']); ?>"
@@ -54,8 +54,8 @@
 	<!-- title -->
 	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			<h4 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h4>
+			<h5 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h5>
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		</div>
 	<?php endif; ?>
 	<div class="modal-body">
@@ -78,7 +78,7 @@
 				<?php $colList = explode('|', $colList); ?>
 				<?php $colWidthList = explode('|', $colWidthList); ?>
 				<div class="form-group row">
-					<label class="col-2 col-form-label text-right"><?php
+					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
 						foreach ( $colList as $i => $col ) :
 							$headerText = $scaffold['fieldConfig'][$col]['label'];
 							if ( $i == 0 ) {
@@ -88,13 +88,15 @@
 							}
 						endforeach;
 					?></label>
-					<div class="row clearfix col-10">
-						<?php foreach ( $colList as $i => $col ) : ?>
-							<div class="col-sm-<?php echo $colWidthList[$i]; ?>">
-								<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
-								<?php include 'input.php'; ?>
-							</div>
-						<?php endforeach; ?>
+					<div class="col-10">
+						<div class="row">
+							<?php foreach ( $colList as $i => $col ) : ?>
+								<div class="col-sm-<?php echo $colWidthList[$i]; ?>">
+									<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
+									<?php include 'input.php'; ?>
+								</div>
+							<?php endforeach; ?>
+						</div>
 					</div>
 				</div>
 			<?php endif; ?>
@@ -103,19 +105,17 @@
 	<!-- button -->
 	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default scaffold-btn-close" data-dismiss="modal">Close</button>
+			<button type="button" class="btn btn-light scaffold-btn-close" data-dismiss="modal">Close</button>
 			<?php if ( isset($xfa['submit']) ) : ?>
 				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
 			<?php endif; ?>
 		</div>
 	<?php elseif ( $scaffold['editMode'] == 'classic' ) : ?>
-		<div class="container-fluid">
-			<div class="col-10 offset-2">
-				<?php if ( isset($xfa['submit']) ) : ?>
-					<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
-				<?php endif; ?>
-				<a href="javascript:history.back();" class="btn btn-default scaffold-btn-cancel">Cancel</a>
-			</div>
+		<div class="col-10 offset-2">
+			<?php if ( isset($xfa['submit']) ) : ?>
+				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
+			<?php endif; ?>
+			<a href="javascript:history.back();" class="btn btn-light scaffold-btn-cancel">Cancel</a>
 		</div>
 	<?php endif; ?>
 </form>
