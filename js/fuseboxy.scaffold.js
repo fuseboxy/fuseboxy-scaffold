@@ -106,6 +106,19 @@ $(function(){
 	}); // window-scroll
 
 
+	// one click to create multiple new items
+	$('.scaffold-btn-quick-multiple,.scaffold-btn-new-multiple').each(function(){
+		var $container = $(this).closest('.btn-group');
+		var $btn = $container.find('.scaffold-btn-quick,.scaffold-btn-new');
+		$container.find('.dropdown-item').on('click', function(evt){
+			var count = parseInt( $(this).text() );
+			for (var i=0; i<count; i++ ) {
+				$btn.trigger('click');
+			}
+		});
+	});
+
+
 }); // document-ready
 
 
