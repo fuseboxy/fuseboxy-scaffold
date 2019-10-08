@@ -26,60 +26,56 @@
 */
 $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 ?>
-<div
+<div 
 	id="<?php echo $uniqid; ?>"
-	class="scaffold-input-file"
-	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?>
-	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?>
-	<?php if ( isset($field['filetype']) ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?>
-	<?php if ( isset($field['filesize']) ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo $field['filesize_numeric']; ?>"<?php endif; ?>
+	class="scaffold-input-file" 
+	<?php if ( isset($xfa['ajaxUpload'])         ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?> 
+	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?> 
+	<?php if ( isset($field['filetype'])         ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?> 
+	<?php if ( isset($field['filesize'])         ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo $field['filesize_numeric']; ?>"<?php endif; ?>
 >
-	<div class="input-group">
+	<!-- field -->
+	<div class="input-group input-group-sm">
+		<!-- buttons -->
 		<?php if ( empty($field['readonly']) ) : ?>
-			<span class="input-group-btn">
-				<button
-					type="button"
-					class="btn btn-sm btn-default btn-upload"
-					disabled
-				>Choose</button>
-				<?php if ( !empty($field['value']) ) : ?>
-					<button
-						type="button"
-						class="btn btn-sm btn-default btn-undo"
-						data-original-image="<?php echo $field['value']; ?>"
-						style="border-right: 0; display: none;"
-						disabled
-					><i class="fa fa-undo"></i></button>
-				<?php endif; ?>
-				<button
-					type="button"
-					class="btn btn-sm btn-default btn-remove"
-					style="border-right: 0; <?php if ( empty($field['value']) ) : ?>display: none;<?php endif; ?>"
-					disabled
-				><i class="fa fa-times"></i></button>
-			</span>
+			<div class="input-group-prepend">
+				<span disabled class="input-group-text btn-upload">Choose</span>
+				<span disabled class="input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></span>
+				<span disabled class="input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></span>
+			</div>
 		<?php endif; ?>
+		<!-- file path -->
 		<input
 			type="text"
-			class="form-control input-sm"
+			class="form-control"
 			name="data[<?php echo $field['name']; ?>]"
 			value="<?php echo $field['value']; ?>"
 			placeholder="<?php if ( !empty($field['placeholder']) ) echo $field['placeholder']; ?>"
 			readonly
 			<?php if ( !empty($field['required']) ) echo 'required'; ?>
 		 />
-	</div>
-	<div class="alert alert-danger" style="display: none; margin-bottom: 0; margin-top: 5px;"></div>
-	<div class="row" style="display: none; margin-top: 5px;">
-		<div class="col-xs-9 progress-wrap" style="padding-right: 2px;"></div>
-		<div class="col-xs-3 progress-abort" style="padding-left: 2px;"></div>
-	</div>
+	</div><!--/.input-group-->
+	<!-- (client-side) error message -->
+	<div class="form-text text-danger small px-1 mt-1 d-none"></div>
+	<!-- progress bar -->
+	<div class="progress-row input-group input-group-sm mt-1 d-none" style="height: 31px;">
+		<div class="form-control overflow-hidden p-0" style="height: 100%">
+			<div class="progress rounded-0" style="height: 100%">
+				<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>
+		</div>
+		<div class="progress-abort input-group-append" style="height: 100%;">
+			<span class="input-group-text">Cancel</span>
+		</div>
+	</div><!--/.progress-row-->
+	<!-- preview -->
 	<?php if ( !empty($field['preview']) ) : ?>
 		<a
 			href="<?php echo $field['value']; ?>"
-			target="_blank"
-			style="<?php if ( empty($field['value']) ) echo 'display: none;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 			title="<?php echo basename($field['value']); ?>"
+			class="<?php if ( empty($field['value']) ) echo 'd-none'; ?>"
+			style="<?php if (!empty($field['style']) ) echo $field['style']; ?>"
+			target="_blank"
 			data-fancybox
 		><img
 			alt="<?php echo basename($field['value']); ?>"
@@ -87,4 +83,4 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 			class="img-thumbnail mt-1"
 		/></a>
 	<?php endif; ?>
-</div>
+</div><!--/.scaffold-input-file-->
