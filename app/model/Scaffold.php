@@ -1156,8 +1156,7 @@ class Scaffold {
 		$tmpUploadDir  = F::config('uploadDir');
 		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
 		$tmpUploadDir .= $uploadDir;
-		$handler->uploadDir = $tmpUploadDir;
-		$uploadResult = $handler->handleUpload();
+		$uploadResult = $handler->handleUpload($tmpUploadDir);
 		// validate upload result
 		if ( !$uploadResult ) {
 			self::$error = $handler->getErrorMsg();
@@ -1250,8 +1249,9 @@ class Scaffold {
 		$err = array();
 		if ( empty($arguments['uploaderID']) ) {
 			$err[] = 'Argument [uploaderID] is required';
-		} elseif ( !isset($arguments[$arguments['uploaderID']]) ) {
-			$err[] = "Data of [{$arguments['uploaderID']}] was not submitted";
+		}
+		if ( empty($arguments['originalName']) ) {
+			$err[] = 'Argument [originalName] is required';
 		}
 		if ( empty($arguments['fieldName']) ) {
 			$err[] = 'Argument [fieldName] is required';
@@ -1280,24 +1280,24 @@ class Scaffold {
 		$removeExpiredFile = self::removeExpiredFile($arguments['fieldName'], $uploadDir);
 		if ( $removeExpiredFile === false ) return false;
 		// init object (specify [uploaderID] to know which DOM to update)
-		$fileUpload = new FileUpload($arguments['uploaderID']);
+		$uploader = new FileUpload($arguments['uploaderID']);
 		// config : array of permitted file extensions (only allow image & doc by default)
 		if ( isset(self::$config['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
-			$fileUpload->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
+			$uploader->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
 		} else {
-			$fileUpload->allowedExtensions = explode(',', 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx');
+			$uploader->allowedExtensions = explode(',', 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx');
 		}
 		// config : max file upload size in bytes (default 10MB in library)
 		// ===> scaffold-controller turns human-readable-filesize into numeric
 		if ( isset(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
-			$fileUpload->sizeLimit = self::$config['fieldConfig'][$arguments['fieldName']]['filesize_numeric'];
+			$uploader->sizeLimit = self::$config['fieldConfig'][$arguments['fieldName']]['filesize_numeric'];
 		}
 		// config : assign unique name to avoid overwrite
-		$originalName = urldecode($arguments[$arguments['uploaderID']]);
-		$uniqueName = pathinfo($originalName, PATHINFO_FILENAME).'_'.uuid().'.'.pathinfo($originalName, PATHINFO_EXTENSION);
-		$fileUpload->newFileName = $uniqueName;
+		$arguments['originalName'] = urldecode($arguments['originalName']);
+		$uniqueName = pathinfo($arguments['originalName'], PATHINFO_FILENAME).'_'.uuid().'.'.pathinfo($arguments['originalName'], PATHINFO_EXTENSION);
+		$uploader->newFileName = $uniqueName;
 		// start upload
-		$uploadFileName = self::startUpload($fileUpload, $uploadDir);
+		$uploadFileName = self::startUpload($uploader, $uploadDir);
 		if ( $uploadFileName === false ) return false;
 		// success!
 		return array(

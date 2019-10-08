@@ -1,38 +1,6 @@
 $(function(){
 
 
-	// overriding simple-ajax-uploader function to show ajax error in modal
-	if ( typeof ss !== 'undefined' ) {
-		ss.SimpleUpload.prototype._finish = function( status, statusText, response, filename, sizeBox, progBox, pctBox, abortBtn, removeAbort, uploadBtn ) {
-			"use strict";
-			// show server response
-			this.log( 'Server response: ' + response );
-			// check if any error
-			if ( this._opts.responseType.toLowerCase() == 'json' ) {
-				var jsonResponse = ss.parseJSON( response );
-				if ( jsonResponse === false ) {
-					// show error in modal when not valid response
-					var errModal = $('#ss-error-modal');
-					if ( !$(errModal).length ) {
-						errModal = $('<div id="ss-error-modal" class="modal fade" data-nocache role="dialog"><div class="modal-dialog"><div class="modal-content panel panel-danger"><div class="modal-body panel-heading" style="border-radius: 6px;"></div></div></div></div>');
-						$(errModal).appendTo('body');
-					}
-					$(errModal).find('.modal-body').html(response).end().modal('show');
-					// show error in console when not valid response
-					this._errorFinish( status, statusText, false, 'parseerror', filename, sizeBox, progBox, abortBtn, removeAbort, uploadBtn );
-					// do not go further
-					return;
-				}
-			}
-			// go on if no error
-			this._opts.onComplete.call( this, filename, response, uploadBtn );
-			this._last( sizeBox, progBox, pctBox, abortBtn, removeAbort );
-			// Null to avoid leaks in IE
-			status = statusText = response = filename = sizeBox = progBox = pctBox = abortBtn = removeAbort = uploadBtn = null;
-		};
-	}
-
-
 	// init ajax-uploader when page ready
 	// ===> also when inline-edit & modal shows up
 	fuseboxyScaffold__initAjaxUploader();
@@ -122,6 +90,8 @@ $(function(){
 }); // document-ready
 
 
+
+
 function fuseboxyScaffold__initDatetimePicker(){
 	$('.scaffold-input-date,.scaffold-input-time,.scaffold-input-datetime').not('.datetimepicker-ready').each(function(){
 		// config
@@ -143,6 +113,8 @@ function fuseboxyScaffold__initDatetimePicker(){
 }
 
 
+
+
 function fuseboxyScaffold__initHtmlEditor(){
 	$('.scaffold-input-wysiwyg:not(.summernote-ready').each(function(){
 		// transform
@@ -153,25 +125,29 @@ function fuseboxyScaffold__initHtmlEditor(){
 }
 
 
+
+
 function fuseboxyScaffold__initAjaxUploader(){
 	$('.scaffold-input-file:not(.simple-ajax-uploader-ready)').each(function(){
 		var elementID = $(this).attr('id');
 		// apply ajax-upload to this single field
 		$('#'+elementID).each(function(){
 			// elements
-			var $fieldWrap = $(this);
-			var $field = $fieldWrap.find('input[type=text]');
-			var $uploadBtn = $fieldWrap.find('.btn-upload');
-			var $removeBtn = $fieldWrap.find('.btn-remove');
-			var $undoBtn = $fieldWrap.find('.btn-undo');
-			var $progressWrap = $fieldWrap.find('.progress-wrap');
-			var $preview = $fieldWrap.find('.thumbnail');
-			var $alert = $fieldWrap.find('.alert');
+			var $fieldContainer = $(this);
+			var $field = $fieldContainer.find('input[type=text]');
+			var $uploadBtn = $fieldContainer.find('.btn-upload');
+			var $removeBtn = $fieldContainer.find('.btn-remove');
+			var $undoBtn = $fieldContainer.find('.btn-undo');
+			var $progress = $fieldContainer.find('.progress-row');
+			var $previewImg = $fieldContainer.find('.img-thumbnail');
+			var $alert = $fieldContainer.find('.form-text');
+			// use jquery for show/hide
+			$fieldContainer.find('.d-none').removeClass('d-none').hide();
 			// click button to clear selected image
 			$removeBtn.on('click', function(evt){
 				evt.preventDefault();
 				$field.val('');
-				$preview.html('').hide();
+				$previewImg.parent().hide();
 				$undoBtn.show();
 				$removeBtn.hide();
 			}).prop('disabled', false);
@@ -179,12 +155,13 @@ function fuseboxyScaffold__initAjaxUploader(){
 			$undoBtn.on('click', function(evt){
 				evt.preventDefault();
 				$field.val( $undoBtn.attr('data-original-image') );
-				$preview.show().html('<a href="'+$undoBtn.attr('data-original-image')+'" target="_blank"><img src="'+$undoBtn.attr('data-original-image')+'" alt="" /></a>');
+				$previewImg.parent().show().attr('href', $undoBtn.attr('data-original-image'));
+				$previewImg.attr('src', $undoBtn.attr('data-original-image'));
 				$undoBtn.hide();
 				$removeBtn.show();
 			}).prop('disabled', false);
 			// validation
-			if ( !$fieldWrap.attr('data-upload-url') ) {
+			if ( !$fieldContainer.attr('data-upload-url') ) {
 				alert('attribute [data-upload-url] is required for file upload');
 				$uploadBtn.prop('disabled', true);
 				return false;
@@ -192,16 +169,16 @@ function fuseboxyScaffold__initAjaxUploader(){
 			// ===> it will enable the upload button automatically
 			} else {
 				// param from controller
-				var _uploadUrl = $fieldWrap.attr('data-upload-url');
-				var _progressUrl = $fieldWrap.is('[data-progress-url]') ? $fieldWrap.attr('data-progress-url') : false;
-				var _maxSize = $fieldWrap.is('[data-file-size]') ? (parseFloat($fieldWrap.attr('data-file-size-numeric'))/1024) : false;
-				var _allowedExtensions = $fieldWrap.is('[data-file-type]') ? $fieldWrap.attr('data-file-type').split(',') : false;
+				var _uploadUrl   = $fieldContainer.attr('data-upload-url');
+				var _progressUrl = $fieldContainer.is('[data-progress-url]') ? $fieldContainer.attr('data-progress-url') : false;
+				var _maxSize     = $fieldContainer.is('[data-file-size]') ? (parseFloat($fieldContainer.attr('data-file-size-numeric'))/1024) : false;
+				var _allowedExt  = $fieldContainer.is('[data-file-type]') ? $fieldContainer.attr('data-file-type').split(',') : false;
 				// init ajax uploader
 				var uploader = new ss.SimpleUpload({
 					//----- essential config -----
 					button: $uploadBtn.prop('disabled', false),
+					name: $fieldContainer.attr('id'),
 					url: _uploadUrl,
-					name: $fieldWrap.attr('id'),
 					//----- optional config -----
 					progressUrl: _progressUrl,
 					multiple: false,
@@ -212,7 +189,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 					// ===> server-side use byte for validation
 					maxSize: _maxSize,
 					// server-upload will block file upload other than below items
-					allowedExtensions: _allowedExtensions,
+					allowedExtensions: _allowedExt,
 					// control what file to show when choosing files
 					//accept: 'image/*',
 					hoverClass: 'btn-hover',
@@ -221,55 +198,77 @@ function fuseboxyScaffold__initAjaxUploader(){
 					responseType: 'json',
 					// validate allowed extension
 					onExtError: function(filename, extension) {
-						$alert.show().html(filename + ' is not a permitted file type.'+"\n\n"+'Only '+$fieldWrap.attr('data-file-type').toUpperCase()+' are allowed.');
+						var msg = filename + ' is not in a permitted file type. ('+$fieldContainer.attr('data-file-type').toUpperCase()+' only)';
+						$alert.show().html(msg);
 					},
 					// validate file size
 					onSizeError: function(filename, fileSize) {
-						$alert.show().html(filename + ' is too big. ('+$fieldWrap.attr('data-file-size')+' max file size)');
+						var msg = filename + ' is too big. ('+$fieldContainer.attr('data-file-size')+' max file size)';
+						$alert.show().html(msg);
 					},
 					// show progress bar
-					onSubmit: function(filename, ext, btn) {
+					onSubmit: function(filename, extension, uploadBtn, fileSize) {
+						// send original filename as additional data
+						uploader._opts.data['originalName'] = encodeURI(filename);
+						// clear image & show progress
 						$alert.hide().html('');
-						$preview.hide().html('');
-						if ( $fieldWrap.attr('data-progress-url') ) {
-							$progressWrap.append('<div class="progress progress-striped active"><div class="progress-bar" style="width: 0%;"></div></div>');
-							this.setProgressBar( $progressWrap.find('.progress-bar') );
-							this.setProgressContainer( $progressWrap.find('.progress') );
-							$progressWrap.closest('.row').show();
-						}
-						// browser bug : don't know why must log 'btn' to show progress-bar
-						//console.log(btn);
+						$previewImg.parent().hide();
+						$progress.show();
+						// hook progress
+						this.setProgressBar( $progress.find('.progress-bar') );
+						this.setProgressContainer( $progress.find('.progress') );
 					},
 					// start upload
 					startXHR: function() {
-						// Dynamically add a "Cancel" button to be displayed when upload begins
-						// By doing it here ensures that it will only be added in browsers which 
-						// support cancelling uploads
-						var $cancelBtn = $('<span class="btn-cancel-upload"><button class="btn btn-xs btn-block btn-info">Cancel</button></span>');
-						$fieldWrap.find('.progress-abort').append( $cancelBtn );
 						// Adds click event listener that will cancel the upload
 						// The second argument is whether the button should be removed after the upload
 						// true = yes, remove abort button after upload
 						// false/default = do not remove
-						this.setAbortBtn($cancelBtn, true);
+						var $abortBtn = $progress.find('.btn-abort');
+						this.setAbortBtn($abortBtn, false);
 					},
 					// show upload preview (and show remove button)
 					// ===> hide alert, hide progress bar
-					onComplete: function(filename, responseText) {
-						var response = $.parseJSON(responseText);
+					onComplete: function(filename, response, uploadBtn, fileSize) {
+						// upload succeed!
 						if ( response.success ) {
+							// update file path
 							$field.val(response.fileUrl);
-							$preview.show().html('<a href="'+response.fileUrl+'" target="_blank"><img src="'+response.fileUrl+'" alt="" /></a>');
-							if ( $undoBtn.length ) {
+							// refresh preview image
+							$previewImg.parent().show().attr('href', response.fileUrl);
+							$previewImg.attr('src', response.fileUrl);
+							// toggle buttons
+							if ( $undoBtn.attr('data-original-image').length ) {
 								$undoBtn.show();
 								$removeBtn.hide();
 							} else {
+								$undoBtn.attr('data-original-image', response.fileUrl);
 								$removeBtn.show();
 							}
-							$progressWrap.closest('.row').hide();
+						// upload failed...
 						} else {
-							$alert.html( response.msg ? response.msg : responseText ).show();
+							// simply show message
+							$alert.html( response.msg ? response.msg : response ).show();
 						}
+						// hide progress bar
+						$progress.hide();
+					},					// any error
+					onError: function(filename, errorType, status, statusText, response, uploadBtn, fileSize) {
+						// show error in modal when not valid response
+						var $errModal = $('#ss-error-modal');
+						if ( !$(errModal).length ) {
+							$errModal = $(`
+								<div id="ss-error-modal" class="modal fade" role="dialog">
+									<div class="modal-dialog">
+										<div class="modal-content card bg-danger">
+											<div class="modal-body"></div>
+										</div>
+									</div>
+								</div>
+							`);
+							$errModal.appendTo('body');
+						}
+						$errModal.find('.modal-body').html(response).end().modal('show');
 					}
 				}); // new-simple-upload
 			} // if-data-upload-url
