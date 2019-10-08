@@ -268,7 +268,7 @@ switch ( $fusebox->action ) :
 		break;
 	// ajax upload progress
 	case 'upload_file_progress':
-		require $scaffold['libPath'].'simple-ajax-uploader/1.10.1/extras/uploadProgress.php';
+		require $scaffold['libPath'].'simple-ajax-uploader/2.6.7/extras/uploadProgress.php';
 		break;
 
 

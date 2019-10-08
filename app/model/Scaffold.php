@@ -1240,7 +1240,7 @@ class Scaffold {
 	public static function uploadFile($arguments) {
 		global $fusebox;
 		// load library
-		$libPath = self::$config['libPath'].'simple-ajax-uploader/1.10.1/extras/Uploader.php';
+		$libPath = self::$config['libPath'].'simple-ajax-uploader/2.6.7/extras/Uploader.php';
 		if ( !file_exists($libPath) ) {
 			self::$error = "Could not load [SimpleAjaxUploader] library (path={$libPath})";
 			return false;
