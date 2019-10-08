@@ -39,9 +39,9 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 		<!-- buttons -->
 		<?php if ( empty($field['readonly']) ) : ?>
 			<div class="input-group-prepend">
-				<span disabled class="input-group-text btn-upload">Choose</span>
-				<span disabled class="input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></span>
-				<span disabled class="input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></span>
+				<button type="button" class="input-group-text btn-upload">Choose</button>
+				<button type="button" class="input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
+				<button type="button" class="input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
 			</div>
 		<?php endif; ?>
 		<!-- file path -->
@@ -65,7 +65,7 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 			</div>
 		</div>
 		<div class="progress-abort input-group-append" style="height: 100%;">
-			<span class="input-group-text">Cancel</span>
+			<button type="button" class="input-group-text btn-abort">Cancel</button>
 		</div>
 	</div><!--/.progress-row-->
 	<!-- preview -->

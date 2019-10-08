@@ -150,7 +150,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 				$previewImg.parent().hide();
 				$undoBtn.show();
 				$removeBtn.hide();
-			}).prop('disabled', false);
+			});
 			// click button to restore to original image
 			$undoBtn.on('click', function(evt){
 				evt.preventDefault();
@@ -159,11 +159,10 @@ function fuseboxyScaffold__initAjaxUploader(){
 				$previewImg.attr('src', $undoBtn.attr('data-original-image'));
 				$undoBtn.hide();
 				$removeBtn.show();
-			}).prop('disabled', false);
+			});
 			// validation
 			if ( !$fieldContainer.attr('data-upload-url') ) {
 				alert('attribute [data-upload-url] is required for file upload');
-				$uploadBtn.prop('disabled', true);
 				return false;
 			// add behavior to upload button
 			// ===> it will enable the upload button automatically
@@ -176,7 +175,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 				// init ajax uploader
 				var uploader = new ss.SimpleUpload({
 					//----- essential config -----
-					button: $uploadBtn.prop('disabled', false),
+					button: $uploadBtn,
 					name: $fieldContainer.attr('id'),
 					url: _uploadUrl,
 					//----- optional config -----
@@ -194,7 +193,6 @@ function fuseboxyScaffold__initAjaxUploader(){
 					//accept: 'image/*',
 					hoverClass: 'btn-hover',
 					focusClass: 'active',
-					disabledClass: 'disabled',
 					responseType: 'json',
 					// validate allowed extension
 					onExtError: function(filename, extension) {
