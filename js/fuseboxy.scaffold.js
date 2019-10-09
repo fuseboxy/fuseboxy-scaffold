@@ -140,8 +140,8 @@ function fuseboxyScaffold__initAjaxUploader(){
 			var $undoBtn = $fieldContainer.find('.btn-undo');
 			var $progress = $fieldContainer.find('.progress-row');
 			var $previewImg = $fieldContainer.find('.img-thumbnail');
-			var $alert = $fieldContainer.find('.form-text');
-			// use jquery for show/hide
+			var $errMsg = $fieldContainer.find('.form-text');
+			// use jquery for show & hide
 			$fieldContainer.find('.d-none').removeClass('d-none').hide();
 			// click button to clear selected image
 			$removeBtn.on('click', function(evt){
@@ -197,19 +197,19 @@ function fuseboxyScaffold__initAjaxUploader(){
 					// validate allowed extension
 					onExtError: function(filename, extension) {
 						var msg = filename + ' is not in a permitted file type. ('+$fieldContainer.attr('data-file-type').toUpperCase()+' only)';
-						$alert.show().html(msg);
+						$errMsg.show().html(msg);
 					},
 					// validate file size
 					onSizeError: function(filename, fileSize) {
 						var msg = filename + ' is too big. ('+$fieldContainer.attr('data-file-size')+' max file size)';
-						$alert.show().html(msg);
+						$errMsg.show().html(msg);
 					},
 					// show progress bar
 					onSubmit: function(filename, extension, uploadBtn, fileSize) {
 						// send original filename as additional data
 						uploader._opts.data['originalName'] = encodeURI(filename);
 						// clear image & show progress
-						$alert.hide().html('');
+						$errMsg.hide().html('');
 						$previewImg.parent().hide();
 						$progress.show();
 						// hook progress
@@ -246,7 +246,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 						// upload failed...
 						} else {
 							// simply show message
-							$alert.html( response.msg ? response.msg : response ).show();
+							$errMsg.html( response.msg ? response.msg : response ).show();
 						}
 						// hide progress bar
 						$progress.hide();
@@ -258,7 +258,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 							$errModal = $(`
 								<div id="ss-error-modal" class="modal fade" role="dialog">
 									<div class="modal-dialog">
-										<div class="modal-content card bg-danger">
+										<div class="modal-content bg-danger">
 											<div class="modal-body"></div>
 										</div>
 									</div>
