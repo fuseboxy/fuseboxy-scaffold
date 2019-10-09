@@ -150,7 +150,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 				$previewImg.parent().hide();
 				$undoBtn.show();
 				$removeBtn.hide();
-			});
+			}).removeClass('text-white');
 			// click button to restore to original image
 			$undoBtn.on('click', function(evt){
 				evt.preventDefault();
@@ -159,7 +159,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 				$previewImg.attr('src', $undoBtn.attr('data-original-image'));
 				$undoBtn.hide();
 				$removeBtn.show();
-			});
+			}).removeClass('text-white');
 			// validation
 			if ( !$fieldContainer.attr('data-upload-url') ) {
 				alert('attribute [data-upload-url] is required for file upload');
@@ -175,7 +175,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 				// init ajax uploader
 				var uploader = new ss.SimpleUpload({
 					//----- essential config -----
-					button: $uploadBtn,
+					button: $uploadBtn.removeClass('text-white'),
 					name: $fieldContainer.attr('id'),
 					url: _uploadUrl,
 					//----- optional config -----

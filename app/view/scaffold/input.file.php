@@ -39,9 +39,9 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 		<!-- buttons -->
 		<?php if ( empty($field['readonly']) ) : ?>
 			<div class="input-group-prepend">
-				<button type="button" class="input-group-text btn-upload">Choose</button>
-				<button type="button" class="input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
-				<button type="button" class="input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-upload">Choose</button>
+				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
 			</div>
 		<?php endif; ?>
 		<!-- file path -->
