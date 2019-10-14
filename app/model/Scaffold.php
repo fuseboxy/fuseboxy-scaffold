@@ -6,12 +6,30 @@ class Scaffold {
 	public static $config;
 
 
+
+
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
 
 
-	// create folder at upload directory according to protocol
+
+
+	/**
+	<fusedoc>
+		<description>
+			create folder at upload directory according to protocol
+		</description>
+		<io>
+			<in>
+				<path name="$newFolder" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function createFolder($newFolder) {
 		switch ( self::parseConnectionString(null, 'protocol') ) {
 			case 's3':
@@ -25,6 +43,8 @@ class Scaffold {
 				return self::createFolder__LocalServer($newFolder);
 		}
 	}
+
+
 
 
 	// create directory at remote FTP server (when not exists)
@@ -105,7 +125,27 @@ class Scaffold {
 	}
 
 
-	// remove specific bean
+
+
+	/**
+	<fusedoc>
+		<description>
+			remove specific bean
+		</description>
+		<io>
+			<in>
+				<number name="$id" />
+				<structure name="$config" scope="self">
+					<boolean name="writeLog" />
+					<string name="beanType" />
+				</structure>
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function deleteBean($id) {
 		$bean = self::getBean($id);
 		// get record value for log (when necessary)
@@ -223,6 +263,9 @@ class Scaffold {
 		<io>
 			<in>
 				<number name="id" optional="yes" comments="create empty object when not specified" />
+				<structure name="$config" scope="self">
+					<string name="beanType" />
+				</structure>
 			</in>
 			<out>
 				<object name="~return~" optional="yes" oncondition="succeed" />
@@ -457,6 +500,8 @@ class Scaffold {
 	}
 
 
+
+
 	// get list of files in specific directory at local server
 	public static function getFileList__LocalServer($dir) {
 		$result = array();
@@ -472,6 +517,8 @@ class Scaffold {
 		// done!
 		return $result;
 	}
+
+
 
 
 	// get list of files in specific directory at S3 bucket
@@ -506,6 +553,8 @@ class Scaffold {
 		// done!
 		return $result;
 	}
+
+
 
 
 	/**
@@ -570,6 +619,8 @@ class Scaffold {
 			return false;
 		}
 	}
+
+
 
 
 	/**
@@ -662,6 +713,8 @@ class Scaffold {
 	}
 
 
+
+
 	/**
 	<fusedoc>
 		<description>
@@ -752,6 +805,8 @@ class Scaffold {
 	}
 
 
+
+
 	// remove expired file according to protocol
 	public static function removeExpiredFile($fieldName, $uploadDir) {
 		// get all records of specific field
@@ -824,7 +879,24 @@ class Scaffold {
 	}
 
 
-	// rename file at local server
+
+
+	/**
+	<fusedoc>
+		<description>
+			rename file at local server
+		</description>
+		<io>
+			<in>
+				<string name="$source" />
+				<string name="$destination" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function renameFile__LocalServer($source, $destination) {
 		if ( !rename($filePath, "{$filePath}.DELETED") ) {
 			self::$error = "Error occurred while renaming expired file (source={$source}, destination={$destination})";
@@ -832,6 +904,8 @@ class Scaffold {
 		}
 		return true;
 	}
+
+
 
 
 	// rename file at S3 bucket
@@ -863,6 +937,8 @@ class Scaffold {
 	}
 
 
+
+
 	// resize image to specific width & height
 	// ===> (work-in-progress)
 	public static function resizeImage($filepath, $dimension) {
@@ -883,7 +959,29 @@ class Scaffold {
 	}
 
 
-	// save bean with submitted data
+
+
+	/**
+	<fusedoc>
+		<description>
+			save bean with submitted data
+		</description>
+		<io>
+			<in>
+				<structure name="$data" />
+				<structure name="$config" scope="self">
+					<boolean name="writeLog" />
+					<structure name="fieldConfig">
+						<structure name="~fieldName~" />
+					</structure>
+				</structure>
+			</in>
+			<out>
+				<number name="~return~" comments="bean id" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function saveBean($data) {
 		// get current bean or create new bean
 		$bean = self::getBean( !empty($data['id']) ? $data['id'] : null );
@@ -950,6 +1048,8 @@ class Scaffold {
 		// done!
 		return $id;
 	}
+
+
 
 
 	// assign default value to parameters
@@ -1320,7 +1420,25 @@ class Scaffold {
 
 
 
-	// enable/disable specific record
+	/**
+	<fusedoc>
+		<description>
+			enable or disable specific record
+		</description>
+		<io>
+			<in>
+				<number name="$id" />
+				<boolean name="$active" comments="enable when true; disable when false" />
+				<structure name="$config" scope="self">
+					<boolean name="writeLog" />
+				</structure>
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function toggleBean($id, $active) {
 		$bean = self::getBean($id);
 		if ( $bean === false ) return false;
@@ -1346,6 +1464,8 @@ class Scaffold {
 		// done!
 		return true;
 	}
+
+
 
 
 	// ajax upload file
@@ -1422,6 +1542,8 @@ class Scaffold {
 	}
 
 
+
+
 	// perform validation on config
 	public static function validateConfig() {
 		global $fusebox;
@@ -1463,4 +1585,4 @@ class Scaffold {
 	}
 
 
-} // Scaffold
+} // class
