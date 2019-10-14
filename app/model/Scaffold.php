@@ -22,7 +22,7 @@ class Scaffold {
 				return self::createFolder__FTP($newFolder);
 				break;
 			default:
-				return self::createFolder__Local($newFolder);
+				return self::createFolder__LocalServer($newFolder);
 		}
 	}
 
@@ -63,7 +63,7 @@ class Scaffold {
 
 
 	// create directory at local server (when not exists)
-	public static function createFolder__Local($newFolder) {
+	public static function createFolder__LocalServer($newFolder) {
 		$tmpNewFolder  = F::config('uploadDir');
 		$tmpNewFolder .= ( substr($tmpNewFolder, -1) == '/' ) ? '' : '/';
 		$tmpNewFolder .= $newFolder;
@@ -415,7 +415,7 @@ class Scaffold {
 				return self::getFileList__FTP($dir);
 				break;
 			default:
-				return self::getFileList__Local($dir);
+				return self::getFileList__LocalServer($dir);
 		}
 	}
 
@@ -458,7 +458,7 @@ class Scaffold {
 
 
 	// get list of files in specific directory at local server
-	public static function getFileList__Local($dir) {
+	public static function getFileList__LocalServer($dir) {
 		$result = array();
 		// go through each file in directory
 		foreach ( glob($dir."*.*") as $filePath ) {
@@ -797,7 +797,7 @@ class Scaffold {
 				return self::renameFile__FTP($source, $destination);
 				break;
 			default:
-				return self::renameFile__Local($source, $destination);
+				return self::renameFile__LocalServer($source, $destination);
 		}
 	}
 
@@ -825,7 +825,7 @@ class Scaffold {
 
 
 	// rename file at local server
-	public static function renameFile__Local($source, $destination) {
+	public static function renameFile__LocalServer($source, $destination) {
 		if ( !rename($filePath, "{$filePath}.DELETED") ) {
 			self::$error = "Error occurred while renaming expired file (source={$source}, destination={$destination})";
 			return false;
@@ -1140,7 +1140,7 @@ class Scaffold {
 				$result = self::startUpload__FTP($uploadResult, $uploadDir);
 				break;
 			default:
-				$result = self::startUpload__Local($uploadResult, $uploadDir);
+				$result = self::startUpload__LocalServer($uploadResult, $uploadDir);
 		}
 		// done!
 		return $result;
@@ -1213,7 +1213,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function startUpload__Local($tempUpload, $uploadDir) {
+	public static function startUpload__LocalServer($tempUpload, $uploadDir) {
 		$source = $tempUpload['filePath'];
 		$destination  = F::config('uploadDir');
 		$destination .= ( substr($destination, -1) == '/' ) ? '' : '/';
