@@ -254,7 +254,7 @@ function fuseboxyScaffold__initAjaxUploader(){
 					onError: function(filename, errorType, status, statusText, response, uploadBtn, fileSize) {
 						// show error in modal when not valid response
 						var $errModal = $('#ss-error-modal');
-						if ( !$(errModal).length ) {
+						if ( !$errModal.length ) {
 							$errModal = $(`
 								<div id="ss-error-modal" class="modal fade" role="dialog">
 									<div class="modal-dialog">
