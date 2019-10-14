@@ -2,7 +2,7 @@
 class Scaffold {
 
 
-	// config
+	// scaffold config
 	public static $config;
 
 
@@ -939,9 +939,24 @@ class Scaffold {
 
 
 
-	// resize image to specific width & height
-	// ===> (work-in-progress)
-	public static function resizeImage($filepath, $dimension) {
+	/**
+	<fusedoc>
+		<description>
+			resize image to specific width & height
+			===> (work-in-progress)
+		</description>
+		<io>
+			<in>
+				<path name="$filePath" />
+				<string name="$dimension" example="800x600|1024w|100h" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function resizeImage($filePath, $dimension) {
 		// validate dimension
 		if ( preg_match('/^([0-9]+)(x)([0-9]+)$/i', $dimension, $matches) ) {
 			$w = $matches[1];
@@ -951,7 +966,7 @@ class Scaffold {
 		} elseif ( preg_match('/^([0-9]+)(h)$/i', $dimension, $matches) ) {
 			$h = $matches[1];
 		} else {
-			self::$error = "Invalid file dimension ({$dimension})";
+			self::$error = "Invalid file resize dimension ({$dimension})";
 			return false;
 		}
 		// done!
@@ -1207,8 +1222,9 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
-				<object name="&$handler" comments="simple-ajax-uploader handler" />=
+				<object name="&$handler" comments="simple-ajax-uploader handler" />
 				<string name="$uploadDir" comments="target directory" />
+				<string name="$resize" optional="yes" example="800x600|1024w|100h" />
 			</in>
 			<out>
 				<string name="~return~" comments="filename" />
@@ -1217,7 +1233,7 @@ class Scaffold {
 	</fusedoc>
 	*/
 	// 
-	public static function startUpload(&$handler, $uploadDir) {
+	public static function startUpload(&$handler, $uploadDir, $resize=null) {
 		// skip when unit-test
 		if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 			return $handler->getNewFileName();
@@ -1227,8 +1243,11 @@ class Scaffold {
 		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
 		// upload to temp directory first
 		$uploadResult = self::startUpload__TempDir($handler);
-		if ( $uploadResult === false ) {
-			return false;
+		if ( $uploadResult === false ) return false;
+		// resize uploaded file (when necessary)
+		if ( !empty($resize) ) {
+			$resizeResult = self::resizeImage($uploadResult['filePath'], $resize);
+			if ( $resizeResult === false ) return false;
 		}
 		// take action according to protocol
 		switch ( self::parseConnectionString(null, 'protocol') ) {
@@ -1260,7 +1279,7 @@ class Scaffold {
 				<structure name="$tempUpload">
 					<string name="directory" />
 					<string name="fileName" />
-					<string name="filePath" />
+					<path name="filePath" />
 				</structure>
 				<string name="$uploadDir" />
 			</in>
@@ -1303,7 +1322,7 @@ class Scaffold {
 				<structure name="$tempUpload">
 					<string name="directory" />
 					<string name="fileName" />
-					<string name="filePath" />
+					<path name="filePath" />
 				</structure>
 				<string name="$uploadDir" />
 			</in>
@@ -1342,7 +1361,7 @@ class Scaffold {
 				<structure name="$tempUpload">
 					<string name="directory" />
 					<string name="fileName" />
-					<string name="filePath" />
+					<path name="filePath" />
 				</structure>
 				<string name="$uploadDir" />
 			</in>
@@ -1392,7 +1411,7 @@ class Scaffold {
 				<structure name="~return~" comments="info of file uploaded to temp dir">
 					<string name="directory" comments="with trailing slash" />
 					<string name="fileName" />
-					<string name="filePath" />
+					<path name="filePath" />
 				</structure>
 			</out>
 		</io>
@@ -1529,8 +1548,14 @@ class Scaffold {
 		$arguments['originalName'] = urldecode($arguments['originalName']);
 		$uniqueName = pathinfo($arguments['originalName'], PATHINFO_FILENAME).'_'.uuid().'.'.pathinfo($arguments['originalName'], PATHINFO_EXTENSION);
 		$uploader->newFileName = $uniqueName;
+		// check resize config (when necessary)
+		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['resize']) ) {
+			$resize = self::$config['fieldConfig'][$arguments['fieldName']]['resize'];
+		} else {
+			$resize = null;
+		}
 		// start upload
-		$uploadFileName = self::startUpload($uploader, $uploadDir);
+		$uploadFileName = self::startUpload($uploader, $uploadDir, $resize);
 		if ( $uploadFileName === false ) return false;
 		// success!
 		return array(
