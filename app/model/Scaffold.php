@@ -864,6 +864,7 @@ class Scaffold {
 
 
 	// resize image to specific width & height
+	// ===> (work-in-progress)
 	public static function resizeImage($filepath, $dimension) {
 		// validate dimension
 		if ( preg_match('/^([0-9]+)(x)([0-9]+)$/i', $dimension, $matches) ) {
@@ -1097,48 +1098,87 @@ class Scaffold {
 	}
 
 
-	// proceed upload according to protocol
+
+
+	/**
+	<fusedoc>
+		<description>
+			proceed file upload according to different protocol
+		</description>
+		<io>
+			<in>
+				<object name="&$handler" comments="simple-ajax-uploader handler" />=
+				<string name="$uploadDir" comments="target directory" />
+			</in>
+			<out>
+				<string name="~return~" comments="filename" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	// 
 	public static function startUpload(&$handler, $uploadDir) {
 		// skip when unit-test
 		if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 			return $handler->getNewFileName();
 		}
+		// fix parameter (remove leading slash & append trailing slash)
+		if ( substr($uploadDir, 0, 1) == '/' ) $uploadDir = substr($uploadDir, 1);
+		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
+		// upload to temp directory first
+		$uploadResult = self::startUpload__TempDir($handler);
+		if ( $uploadResult === false ) {
+			return false;
+		}
 		// take action according to protocol
 		switch ( self::parseConnectionString(null, 'protocol') ) {
 			case 's3':
-				return self::startUpload__S3($handler, $uploadDir);
+				$result = self::startUpload__S3($uploadResult, $uploadDir);
 				break;
 			case 'ftp':
 			case 'ftps':
-				return self::startUpload__FTP($handler, $uploadDir);
+				$result = self::startUpload__FTP($uploadResult, $uploadDir);
 				break;
 			default:
-				return self::startUpload__Local($handler, $uploadDir);
+				$result = self::startUpload__Local($uploadResult, $uploadDir);
 		}
+		// done!
+		return $result;
 	}
 
 
-	// proceed upload to remote FTP server
-	// ===> append upload directory with folder in connection string (if any)
-	public static function startUpload__FTP(&$handler, $uploadDir) {
+
+
+	/**
+	<fusedoc>
+		<description>
+			proceed to upload to remote FTP server
+			===> append upload directory with folder in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<structure name="$tempUpload">
+					<string name="directory" />
+					<string name="fileName" />
+					<string name="filePath" />
+				</structure>
+				<string name="$uploadDir" />
+			</in>
+			<out>
+				<string name="~return~" comments="filename" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function startUpload__FTP($tempUpload, $uploadDir) {
 		$cs = self::parseConnectionString();
 		if ( $cs === false ) return false;
-		// upload to temp directory at local server first
-		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
-		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
-		$handler->uploadDir = $tmpUploadDir;
-		$uploadResult = $handler->handleUpload();
-		// validate upload result to local server
-		if ( !$uploadResult ) {
-			self::$error = $handler->getErrorMsg();
-			return false;
-		}
 		// connect to server
 		$ftpConn = self::getConnection__FTP();
 		if ( $ftpConn === false ) return false;
 		// upload to target directory at remote server
-		$destination = $cs['folder'].$uploadDir.$handler->getFileName();
-		$source = $tmpUploadDir.$handler->getFileName();
+		$destination = $cs['folder'].$uploadDir.$tempUpload['fileName'];
+		$source = $tempUpload['filePath'];
 		$uploadResult = ftp_put($ftpConn, $destination, $source, FTP_BINARY);
 		if ( $uploadResult === false ) {
 			self::$error = "Error occurred while uploading file to FTP server";
@@ -1147,51 +1187,81 @@ class Scaffold {
 		// disconnect...
 		ftp_close($ftpConn);
 		// done!
-		return $handler->getFileName();
+		return $tempUpload['fileName'];
 	}
 
 
-	// proceed upload to local server
-	public static function startUpload__Local(&$handler, $uploadDir) {
-		$tmpUploadDir  = F::config('uploadDir');
-		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
-		$tmpUploadDir .= $uploadDir;
-		$uploadResult = $handler->handleUpload($tmpUploadDir);
-		// validate upload result
-		if ( !$uploadResult ) {
-			self::$error = $handler->getErrorMsg();
+
+
+	/**
+	<fusedoc>
+		<description>
+			move uploaded file from temp directory to correct local directory
+		</description>
+		<io>
+			<in>
+				<structure name="$tempUpload">
+					<string name="directory" />
+					<string name="fileName" />
+					<string name="filePath" />
+				</structure>
+				<string name="$uploadDir" />
+			</in>
+			<out>
+				<string name="~return~" comments="filename" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function startUpload__Local($tempUpload, $uploadDir) {
+		$source = $tempUpload['filePath'];
+		$destination  = F::config('uploadDir');
+		$destination .= ( substr($destination, -1) == '/' ) ? '' : '/';
+		$destination .= $uploadDir . $tempUpload['fileName'];
+		// move temp file to target directory in local server
+		$moveResult = rename($source, $destination);
+		if ( $moveResult === false ) {
+			self::$error = "Error occurred while moving temp file in local server";
 			return false;
 		}
 		// done!
-		return $handler->getFileName();
+		return $tempUpload['fileName'];
 	}
 
 
-	// proceed upload to S3 bucket
-	// ===> append upload directory with folder in connection string (if any)
-	public static function startUpload__S3(&$handler, $uploadDir) {
+
+
+	/**
+	<fusedoc>
+		<description>
+			proceed to upload to S3 bucket
+			===> append upload directory with folder in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<structure name="$tempUpload">
+					<string name="directory" />
+					<string name="fileName" />
+					<string name="filePath" />
+				</structure>
+				<string name="$uploadDir" />
+			</in>
+			<out>
+				<string name="~return~" comments="filename" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function startUpload__S3($tempUpload, $uploadDir) {
 		$cs = self::parseConnectionString();
 		if ( $cs === false ) return false;
-		// fix parameter (remove leading slash & append trailing slash)
-		if ( substr($uploadDir, 0, 1) == '/' ) $uploadDir = substr($uploadDir, 1);
-		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
-		// upload to temp directory at local server first
-		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
-		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
-		$handler->uploadDir = $tmpUploadDir;
-		$uploadResult = $handler->handleUpload();
-		// validate upload result to local server
-		if ( !$uploadResult ) {
-			self::$error = $handler->getErrorMsg();
-			return false;
-		}
 		// get S3 client for upload operation
 		$s3 = self::getConnection__S3();
 		if ( $s3 === false ) return false;
 		// upload to target folder at remote bucket
 		try {
-			$destination = $cs['folder'].$uploadDir.$handler->getFileName();
-			$source = $tmpUploadDir.$handler->getFileName();
+			$destination = $cs['folder'].$uploadDir.$tempUpload['fileName'];
+			$source = $tempUpload['filePath'];
 			$newFile = $s3->putObject(array(
 				'Bucket' => $cs['bucket'],
 				'Key' => $destination,
@@ -1205,6 +1275,49 @@ class Scaffold {
 		// done!
 		return basename($newFile['ObjectURL']);
 	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			upload to temp directory at local server
+		</description>
+		<io>
+			<in>
+				<object name="&$handler" comments="simple-ajax-uploader handler" />
+			</in>
+			<out>
+				<structure name="~return~" comments="info of file uploaded to temp dir">
+					<string name="directory" comments="with trailing slash" />
+					<string name="fileName" />
+					<string name="filePath" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function startUpload__TempDir(&$handler) {
+		// upload to system temp directory
+		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
+		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
+		$handler->uploadDir = $tmpUploadDir;
+		$uploadResult = $handler->handleUpload();
+		// validate upload result
+		if ( !$uploadResult ) {
+			self::$error = '[startUpload__TempDir] '.$handler->getErrorMsg();
+			return false;
+		}
+		// done!
+		return array(
+			'directory' => $handler->uploadDir,
+			'fileName'  => $handler->getFileName(),
+			'filePath'  => $handler->uploadDir.$handler->getFileName(),
+		);
+	}
+
+
 
 
 	// enable/disable specific record
