@@ -957,17 +957,47 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function resizeImage($filePath, $dimension) {
+		$original = $target = array('width' => null, 'height' => null);
 		// validate dimension
 		if ( preg_match('/^([0-9]+)(x)([0-9]+)$/i', $dimension, $matches) ) {
-			$w = $matches[1];
-			$h = $matches[3];
+			$target['width'] = $matches[1];
+			$target['height'] = $matches[3];
 		} elseif ( preg_match('/^([0-9]+)(w)$/i', $dimension, $matches) ) {
-			$w = $matches[1];
+			$target['width'] = $matches[1];
 		} elseif ( preg_match('/^([0-9]+)(h)$/i', $dimension, $matches) ) {
-			$h = $matches[1];
+			$target['height'] = $matches[1];
 		} else {
 			self::$error = "Invalid file resize dimension ({$dimension})";
 			return false;
+		}
+		// further validate dimension
+		if ( $target['width'] == 0 ) {
+			self::$error = "Target [width] cannot be zero ({$dimension})";
+			return false;
+		} elseif ( $target['height'] == 0 ) {
+			self::$error = "Target [height] cannot be zero ({$dimension})";
+			return false;
+		}
+		// get image size of original file
+		$size = getimagesize($filePath);
+		if ( $size === false ) {
+			self::$error = 'Unable to get image size';
+			return false;
+		}
+		$original['width'] = $size[0];
+		$original['height'] = $size[1];
+		$mimeType = $size['mime'];
+		// calculate percentage
+		if ( isset($target['width']) ) {
+			$percentage = $target['width'] / $original['width'];
+		} else {
+			$percentage = $target['height'] / $original['height'];
+		}
+		// calculate missing dimension (when necessary)
+		if ( !isset($target['width']) ) {
+			$target['width'] = round( $original['width'] * $percentage );
+		} elseif ( !isset($target['height']) ) {
+			$target['height'] = round ( $original['height'] * $percentage );
 		}
 		// done!
 		return true;
