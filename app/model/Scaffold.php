@@ -942,8 +942,7 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
-			resize image to specific width & height
-			===> (work-in-progress)
+			resize image (BMP,GIF,JPG,PNG) to specific width & height
 		</description>
 		<io>
 			<in>
@@ -957,7 +956,7 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function resizeImage($filePath, $dimension) {
-		$original = $target = array('width' => null, 'height' => null);
+		$original = $target = array('width' => 0, 'height' => 0);
 		// validate dimension
 		if ( preg_match('/^([0-9]+)(x)([0-9]+)$/i', $dimension, $matches) ) {
 			$target['width'] = $matches[1];
@@ -970,14 +969,6 @@ class Scaffold {
 			self::$error = "Invalid file resize dimension ({$dimension})";
 			return false;
 		}
-		// further validate dimension
-		if ( $target['width'] == 0 ) {
-			self::$error = "Target [width] cannot be zero ({$dimension})";
-			return false;
-		} elseif ( $target['height'] == 0 ) {
-			self::$error = "Target [height] cannot be zero ({$dimension})";
-			return false;
-		}
 		// get image size of original file
 		$size = getimagesize($filePath);
 		if ( $size === false ) {
@@ -986,19 +977,68 @@ class Scaffold {
 		}
 		$original['width'] = $size[0];
 		$original['height'] = $size[1];
+		$imageType = $size[2];
 		$mimeType = $size['mime'];
 		// calculate percentage
-		if ( isset($target['width']) ) {
+		if ( !empty($target['width']) ) {
 			$percentage = $target['width'] / $original['width'];
 		} else {
 			$percentage = $target['height'] / $original['height'];
 		}
 		// calculate missing dimension (when necessary)
-		if ( !isset($target['width']) ) {
+		if ( empty($target['width']) ) {
 			$target['width'] = round( $original['width'] * $percentage );
-		} elseif ( !isset($target['height']) ) {
+		} elseif ( empty($target['height']) ) {
 			$target['height'] = round ( $original['height'] * $percentage );
 		}
+		// validate calculated dimension
+		if ( $target['width'] == 0 ) {
+			self::$error = "Target [width] cannot be zero ({$dimension})";
+			return false;
+		} elseif ( $target['height'] == 0 ) {
+			self::$error = "Target [height] cannot be zero ({$dimension})";
+			return false;
+		}
+		// load original image
+		if ( $imageType == IMAGETYPE_BMP ) {
+			$srcImage = imagecreatefrombmp($filePath);
+		} elseif ( $imageType == IMAGETYPE_GIF ) {
+			$srcImage = imagecreatefromgif($filePath);
+		} elseif ( $imageType == IMAGETYPE_JPEG ) {
+			$srcImage = imagecreatefromjpeg($filePath);
+		} elseif ( $imageType == IMAGETYPE_PNG ) {
+			$srcImage = imagecreatefrompng($filePath);
+		} else {
+			self::$error = "Resizing of [{$mimeType}] is not supported";
+			return false;
+		}
+		// create resized new image
+		$newImage = imagecreatetruecolor($target['width'], $target['height']);
+		if ( $newImage === false ) {
+			self::$error = "Unable to create new image";
+			return false;
+		}
+		$resizeResult = imagecopyresampled($newImage, $srcImage, 0, 0, 0, 0, $target['width'], $target['height'], $original['width'], $original['height']);
+		if ( $resizeResult === false ) {
+			self::$error = "Unable to resize image";
+			return false;
+		}
+		// override original image with new image
+		if ( $imageType == IMAGETYPE_BMP ) {
+			$saveResult = imagebmp($newImage, $filePath);
+		} elseif ( $imageType == IMAGETYPE_GIF ) {
+			$saveResult = imagegif($newImage, $filePath);
+		} elseif ( $imageType == IMAGETYPE_JPEG ) {
+			$saveResult = imagejpeg($newImage, $filePath, 80);
+		} elseif ( $imageType == IMAGETYPE_PNG ) {
+			$saveResult = imagepng($newImage, $filePath);
+		}
+		if ( $saveResult === false ) {
+			self::$error = "Unable to save resized image";
+			return false;
+		}
+		// allow read & execute to all
+		chmod($filePath, 0755);
 		// done!
 		return true;
 	}
