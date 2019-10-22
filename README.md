@@ -11,8 +11,6 @@ The global layout module includes CDN of following JS and CSS libraries to provi
 * jQuery
 * Bootstrap
 * Font Awesome
-* HTML Shiv
-* Respond JS
 
 Please be noted that the Fuseboxy framework core does **NOT** depend on any one of these.
 
@@ -57,11 +55,19 @@ Therefore, developer could feel free to keep/remove any of these at `app/view/gl
 [dependencies]
 
 formUrl2arguments (enabled)
+aws sdk for php
+* lib/aws/3.x/
 redbeanphp (included)
+* lib/redbeanphp/5.x/
 bootstrap-extend
 simple-ajax-uploader (included)
-ckeditor 4.6.x (cdn)
-jquery.validate (cdn)
+* lib/simple-ajax-uploader/2.x/
+summernote (cdn)
+* https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css
+* https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.min.js
+jquery-datetimepicker (cdn)
+* https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css
+* https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js
 
 
 
