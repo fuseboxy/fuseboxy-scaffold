@@ -93,20 +93,18 @@ $(function(){
 
 
 function fuseboxyScaffold__initDatetimePicker(){
-	$('.scaffold-input-date,.scaffold-input-time,.scaffold-input-datetime').not('.datetimepicker-ready').each(function(){
-		// config
-		if ( $(this).hasClass('scaffold-input-date') ) {
-			var format = 'YYYY-MM-DD';
-		} else if ( $(this).hasClass('scaffold-input-time') ) {
-			var format = 'HH:mm';
-		} else {
-			var format = 'YYYY-MM-DD HH:mm';
+	$('.scaffold-input-datetime,.scaffold-input-date,.scaffold-input-time').not('.datetimepicker-ready').each(function(){
+		// config for different type
+		var config = {};
+		if ( $(this).is('.scaffold-input-datetime') ) {
+			config = { formatDate : 'Y-m-d', formatTime: 'H:i', step : 30 };
+		} else if ( $(this).is('.scaffold-input-date') ) {
+			config = { timepicker : false, formatDate : 'Y-m-d' };
+		} else if ( $(this).is('.scaffold-input-time') ) {
+			config = { datepicker : false, formatTime : 'H:i', step: 30 };
 		}
 		// transform
-		$(this).datetimepicker({
-			'format' : format,
-			'sideBySide' : true
-		});
+		$(this).datetimepicker(config);
 		// mark complete
 		$(this).addClass('datetimepicker-ready');
 	});
