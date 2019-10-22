@@ -59,9 +59,11 @@ aws sdk for php
 * lib/aws/3.x/
 redbeanphp (included)
 * lib/redbeanphp/5.x/
-bootstrap-extend
 simple-ajax-uploader (included)
 * lib/simple-ajax-uploader/2.x/
+bootstrap-extend (cdn)
+* https://bbcdn.githack.com/henrygotmojo/bootstrap-extend/raw/4.0/bootstrap.extend.min.css
+* https://bbcdn.githack.com/henrygotmojo/bootstrap-extend/raw/4.0/bootstrap.extend.min.js
 summernote (cdn)
 * https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.css
 * https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-bs4.min.js
