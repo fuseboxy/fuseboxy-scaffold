@@ -3,7 +3,7 @@
 		href="<?php echo F::url("{$xfa['edit']}&id={$bean->id}"); ?>"
 		class="btn btn-sm py-0 px-1 btn-light scaffold-btn-edit"
 		<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
-			data-toggle="modal"
+			data-toggle="ajax-modal"
 			data-target="#<?php echo $scaffold['beanType']; ?>-modal"
 		<?php elseif ( $scaffold['editMode'] == 'inline' ) : ?>
 			data-toggle="ajax-load"

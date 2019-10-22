@@ -47,7 +47,7 @@
 			href="<?php echo F::url($xfa['new']); ?>"
 			class="btn btn-sm py-0 px-1 btn-info scaffold-btn-new"
 			<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
-				data-toggle="modal"
+				data-toggle="ajax-modal"
 				data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"
 				data-toggle-loading="none"
 			<?php elseif ( $scaffold['editMode'] == 'inline' ) : ?>
