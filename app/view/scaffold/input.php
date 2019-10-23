@@ -76,26 +76,27 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		foreach ( $field['value'] as $val ) $field['options'][$val] = $val;
 	}
 }
-?>
 
 
-<!-- pre-help -->
-<?php if ( !empty($field['pre-help']) ) : ?>
-	<small class="form-text text-muted mb-1"><?php echo $field['pre-help']; ?></small>
-<?php endif; ?>
 
 
-<!-- output -->
-<?php if ( isset($field['format']) and $field['format'] == 'output' ) : ?>
-	<div class="form-control-plaintext form-control-sm"><?php echo $field['value']; ?></div>
+// display : pre-help
+if ( !empty($field['pre-help']) ) :
+	?><small class="form-text text-muted mb-1"><?php echo $field['pre-help']; ?></small><?php
+endif;
 
 
-<!-- radio -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'radio' ) : ?>
-	<?php $optIndex = 0; ?>
-	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-		<?php $radioID = uuid(); ?>
-		<div class="form-check">
+// display : output
+if ( isset($field['format']) and $field['format'] == 'output' ) :
+	?><div class="form-control-plaintext form-control-sm"><?php echo $field['value']; ?></div><?php
+
+
+// display : radio
+elseif ( isset($field['format']) and $field['format'] == 'radio' ) :
+	$optIndex = 0;
+	foreach ( $field['options'] as $optValue => $optText ) :
+		$radioID = uuid();
+		?><div class="form-check">
 			<input
 				id="<?php echo $radioID; ?>"
 				class="form-check-input"
@@ -110,21 +111,21 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 				for="<?php echo $radioID; ?>" 
 				class="form-check-label small"
 			><?php echo $optText; ?></label>
-		</div>
-		<?php $optIndex++; ?>
-	<?php endforeach; ?>
-	<?php if ( !empty($field['readonly']) ) : ?>
-		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" />
-	<?php endif; ?>
+		</div><?php
+		$optIndex++;
+	endforeach;
+	if ( !empty($field['readonly']) ) :
+		?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
+	endif;
 
 
-<!-- checkbox (submit array value) -->
-<?php elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) : ?>
-	<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="" />
-	<?php $optIndex = 0; ?>
-	<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-		<?php $checkboxID = uuid(); ?>
-		<div class="form-check">
+// display : checkbox (submit array value)
+elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) :
+	?><input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="" /><?php
+	$optIndex = 0;
+	foreach ( $field['options'] as $optValue => $optText ) :
+		$checkboxID = uuid();
+		?><div class="form-check">
 			<input
 				id="<?php echo $checkboxID; ?>"
 				class="form-check-input"
@@ -139,41 +140,41 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 				for="<?php echo $checkboxID; ?>" 
 				class="form-check-label small"
 			><?php echo $optText; ?></label>
-		</div>
-		<?php $optIndex++; ?>
-	<?php endforeach; ?>
-	<?php if ( !empty($field['readonly']) ) : ?>
-		<?php foreach ( $field['value'] as $val ) : ?>
-			<input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" />
-		<?php endforeach; ?>
-	<?php endif; ?>
+		</div><?php
+		$optIndex++;
+	endforeach;
+	if ( !empty($field['readonly']) ) :
+		foreach ( $field['value'] as $val ) :
+			?><input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
+		endforeach;
+	endif;
 
 
-<!-- textarea -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'textarea' ) : ?>
-	<textarea
+// display : textarea
+elseif ( isset($field['format']) and $field['format'] == 'textarea' ) :
+	?><textarea
 		class="form-control form-control-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
 		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
 		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-	><?php echo $field['value']; ?></textarea>
+	><?php echo $field['value']; ?></textarea><?php
 
 
-<!-- html editor -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) : ?>
-	<?php include 'input.wysiwyg.php'; ?>
+// display : html editor
+elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) :
+	include 'input.wysiwyg.php';
 
 
-<!-- file -->
-<?php elseif ( isset($field['format']) and $field['format'] == 'file' ) : ?>
-	<?php include 'input.file.php'; ?>
+// display : file upload
+elseif ( isset($field['format']) and $field['format'] == 'file' ) :
+	include 'input.file.php';
 
 
-<!-- listbox -->
-<?php elseif ( isset($field['options']) ) : ?>
-	<select
+// display : listbox
+elseif ( isset($field['options']) ) :
+	?><select
 		class="custom-select custom-select-sm"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
@@ -189,15 +190,15 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 				<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
 			><?php echo $optText; ?></option>
 		<?php endforeach; ?>
-	</select>
-	<?php if ( !empty($field['readonly']) ) : ?>
-		<input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" />
-	<?php endif; ?>
+	</select><?php
+	if ( !empty($field['readonly']) ) :
+		?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
+	endif;
 
 
-<!-- text -->
-<?php else : ?>
-	<input
+// display : normal text
+else :
+	?><input
 		type="<?php echo ( empty($field['format']) or in_array($field['format'], array('date', 'time', 'datetime')) ) ? 'text' : $field['format']; ?>"
 		class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
@@ -206,13 +207,13 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-	 />
+	 /><?php
 
 
-<?php endif; ?>
+endif;
 
 
-<!-- help -->
-<?php if ( !empty($field['help']) ) : ?>
-	<small class="form-text px-1 rounded bg-light text-info"><?php echo $field['help']; ?></small>
-<?php endif; ?>
+// display : help
+if ( !empty($field['help']) ) :
+	?><small class="form-text px-1 rounded bg-light text-info"><?php echo $field['help']; ?></small><?php
+endif;
