@@ -196,10 +196,32 @@ elseif ( isset($field['options']) ) :
 	endif;
 
 
+// display : date & time
+elseif ( !empty($field['format']) and in_array($field['format'], array('date', 'time', 'datetime')) ) :
+	?><div class="input-group">
+		<div class="input-group-prepend">
+			<span class="input-group-text">
+				<i class="small <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
+			</span>
+		</div>
+		<input
+			type="<?php echo $field['format']; ?>"
+			class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?>"
+			name="data[<?php echo $field['name']; ?>]"
+			value="<?php echo htmlspecialchars($field['value']); ?>"
+			autocomplete="off"
+			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
+			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
+			<?php if ( !empty($field['required']) ) echo 'required'; ?>
+		 />
+	</div><?php
+
+
 // display : normal text
 else :
 	?><input
-		type="<?php echo ( empty($field['format']) or in_array($field['format'], array('date', 'time', 'datetime')) ) ? 'text' : $field['format']; ?>"
+		type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo htmlspecialchars($field['value']); ?>"
