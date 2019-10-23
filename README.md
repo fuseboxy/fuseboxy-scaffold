@@ -55,7 +55,9 @@ Therefore, developer could feel free to keep/remove any of these at `app/view/gl
 [dependencies]
 
 formUrl2arguments (enabled)
-aws sdk for php
+* app/config/fusebox_config.php
+aws sdk for php (included)
+* (only needed when upload to S3)
 * lib/aws/3.x/
 redbeanphp (included)
 * lib/redbeanphp/5.x/
