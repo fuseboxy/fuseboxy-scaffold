@@ -1174,7 +1174,7 @@ class Scaffold {
 		self::$config['listFilter'] = isset(self::$config['listFilter']) ? self::$config['listFilter'] : '1 = 1 ';
 		if ( self::$config['allowSort'] and isset($arguments['sortField']) ) {
 			// use sort-field specified (when necessary)
-			self::$config['listOrder'] = "ORDER BY {$arguments['sortField']} ";
+			self::$config['listOrder'] = "ORDER BY `{$arguments['sortField']}` ";
 			if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
 		} elseif ( !isset(self::$config['listOrder']) ) {
 			// otherwise, use specify a default list order (when necessary)
