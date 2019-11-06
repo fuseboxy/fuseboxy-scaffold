@@ -205,7 +205,7 @@ elseif ( !empty($field['format']) and in_array($field['format'], array('date', '
 			</span>
 		</div>
 		<input
-			type="<?php echo $field['format']; ?>"
+			type="text"
 			class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?>"
 			name="data[<?php echo $field['name']; ?>]"
 			value="<?php echo htmlspecialchars($field['value']); ?>"
