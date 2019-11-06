@@ -9,6 +9,7 @@
 			<structure name="$field">
 				<string name="name" />
 				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|date|time|datetime|one-to-many|many-to-many|wysiwyg" default="text" />
+				<string name="icon" optional="yes" />
 				<string name="value" optional="yes" />
 				<string name="default" optional="yes" />
 				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
@@ -152,14 +153,23 @@ elseif ( isset($field['format']) and in_array($field['format'], array('checkbox'
 
 // display : textarea
 elseif ( isset($field['format']) and $field['format'] == 'textarea' ) :
-	?><textarea
-		class="form-control form-control-sm"
-		name="data[<?php echo $field['name']; ?>]"
-		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-	><?php echo $field['value']; ?></textarea><?php
+	?><div class="input-group"><?php
+		if ( !empty($field['icon']) ) :
+			?><div class="input-group-prepend">
+				<span class="input-group-text">
+					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+				</span>
+			</div><?php
+		endif;
+		?><textarea
+			class="form-control form-control-sm"
+			name="data[<?php echo $field['name']; ?>]"
+			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
+			<?php if ( !empty($field['required']) ) echo 'required'; ?>
+			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
+		><?php echo $field['value']; ?></textarea><?php
+	?></div><?php
 
 
 // display : html editor
@@ -174,23 +184,32 @@ elseif ( isset($field['format']) and $field['format'] == 'file' ) :
 
 // display : listbox
 elseif ( isset($field['options']) ) :
-	?><select
-		class="custom-select custom-select-sm"
-		name="data[<?php echo $field['name']; ?>]"
-		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-	>
-		<option value="">
-			<?php if ( isset($field['placeholder']) ) echo $field['placeholder']; ?>
-		</option>
-		<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-			<option
-				value="<?php echo $optValue; ?>"
-				<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-			><?php echo $optText; ?></option>
-		<?php endforeach; ?>
-	</select><?php
+	?><div class="input-group"><?php
+		if ( !empty($field['icon']) ) :
+			?><div class="input-group-prepend">
+				<span class="input-group-text">
+					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+				</span>
+			</div><?php
+		endif;
+		?><select
+			class="custom-select custom-select-sm"
+			name="data[<?php echo $field['name']; ?>]"
+			<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
+			<?php if ( !empty($field['required']) ) echo 'required'; ?>
+			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+		>
+			<option value="">
+				<?php if ( isset($field['placeholder']) ) echo $field['placeholder']; ?>
+			</option>
+			<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
+				<option
+					value="<?php echo $optValue; ?>"
+					<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
+				><?php echo $optText; ?></option>
+			<?php endforeach; ?>
+		</select>
+	</div><?php
 	if ( !empty($field['readonly']) ) :
 		?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
 	endif;
@@ -201,7 +220,7 @@ elseif ( !empty($field['format']) and in_array($field['format'], array('date', '
 	?><div class="input-group">
 		<div class="input-group-prepend">
 			<span class="input-group-text">
-				<i class="small <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
+				<i class="small fa-fw <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
 			</span>
 		</div>
 		<input
@@ -220,16 +239,25 @@ elseif ( !empty($field['format']) and in_array($field['format'], array('date', '
 
 // display : normal text
 else :
-	?><input
-		type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-		class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-		name="data[<?php echo $field['name']; ?>]"
-		value="<?php echo htmlspecialchars($field['value']); ?>"
-		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-		<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-	 /><?php
+	?><div class="input-group"><?php
+		if ( !empty($field['icon']) ) :
+			?><div class="input-group-prepend">
+				<span class="input-group-text">
+					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+				</span>
+			</div><?php
+		endif;
+		?><input
+			type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
+			class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
+			name="data[<?php echo $field['name']; ?>]"
+			value="<?php echo htmlspecialchars($field['value']); ?>"
+			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
+			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
+			<?php if ( !empty($field['required']) ) echo 'required'; ?>
+		 />
+	 </div><?php
 
 
 endif;
