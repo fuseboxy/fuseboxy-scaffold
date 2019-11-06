@@ -24,7 +24,7 @@ $(function(){
 	// init datetime-picker when page ready
 	// ===> also when inline-edit & modal shows up
 	fuseboxyScaffold__initDatetimePicker();
-	$(document).on('ready ajaxLoad.bsx shown.bs.modal', function(evt){
+	$(document).on('ajaxLoad.bsx shown.bs.modal', function(evt){
 		window.setTimeout(function(){
 			fuseboxyScaffold__initDatetimePicker();
 		}, 500);
@@ -94,19 +94,20 @@ $(function(){
 
 function fuseboxyScaffold__initDatetimePicker(){
 	$('.scaffold-input-datetime,.scaffold-input-date,.scaffold-input-time').not('.datetimepicker-ready').each(function(){
-		// config for different type
 		var config = {};
-		if ( $(this).is('.scaffold-input-datetime') ) {
-			config = { formatDate : 'Y-m-d', formatTime: 'H:i', step : 30 };
-		} else if ( $(this).is('.scaffold-input-date') ) {
-			config = { timepicker : false, formatDate : 'Y-m-d' };
-		} else if ( $(this).is('.scaffold-input-time') ) {
-			config = { datepicker : false, formatTime : 'H:i', step: 30 };
+		var $field = $(this);
+		// config
+		if ( $field.hasClass('scaffold-input-date') ) {
+			config = { format: 'Y-m-d', datepicker: true, timepicker: false };
+		} else if ( $field.hasClass('scaffold-input-time') ) {
+			config = { format: 'H:i', datepicker: false, timepicker: true, step: 30 };
+		} else {
+			config = { format: 'Y-m-d H:i', datepicker: true, timepicker: true, step: 30 };
 		}
 		// transform
-		$(this).datetimepicker(config);
+		$field.datetimepicker(config);
 		// mark complete
-		$(this).addClass('datetimepicker-ready');
+		$field.addClass('datetimepicker-ready');
 	});
 }
 
