@@ -157,7 +157,7 @@ elseif ( isset($field['format']) and $field['format'] == 'textarea' ) :
 		if ( !empty($field['icon']) ) :
 			?><div class="input-group-prepend">
 				<span class="input-group-text">
-					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
 				</span>
 			</div><?php
 		endif;
@@ -188,7 +188,7 @@ elseif ( isset($field['options']) ) :
 		if ( !empty($field['icon']) ) :
 			?><div class="input-group-prepend">
 				<span class="input-group-text">
-					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
 				</span>
 			</div><?php
 		endif;
@@ -220,7 +220,7 @@ elseif ( !empty($field['format']) and in_array($field['format'], array('date', '
 	?><div class="input-group">
 		<div class="input-group-prepend">
 			<span class="input-group-text">
-				<i class="small fa-fw <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
+				<i class="fa-fw <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
 			</span>
 		</div>
 		<input
@@ -243,7 +243,7 @@ else :
 		if ( !empty($field['icon']) ) :
 			?><div class="input-group-prepend">
 				<span class="input-group-text">
-					<i class="small fa-fw <?php echo $field['icon']; ?>"></i>
+					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
 				</span>
 			</div><?php
 		endif;
