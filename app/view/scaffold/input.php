@@ -219,8 +219,12 @@ elseif ( isset($field['options']) ) :
 elseif ( !empty($field['format']) and in_array($field['format'], array('date', 'time', 'datetime')) ) :
 	?><div class="input-group">
 		<div class="input-group-prepend">
-			<span class="input-group-text">
-				<i class="fa-fw <?php echo ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt'; ?>"></i>
+			<span class="input-group-text"><?php
+				if     ( !empty($field['icon'])     ) : $fieldIcon = $field['icon'];
+				elseif ( $field['format'] == 'time' ) : $fieldIcon = 'far fa-clock';
+				else                                  : $fieldIcon = 'fa fa-calendar-alt';
+				endif;
+				?><i class="fa-fw <?php echo $fieldIcon; ?>"></i>
 			</span>
 		</div>
 		<input
