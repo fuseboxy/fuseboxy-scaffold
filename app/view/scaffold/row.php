@@ -45,7 +45,7 @@
 							$isURL        = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'url' );
 							$isHR         = ( strlen($col) and !strlen(str_replace('-', '', $col)) );
 							// display : each field
-							?><div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'hidden'; ?>"><?php
+							?><div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'd-none'; ?>"><?php
 								// preview : show thumbnail
 								if ( !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) :
 									?><div><a
