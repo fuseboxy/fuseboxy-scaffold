@@ -24,7 +24,7 @@
 <div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
 	<table class="table table-hover table-sm mb-0">
 		<tbody>
-			<tr <?php if ( !empty($bean->disabled) ) : ?>class="table-active; op-50;"<?php endif; ?>><?php
+			<tr <?php if ( !empty($bean->disabled) ) : ?>class="table-active op-50"<?php endif; ?>><?php
 				// go through each item in scaffold-listField config
 				foreach ( $scaffold['listField'] as $key => $val ) :
 					$cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key));
