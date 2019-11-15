@@ -1211,7 +1211,7 @@ class Scaffold {
 		}
 		// param default : label
 		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
-			if ( !isset($_val['label']) ) {
+			if ( !isset($_val['label']) or $_val['label'] === true ) {
 				self::$config['fieldConfig'][$_key]['label'] = ( $_key == 'id' ) ? strtoupper($_key) : ucwords(str_replace('_', ' ', $_key));
 			}
 		}
