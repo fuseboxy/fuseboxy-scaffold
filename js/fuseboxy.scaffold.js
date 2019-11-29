@@ -32,46 +32,40 @@ $(function(){
 
 
 	// sticky header
-	$(window).on('scroll', function(evt){
+	$(window).on('scroll resize', function(evt){
+		var $window = $(this);
+		// check if any scaffold header
 		$('.scaffold-header').each(function(){
-			var header = this;
-			var windowScrollTop = $(window).scrollTop();
-			var headerScrollTop = $(header).offset().top;
-			if ( !$(header).data('original-state') && headerScrollTop < windowScrollTop ) {
-				$(header)
-					// mark flag
-					.addClass('sticky-header')
-					// retain header current state for rollback
-					.data('original-state', {
-						'left'      : $(header).css('left'),
-						'position'  : $(header).css('position'),
-						'top'       : $(header).css('top'),
-						'width'     : $(header).width(),
-						'scrollTop' : headerScrollTop
-					})
-					// make header sticky to top
-					.css({
-						'left'     : $(header).offset().left,
-						'position' : 'fixed',
-						'top'      : 0,
-						'width'    : $(header).width()
-					});
-			} else if ( $(header).data('original-state') && headerScrollTop <= $(header).data('original-state').scrollTop ) {
-				$(header)
-					// clear flag
-					.removeClass('sticky-header')
-					// rollback to original state
-					.css({
-						'left'     : $(header).data('original-state').left,
-						'position' : $(header).data('original-state').position,
-						'top'      : $(header).data('original-state').top,
-						'width'    : $(header).data('original-state').width
-					})
-					// clear retained state
-					.removeData('original-state')
+			var $header = $(this);
+			var $container = $header.closest('.scaffold-list');
+			// current status
+			var scrollDownBeyondHeader = ( !$header.hasClass('sticky-header') && $window.scrollTop() >  $container.offset().top );
+			var scrollUpAndReachHeader = (  $header.hasClass('sticky-header') && $window.scrollTop() <= $container.offset().top );
+			// make header sticky
+			if ( scrollDownBeyondHeader ) {
+				$header.css({
+					'left'     : $container.offset().left,
+					'position' : 'fixed',
+					'top'      : 0,
+					'width'    : $container.width()
+				}).addClass('sticky-header');
+			// rollback header to original state
+			} else if ( scrollUpAndReachHeader ) {
+				$header.css({
+					'left'     : 0,
+					'position' : 'static',
+					'top'      : 0,
+					'width'    : '100%'
+				}).removeClass('sticky-header');
+			// refresh header
+			} else if ( $header.hasClass('sticky-header') ) {
+				$header.css({
+					'left'  : $container.offset().left,
+					'width' : $container.width()
+				});
 			}
-		}); // scaffold-header-each
-	}); // window-scroll
+		});
+	});
 
 
 	// one click to create multiple new items
