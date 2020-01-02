@@ -11,6 +11,8 @@
 				<array name="fieldConfig">
 					<structure name="~column~">
 						<string name="format" />
+						<string name="class" optional="yes" />
+						<string name="style" optional="yes" />
 						<boolean name="preview" comments="for [format=file] only" />
 					</structure>
 				</array>
@@ -32,7 +34,7 @@
 					$fieldGroupClass = 'col-'.implode('-', $cols);
 					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>;"><?php
 						// go through each field
-						foreach ( $cols as $i => $col ) :
+						foreach ( $cols as $colIndex => $col ) :
 							$field = $scaffold['fieldConfig'][$col];
 							// determine field format
 							$objectName   = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
@@ -46,9 +48,9 @@
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
 							$isObject     = is_object($bean[$objectName]);
 							// display : each field
-							$fieldClass = array("col-{$col}");
-							if ( $i > 0 ) $fieldClass[] = 'small text-muted';
+							$fieldClass = array('col-'.$col);
 							if ( $isHidden ) $fieldClass[] = 'd-none';
+							if ( $colIndex > 0 ) $fieldClass[] = 'small text-muted';
 							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 								// preview : show thumbnail
 								if ( !empty($bean[$col]) and !empty($field['preview']) ) :
@@ -60,8 +62,8 @@
 									><img
 										alt="<?php echo basename($bean[$col]); ?>"
 										src="<?php echo $bean[$col]; ?>"
-										class="img-thumbnail mb-0 mt-1"
-										style="max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
+										class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
+										style="max-width: 100%; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 									/></a></div><?php
 								// file : show link
 								elseif ( $isFile and !empty($bean[$col]) ) :
@@ -111,16 +113,16 @@
 								// wysiwyg : show html
 								elseif ( $isWYSIWYG ) :
 									?><div><?php echo $bean[$col]; ?></div><?php
-								// output : simply display custom content
+								// output : show custom content
 								elseif ( $isOutput ) :
 									?><div><?php echo $field['value']; ?></div><?php
-								// show text
+								// default : show field value
 								else :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
 								endif;
-							?></div><!--/.col-{field}--><?php
+							?></div><?php
 						endforeach; // foreach-cols
-					?></td><!--/.col-{fieldGroup}--><?php
+					?></td><?php
 				endforeach; // foreach-scaffold-listField
 				// display : button
 				?><td class="col-button text-nowrap text-right"><?php include 'row.button.php'; ?></td><?php
