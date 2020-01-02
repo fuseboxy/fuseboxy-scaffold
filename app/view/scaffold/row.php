@@ -77,29 +77,29 @@
 								elseif ( $isManyToMany ) :
 									foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) :
 										?><div><?php
-											if     ( isset($associateBean->alias) ) : echo $associateBean->alias;
-											elseif ( isset($associateBean->name)  ) : echo $associateBean->name;
-											else                                    : echo $associateBean->id;
-											endif;
+											if     ( !empty($associateBean->alias) ) echo $associateBean->alias;
+											elseif ( !empty($associateBean->name ) ) echo $associateBean->name;
+											elseif ( !empty($associateBean->title) ) echo $associateBean->title;
+											else echo "[id={$associateBean->id}]";
 										?></div><?php
 									endforeach;
 								// one-to-many : show alias/name/etc.
 								elseif ( $isOneToMany ) :
 									foreach ( $bean['own'.ucfirst($objectName)] as $associateBean ) :
 										?><div><?php
-											if     ( isset($associateBean->alias) ) : echo $associateBean->alias;
-											elseif ( isset($associateBean->name)  ) : echo $associateBean->name;
-											else                                    : echo $associateBean->id;
-											endif;
+											if     ( !empty($associateBean->alias) ) echo $associateBean->alias;
+											elseif ( !empty($associateBean->name ) ) echo $associateBean->name;
+											elseif ( !empty($associateBean->title) ) echo $associateBean->title;
+											else echo "[id={$associateBean->id}]";
 										?></div><?php
 									endforeach;
 								// object : show alias/name/etc.
 								elseif ( $isObject ) :
 									?><div><?php
-										if     ( isset($bean[$objectName]->alias) ) : echo $bean[$objectName]->alias;
-										elseif ( isset($bean[$objectName]->name)  ) : echo $bean[$objectName]->name;
-										else                                        : echo $bean[$objectName]->id;
-										endif;
+										if     ( !empty($bean[$objectName]->alias) ) echo $bean[$objectName]->alias;
+										elseif ( !empty($bean[$objectName]->name ) ) echo $bean[$objectName]->name;
+										elseif ( !empty($bean[$objectName]->title) ) echo $bean[$objectName]->title;
+										else echo "[id={$bean[$objectName]->id}]";
 									?></div><?php
 								// url : show link
 								elseif ( $isURL ) :
