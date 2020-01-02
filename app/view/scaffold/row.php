@@ -33,21 +33,23 @@
 					?><td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;"><?php
 						// go through each field
 						foreach ( $cols as $i => $col ) :
+							$field = isset($scaffold['fieldConfig'][$col]) ? $scaffold['fieldConfig'][$col] : array();
 							// determine field format
 							$objectName   = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
-							$isManyToMany = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'many-to-many' );
-							$isOneToMany  = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'one-to-many' );
-							$isCheckbox   = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'checkbox' );
-							$isObject     = is_object($bean[$objectName]);
-							$isFile       = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'file' );
-							$isHidden     = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'hidden' );
-							$isWYSIWYG    = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'wysiwyg' );
-							$isURL        = ( isset($scaffold['fieldConfig'][$col]['format']) and $scaffold['fieldConfig'][$col]['format'] == 'url' );
+							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
+							$isOneToMany  = ( isset($field['format']) and $field['format'] == 'one-to-many' );
+							$isCheckbox   = ( isset($field['format']) and $field['format'] == 'checkbox' );
+							$isFile       = ( isset($field['format']) and $field['format'] == 'file' );
+							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
+							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
+							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
+							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
 							$isHR         = ( strlen($col) and !strlen(str_replace('-', '', $col)) );
+							$isObject     = is_object($bean[$objectName]);
 							// display : each field
 							?><div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'd-none'; ?>"><?php
 								// preview : show thumbnail
-								if ( !empty($bean[$col]) and !empty($scaffold['fieldConfig'][$col]['preview']) ) :
+								if ( !empty($bean[$col]) and !empty($field['preview']) ) :
 									?><div><a
 										title="<?php echo basename($bean[$col]); ?>"
 										href="<?php echo $bean[$col]; ?>"
@@ -57,7 +59,7 @@
 										alt="<?php echo basename($bean[$col]); ?>"
 										src="<?php echo $bean[$col]; ?>"
 										class="img-thumbnail mb-0 mt-1"
-										style="max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($scaffold['fieldConfig'][$col]['style']) ) echo $scaffold['fieldConfig'][$col]['style']; ?>"
+										style="max-width: 100%; <?php if ( isset($bean->disabled) and $bean->disabled ) echo 'opacity: .5;'; ?> <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 									/></a></div><?php
 								// file : show link
 								elseif ( $isFile and !empty($bean[$col]) ) :
@@ -68,7 +70,7 @@
 									><?php echo basename($bean[$col]); ?></a><?php
 								// checkbox : turn list into items
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
-									?><ul class="ml-n4 mb-0"><li><?php echo str_replace('|', '</li><li>', $bean[$col]); ?></li></ul><?php
+									?><div><?php echo str_replace('|', '</div><div>', $bean[$col]); ?></div><?php
 								// many-to-many : show alias/name/etc.
 								elseif ( $isManyToMany ) :
 									foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) :
@@ -107,6 +109,9 @@
 								// wysiwyg : show html
 								elseif ( $isWYSIWYG ) :
 									?><div><?php echo $bean[$col]; ?></div><?php
+								// output : simply display custom content
+								elseif ( $isOutput ) :
+									?><div><?php echo $field['value']; ?></div><?php
 								// horizontal line
 								elseif ( $isHR ) :
 									?><div><hr class="my-2 mx-0" /></div><?php
