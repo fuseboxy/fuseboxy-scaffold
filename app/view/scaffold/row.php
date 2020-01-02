@@ -11,8 +11,7 @@
 				<array name="fieldConfig">
 					<structure name="~column~">
 						<string name="format" />
-						<!-- for [format=file] only -->
-						<boolean name="preview" />
+						<boolean name="preview" comments="for [format=file] only" />
 					</structure>
 				</array>
 			</structure>
@@ -44,7 +43,6 @@
 							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
-							$isHR         = ( strlen($col) and !strlen(str_replace('-', '', $col)) );
 							$isObject     = is_object($bean[$objectName]);
 							// display : each field
 							?><div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'd-none'; ?>"><?php
@@ -112,9 +110,6 @@
 								// output : simply display custom content
 								elseif ( $isOutput ) :
 									?><div><?php echo $field['value']; ?></div><?php
-								// horizontal line
-								elseif ( $isHR ) :
-									?><div><hr class="my-2 mx-0" /></div><?php
 								// show text
 								else :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
