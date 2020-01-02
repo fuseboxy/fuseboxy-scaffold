@@ -28,11 +28,12 @@
 				foreach ( $scaffold['listField'] as $key => $val ) :
 					$cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key));
 					$colWidth = is_numeric($key) ? '' : $val;
-					// display : field
-					?><td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;"><?php
+					// display : field group
+					$fieldGroupClass = 'col-'.implode('-', $cols);
+					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>;"><?php
 						// go through each field
 						foreach ( $cols as $i => $col ) :
-							$field = isset($scaffold['fieldConfig'][$col]) ? $scaffold['fieldConfig'][$col] : array();
+							$field = $scaffold['fieldConfig'][$col];
 							// determine field format
 							$objectName   = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
 							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
@@ -45,7 +46,10 @@
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
 							$isObject     = is_object($bean[$objectName]);
 							// display : each field
-							?><div class="col-<?php echo $col; ?> <?php if ( $i != 0 ) echo 'small text-muted'; ?> <?php if ( $isHidden ) echo 'd-none'; ?>"><?php
+							$fieldClass = array("col-{$col}");
+							if ( $i > 0 ) $fieldClass[] = 'small text-muted';
+							if ( $isHidden ) $fieldClass[] = 'd-none';
+							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 								// preview : show thumbnail
 								if ( !empty($bean[$col]) and !empty($field['preview']) ) :
 									?><div><a
@@ -114,9 +118,9 @@
 								else :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
 								endif;
-							?></div><!--/.col-XXX--><?php
+							?></div><!--/.col-{field}--><?php
 						endforeach; // foreach-cols
-					?></td><!--/.col-XXX-YYY--><?php
+					?></td><!--/.col-{fieldGroup}--><?php
 				endforeach; // foreach-scaffold-listField
 				// display : button
 				?><td class="col-button text-nowrap text-right"><?php include 'row.button.php'; ?></td><?php
