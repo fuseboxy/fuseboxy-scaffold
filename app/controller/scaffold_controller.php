@@ -40,6 +40,7 @@
 						<string name="placeholder" optional="yes" default="column display name" />
 						<string name="value" optional="yes" comments="force filling with this value even if field has value" />
 						<string name="default" optional="yes" comments="filling with this value if field has no value" />
+						<string name="class" optional="yes" />
 						<string name="style" optional="yes" />
 						<string name="pre-help" optional="yes" comments="help text show before input field" />
 						<string name="help" optional="yes" comments="help text show after input field" />
