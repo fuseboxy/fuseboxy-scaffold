@@ -1167,7 +1167,7 @@ class Scaffold {
 		// param default : edit mode
 		self::$config['editMode'] = !empty(self::$config['editMode']) ? self::$config['editMode'] : 'inline';
 		// param default : modal size
-		self::$config['modalSize'] = !empty(self::$config['modalSize']) ? self::$config['modalSize'] : 'normal';
+		self::$config['modalSize'] = !empty(self::$config['modalSize']) ? self::$config['modalSize'] : 'md';
 		// param default : list field
 		self::$config['listField'] = isset(self::$config['listField']) ? self::$config['listField'] : array_keys(self::$config['_columns_']);
 		// param default : list filter & order

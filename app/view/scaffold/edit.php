@@ -8,7 +8,7 @@
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" comments="inline|modal|classic" />
-				<string name="modalSize" comments="normal|large|max" />
+				<string name="modalSize" comments="sm|md|lg|xl|max" />
 				<structure name="modalField">
 					<list name="~column list~" comments="value is column width list" delim="|" />
 				</structure>
