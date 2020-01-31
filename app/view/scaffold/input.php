@@ -47,11 +47,6 @@ if ( isset($field['value']) ) {
 	$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 	foreach ( $bean->{$propertyName} as $tmp ) $field['value'][] = $tmp->id;
 
-// checkbox (normal)
-// ===> turn pipe-delimited list into array
-} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
-	$field['value'] = explode('|', $bean[$field['name']]);
-
 // other type
 // ===> simple value
 } elseif ( isset($bean[$field['name']]) ) {
@@ -77,6 +72,12 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	} else {
 		foreach ( $field['value'] as $val ) $field['options'][$val] = $val;
 	}
+}
+
+// fix checkbox value (when necessary)
+// ===> turn pipe-delimited list into array
+if ( isset($field['format']) and $field['format'] == 'checkbox' and !is_array($field['value']) ) {
+	$field['value'] = explode('|', $field['value']);
 }
 
 
