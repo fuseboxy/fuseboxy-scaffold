@@ -195,6 +195,7 @@ class Scaffold {
 						<number name="pageVisible" />
 					</structure>
 					<number name="page" scope="$_GET" optional="yes" />
+					<boolean name="showAll" scope="$_GET" optional="yes" />
 				</structure>
 			</in>
 			<out>
@@ -243,7 +244,7 @@ class Scaffold {
 		}
 		// param fix : list order
 		// ===> add limit and offset to statement
-		if ( !empty(self::$config['pagination']) ) {
+		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
 			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
 			$limit = self::$config['pagination']['recordPerPage'];
 			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
