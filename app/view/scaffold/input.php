@@ -176,12 +176,12 @@ elseif ( isset($field['format']) and $field['format'] == 'textarea' ) :
 
 // display : html editor
 elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) :
-	include 'input.wysiwyg.php';
+	include F::appPath('view/scaffold/input.wysiwyg.php');
 
 
 // display : file upload
 elseif ( isset($field['format']) and $field['format'] == 'file' ) :
-	include 'input.file.php';
+	include F::appPath('view/scaffold/input.file.php');
 
 
 // display : listbox

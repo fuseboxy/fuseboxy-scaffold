@@ -93,7 +93,7 @@
 							<?php foreach ( $colList as $i => $col ) : ?>
 								<div class="col-sm-<?php echo $colWidthList[$i]; ?>">
 									<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
-									<?php include 'input.php'; ?>
+									<?php include F::appPath('view/scaffold/input.php'); ?>
 								</div>
 							<?php endforeach; ?>
 						</div>

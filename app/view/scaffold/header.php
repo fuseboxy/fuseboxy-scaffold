@@ -64,7 +64,7 @@
 					</th>
 				<?php endforeach; ?>
 				<th class="col-button">
-					<div class="text-right"><?php include 'header.button.php'; ?></div>
+					<div class="text-right"><?php include F::appPath('view/scaffold/header.button.php'); ?></div>
 				</th>
 			</tr>
 		</thead>

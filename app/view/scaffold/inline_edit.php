@@ -52,7 +52,7 @@
 									if ( isset($scaffold['fieldConfig'][$col]) ) :
 										$field = $scaffold['fieldConfig'][$col];
 										$field['name'] = $col;
-										include 'input.php';
+										include F::appPath('view/scaffold/input.php');
 									else :
 										?><div class="form-control" readonly>
 											<em class="small text-muted text-nowrap">Field [<?php echo $col; ?>] is undefined</em>
@@ -64,7 +64,7 @@
 					</td>
 				<?php endforeach; ?>
 				<td class="col-button text-nowrap">
-					<div class="text-right"><?php include 'inline_edit.button.php'; ?></div>
+					<div class="text-right"><?php include F::appPath('view/scaffold/inline_edit.button.php'); ?></div>
 				</td>
 			</tr>
 		</table>

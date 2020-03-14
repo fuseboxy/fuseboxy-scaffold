@@ -125,7 +125,7 @@
 					?></td><?php
 				endforeach; // foreach-scaffold-listField
 				// display : button
-				?><td class="col-button text-nowrap text-right"><?php include 'row.button.php'; ?></td><?php
+				?><td class="col-button text-nowrap text-right"><?php include F::appPath('view/scaffold/row.button.php'); ?></td><?php
 			?></tr>
 		</tbody>
 	</table>
