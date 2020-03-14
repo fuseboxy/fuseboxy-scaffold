@@ -1269,7 +1269,7 @@ class Scaffold {
 		$arr = array('edit','header','inline_edit','list','row','modal');
 		foreach ( $arr as $i => $item ) {
 			if ( !isset(self::$config['scriptPath'][$item]) ) {
-				self::$config['scriptPath'][$item] = F::config('appPath')."view/scaffold/{$item}.php";
+				self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
 			}
 		}
 		// param default : library path
