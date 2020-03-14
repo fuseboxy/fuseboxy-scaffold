@@ -570,7 +570,7 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
-				<string name="$connString" optional="yes" default="$fusebox->config['uploadDir']" />
+				<string name="$connString" optional="yes" default="~uploadDir~" />
 				<string name="$key" optional="yes" comments="return value of specific key" />
 			</in>
 			<out>
@@ -600,7 +600,7 @@ class Scaffold {
 	public static function parseConnectionString($connString=null, $key=null) {
 		global $fusebox;
 		// check against framework config or passed parameter
-		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
+		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// parse according to protocol
 		if ( substr($connString, 0, 5) == 's3://' ) {
 			$result = self::parseConnectionString__S3($connString);
@@ -655,7 +655,7 @@ class Scaffold {
 	public static function parseConnectionString__FTP($connString=null) {
 		global $fusebox;
 		// parse framework config or passed parameter
-		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
+		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// unify path-delim
 		$conn = str_replace('\\', '/', $connString);
 		// extract protocol
@@ -747,7 +747,7 @@ class Scaffold {
 	public static function parseConnectionString__S3($connString=null) {
 		global $fusebox;
 		// parse framework config or passed parameter
-		$connString = !empty($connString) ? $connString : $fusebox->config['uploadDir'];
+		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// unify path-delim
 		$conn = str_replace('\\', '/', $connString);
 		// extract protocol
@@ -1601,7 +1601,7 @@ class Scaffold {
 		if ( $cs === false ) return false;
 		// fix config
 		$uploadDir = self::$config['beanType'].'/'.$arguments['fieldName'].'/';
-		$uploadBaseUrl  = str_replace('\\', '/', $fusebox->config['uploadBaseUrl']);
+		$uploadBaseUrl  = str_replace('\\', '/', F::config('uploadBaseUrl'));
 		$uploadBaseUrl .= ( substr($uploadBaseUrl, -1) == '/' ) ? '' : '/';
 		$uploadBaseUrl .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
 		// create folder (when necessary)
@@ -1673,10 +1673,10 @@ class Scaffold {
 			self::$error = 'Scaffold config [layoutPath] is required';
 			return false;
 		// check uploader directory
-		} elseif ( empty($fusebox->config['uploadDir']) and $hasFileField ) {
+		} elseif ( empty(F::config('uploadDir')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadDir] is required';
 			return false;
-		} elseif ( empty($fusebox->config['uploadBaseUrl']) and $hasFileField ) {
+		} elseif ( empty(F::config('uploadBaseUrl')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadBaseUrl] is required';
 			return false;
 		// check log component
