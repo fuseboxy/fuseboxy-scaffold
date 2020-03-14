@@ -80,6 +80,10 @@
 	</io>
 </fusedoc>
 */
+// disallow accessing this controller directly
+F::error('Forbidden', F::is('scaffold.*'));
+
+
 // allow component to access and update the config variable
 Scaffold::$config = &$scaffold;
 
