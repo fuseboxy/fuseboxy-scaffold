@@ -2,8 +2,13 @@
 class Scaffold {
 
 
-	// scaffold config
+	// properties : scaffold config
 	public static $config;
+	// properties : library for corresponding methods
+	public static $libPath = array(
+		'uploadFile' => dirname(dirname(__DIR__)).'/lib/simple-ajax-uploader/2.6.7/extras/Uploader.php',
+		'uploadFileProgress' => dirname(dirname(__DIR__)).'/lib/simple-ajax-uploader/2.6.7/extras/uploadProgress.php',
+	);
 
 
 
@@ -1272,9 +1277,6 @@ class Scaffold {
 				self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
 			}
 		}
-		// param default : library path
-		self::$config['libPath'] = isset(self::$config['libPath']) ? self::$config['libPath'] : (dirname(F::config('appPath')).'/lib/');
-		self::$config['libPath'] .= in_array(substr(self::$config['libPath'], -1), array('/','\\')) ? '' : '/';
 		// param default : write log
 		self::$config['writeLog'] = isset(self::$config['writeLog']) ? self::$config['writeLog'] : false;
 		// param default : pagination
@@ -1568,12 +1570,12 @@ class Scaffold {
 	public static function uploadFile($arguments) {
 		global $fusebox;
 		// load library
-		$libPath = self::$config['libPath'].'simple-ajax-uploader/2.6.7/extras/Uploader.php';
-		if ( !file_exists($libPath) ) {
-			self::$error = "Could not load [SimpleAjaxUploader] library (path={$libPath})";
+		$lib = self::$libPath['uploadFile'];
+		if ( !file_exists($lib) ) {
+			self::$error = "Could not load [SimpleAjaxUploader] library (path={$lib})";
 			return false;
 		}
-		require_once $libPath;
+		require_once $lib;
 		// validation
 		$err = array();
 		if ( empty($arguments['uploaderID']) ) {

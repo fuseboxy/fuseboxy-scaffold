@@ -65,10 +65,12 @@
 					<number name="recordPerPage" optional="yes" default="50" />
 					<number name="pageVisible" optional="yes" default="10" />
 				</structure>
-				<!-- advanced settings for file upload -->
-				<string name="libPath" optional="yes" default="~fusebox.config.appPath~/../lib" comments="for simple-ajax-uploader library" />
 				<!-- settings for log -->
 				<boolean name="writeLog" optional="yes" comments="simply true to log all actions" />
+			</structure>
+			<structure name="Scaffold::$libPath">
+				<string name="uploadFile" />
+				<string name="uploadFileProgress" />
 			</structure>
 			<structure name="config" scope="$fusebox" comments="for file field">
 				<string name="uploadDir" optional="yes" comments="server path for saving file" />
@@ -269,7 +271,7 @@ switch ( $fusebox->action ) :
 		break;
 	// ajax upload progress
 	case 'upload_file_progress':
-		require $scaffold['libPath'].'simple-ajax-uploader/2.6.7/extras/uploadProgress.php';
+		require Scaffold::$libPath['uploadFileProgress'];
 		break;
 
 
