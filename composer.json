@@ -1,6 +1,6 @@
 {
-	"name": "henrygotmojo/fuseboxy-scaffold",
-	"description": "Fuseboxy Scaffold - Friendly CRUD Interface Generator",
+	"name": "fuseboxy/fuseboxy-scaffold",
+	"description": "Fuseboxy Scaffold - Super Friendly CRUD Interface",
 	"license": "MIT",
 	"require": {}
 }
