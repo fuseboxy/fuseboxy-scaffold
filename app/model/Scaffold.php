@@ -598,7 +598,6 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function parseConnectionString($connString=null, $key=null) {
-		global $fusebox;
 		// check against framework config or passed parameter
 		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// parse according to protocol
@@ -653,7 +652,6 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function parseConnectionString__FTP($connString=null) {
-		global $fusebox;
 		// parse framework config or passed parameter
 		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// unify path-delim
@@ -745,7 +743,6 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function parseConnectionString__S3($connString=null) {
-		global $fusebox;
 		// parse framework config or passed parameter
 		$connString = !empty($connString) ? $connString : F::config('uploadDir');
 		// unify path-delim
@@ -1568,7 +1565,6 @@ class Scaffold {
 
 	// ajax upload file
 	public static function uploadFile($arguments) {
-		global $fusebox;
 		// load library
 		$lib = self::$libPath['uploadFile'];
 		if ( !file_exists($lib) ) {
@@ -1650,7 +1646,6 @@ class Scaffold {
 
 	// perform validation on config
 	public static function validateConfig() {
-		global $fusebox;
 		// check if any file-field
 		$hasFileField = false;
 		if ( isset(self::$config['fieldConfig']) ) {
