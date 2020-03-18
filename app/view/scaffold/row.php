@@ -32,7 +32,7 @@
 					$colWidth = is_numeric($key) ? '' : $val;
 					// display : field group
 					$fieldGroupClass = 'col-'.implode('-', $cols);
-					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>;"><?php
+					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>"><?php
 						// go through each field
 						foreach ( $cols as $colIndex => $col ) :
 							$field = $scaffold['fieldConfig'][$col];
