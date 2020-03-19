@@ -6,8 +6,8 @@ class Scaffold {
 	public static $config;
 	// properties : library for corresponding methods
 	public static $libPath = array(
-		'uploadFile' => dirname(dirname(__DIR__)).'/lib/simple-ajax-uploader/2.6.7/extras/Uploader.php',
-		'uploadFileProgress' => dirname(dirname(__DIR__)).'/lib/simple-ajax-uploader/2.6.7/extras/uploadProgress.php',
+		'uploadFile' => __DIR__.'/../../lib/simple-ajax-uploader/2.6.7/extras/Uploader.php',
+		'uploadFileProgress' => __DIR__.'/../../lib/simple-ajax-uploader/2.6.7/extras/uploadProgress.php',
 	);
 
 
