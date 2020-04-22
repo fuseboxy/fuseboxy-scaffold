@@ -75,8 +75,8 @@
 								// checkbox : turn list into items
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
 									$arr = explode('|', $bean[$col]);
-									foreach ( $arr as $item ) :
-										?><div><?php echo !empty($field['options'][$item]) ? $field['options'][$item] : $item; ?></div><?php
+									foreach ( $arr as $val ) :
+										?><div><?php echo !empty($field['options'][$val]) ? $field['options'][$val] : $val; ?></div><?php
 									endforeach;
 								// many-to-many : show alias/name/etc.
 								elseif ( $isManyToMany ) :
@@ -119,6 +119,10 @@
 								// output : show custom content
 								elseif ( $isOutput ) :
 									?><div><?php echo $field['value']; ?></div><?php
+								// dropdown : show value of selected option
+								elseif ( isset($field['options']) ) :
+									$val = $bean[$col];
+									?><div><?php echo !empty($field['options'][$val]) ? $field['options'][$val] : $val; ?></div><?php
 								// default : show field value
 								else :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
