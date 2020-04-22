@@ -40,12 +40,12 @@
 							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
 							$isOneToMany  = ( isset($field['format']) and $field['format'] == 'one-to-many' );
 							$isCheckbox   = ( isset($field['format']) and $field['format'] == 'checkbox' );
-							$isImage      = ( isset($field['format']) and $field['format'] == 'file' and !empty($field['preview']) );
-							$isFile       = ( isset($field['format']) and $field['format'] == 'file' and !$isImage );
-							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
-							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
+							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
+							$isImage      = ( isset($field['format']) and $field['format'] == 'file' and !empty($field['preview']) );
+							$isFile       = ( isset($field['format']) and $field['format'] == 'file' and !$isImage );
+							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							// display : each field
 							$fieldClass = array('col-'.$col);
 							if ( $colIndex > 0 ) $fieldClass[] = 'small text-muted';
