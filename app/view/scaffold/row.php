@@ -52,10 +52,10 @@
 							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 								// output : show custom content
 								if ( $isOutput ) :
-									?><div><?php echo $field['value']; ?></div><?php
+									echo $field['value'];
 								// image : show thumbnail
 								elseif ( $isImage and !empty($bean[$col]) ) :
-									?><div><a
+									?><a
 										title="<?php echo basename($bean[$col]); ?>"
 										href="<?php echo $bean[$col]; ?>"
 										target="_blank"
@@ -65,7 +65,7 @@
 										src="<?php echo $bean[$col]; ?>"
 										class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
 										style="max-width: 100%; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
-									/></a></div><?php
+									/></a><?php
 								// file : show link
 								elseif ( $isFile and !empty($bean[$col]) ) :
 									?><a
@@ -77,8 +77,7 @@
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
 									$arr = explode('|', $bean[$col]);
 									foreach ( $arr as $val ) :
-										$output = !empty($field['options'][$val]) ? $field['options'][$val] : $val;
-										?><div><?php echo $output; ?></div><?php
+										echo !empty($field['options'][$val]) ? $field['options'][$val] : $val;
 									endforeach;
 								// one-to-many : show value according to options
 								// many-to-many : show value according to options
@@ -87,27 +86,25 @@
 									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
-										$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
-										?><div><?php echo $output; ?></div><?php
+										echo !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
 									endforeach;
 								// dropdown : show value according to options
 								elseif ( isset($field['options']) ) :
 									$val = $bean[$col];
-									$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
-									?><div><?php echo $output; ?></div><?php
+									echo !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
 								// url : show link
 								elseif ( $isURL ) :
-									?><div><a
+									?><a
 										href="<?php echo $bean[$col]; ?>"
 										style="word-break: break-all;"
 										target="_blank"
-									><?php echo $bean[$col]; ?></a></div><?php
+									><?php echo $bean[$col]; ?></a><?php
 								// wysiwyg : show html
 								elseif ( $isWYSIWYG ) :
-									?><div><?php echo $bean[$col]; ?></div><?php
+									echo $bean[$col];
 								// default : show field value
 								elseif ( !$isHidden ) :
-									?><div><?php echo nl2br($bean[$col]); ?></div><?php
+									echo nl2br($bean[$col]);
 								endif;
 							?></div><?php
 						endforeach; // foreach-cols
