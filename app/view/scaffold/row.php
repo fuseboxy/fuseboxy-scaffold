@@ -80,7 +80,7 @@
 								// one-to-many : show value according to options
 								// many-to-many : show value according to options
 								elseif ( $isOneToMany or $isManyToMany ) :
-									$objectName = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
+									$objectName = ( substr($col, -3) == '_id' ) ? substr($col, 0, strlen($col)-3) : $col;
 									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
