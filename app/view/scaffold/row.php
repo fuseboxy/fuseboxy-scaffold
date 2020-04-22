@@ -90,8 +90,9 @@
 									endforeach;
 								// dropdown : show value according to options
 								elseif ( isset($field['options']) ) :
+									$isObjectID = ( substr($col, -3) == '_id' );
 									$val = $bean[$col];
-									echo !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
+									echo !empty($field['options'][$val]) ? $field['options'][$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
 								// url : show link
 								elseif ( $isURL ) :
 									?><a
