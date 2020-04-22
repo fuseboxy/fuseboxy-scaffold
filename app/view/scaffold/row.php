@@ -76,28 +76,23 @@
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
 									$arr = explode('|', $bean[$col]);
 									foreach ( $arr as $val ) :
-										?><div><?php echo !empty($field['options'][$val]) ? $field['options'][$val] : $val; ?></div><?php
+										$output = !empty($field['options'][$val]) ? $field['options'][$val] : $val;
+										?><div><?php echo $output; ?></div><?php
 									endforeach;
-								// many-to-many : show alias/name/etc.
-								elseif ( $isManyToMany ) :
-									foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) :
-										?><div><?php
-											if     ( !empty($associateBean->alias) ) echo $associateBean->alias;
-											elseif ( !empty($associateBean->name ) ) echo $associateBean->name;
-											elseif ( !empty($associateBean->title) ) echo $associateBean->title;
-											else echo "[id={$associateBean->id}]";
-										?></div><?php
+								// one-to-many : show value according to options
+								// many-to-many : show value according to options
+								elseif ( $isOneToMany or $isManyToMany ) :
+									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
+									foreach ( $arr as $associateBean ) :
+										$val = $associateBean->id;
+										$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
+										?><div><?php echo $output; ?></div><?php
 									endforeach;
-								// one-to-many : show alias/name/etc.
-								elseif ( $isOneToMany ) :
-									foreach ( $bean['own'.ucfirst($objectName)] as $associateBean ) :
-										?><div><?php
-											if     ( !empty($associateBean->alias) ) echo $associateBean->alias;
-											elseif ( !empty($associateBean->name ) ) echo $associateBean->name;
-											elseif ( !empty($associateBean->title) ) echo $associateBean->title;
-											else echo "[id={$associateBean->id}]";
-										?></div><?php
-									endforeach;
+								// dropdown : show value according to options
+								elseif ( isset($field['options']) ) :
+									$val = $bean[$col];
+									$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
+									?><div><?php echo $output; ?></div><?php
 								// object : show alias/name/etc.
 								elseif ( $isObject ) :
 									?><div><?php
@@ -119,10 +114,6 @@
 								// output : show custom content
 								elseif ( $isOutput ) :
 									?><div><?php echo $field['value']; ?></div><?php
-								// dropdown : show value of selected option
-								elseif ( isset($field['options']) ) :
-									$val = $bean[$col];
-									?><div><?php echo !empty($field['options'][$val]) ? $field['options'][$val] : $val; ?></div><?php
 								// default : show field value
 								else :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
