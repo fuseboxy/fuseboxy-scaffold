@@ -40,18 +40,21 @@
 							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
 							$isOneToMany  = ( isset($field['format']) and $field['format'] == 'one-to-many' );
 							$isCheckbox   = ( isset($field['format']) and $field['format'] == 'checkbox' );
-							$isFile       = ( isset($field['format']) and $field['format'] == 'file' );
+							$isImage      = ( isset($field['format']) and $field['format'] == 'file' and !empty($field['preview']) );
+							$isFile       = ( isset($field['format']) and $field['format'] == 'file' and !$isImage );
 							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
 							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
 							// display : each field
 							$fieldClass = array('col-'.$col);
-							if ( $isHidden ) $fieldClass[] = 'd-none';
 							if ( $colIndex > 0 ) $fieldClass[] = 'small text-muted';
 							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
-								// preview : show thumbnail
-								if ( !empty($bean[$col]) and !empty($field['preview']) ) :
+								// output : show custom content
+								if ( $isOutput ) :
+									?><div><?php echo $field['value']; ?></div><?php
+								// image : show thumbnail
+								elseif ( $isImage and !empty($bean[$col]) ) :
 									?><div><a
 										title="<?php echo basename($bean[$col]); ?>"
 										href="<?php echo $bean[$col]; ?>"
@@ -102,11 +105,8 @@
 								// wysiwyg : show html
 								elseif ( $isWYSIWYG ) :
 									?><div><?php echo $bean[$col]; ?></div><?php
-								// output : show custom content
-								elseif ( $isOutput ) :
-									?><div><?php echo $field['value']; ?></div><?php
 								// default : show field value
-								else :
+								elseif ( !$isHidden ) :
 									?><div><?php echo nl2br($bean[$col]); ?></div><?php
 								endif;
 							?></div><?php
