@@ -37,7 +37,6 @@
 						foreach ( $cols as $colIndex => $col ) :
 							$field = $scaffold['fieldConfig'][$col];
 							// determine field format
-							$objectName   = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
 							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
 							$isOneToMany  = ( isset($field['format']) and $field['format'] == 'one-to-many' );
 							$isCheckbox   = ( isset($field['format']) and $field['format'] == 'checkbox' );
@@ -46,7 +45,6 @@
 							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
-							$isObject     = is_object($bean[$objectName]);
 							// display : each field
 							$fieldClass = array('col-'.$col);
 							if ( $isHidden ) $fieldClass[] = 'd-none';
@@ -82,6 +80,7 @@
 								// one-to-many : show value according to options
 								// many-to-many : show value according to options
 								elseif ( $isOneToMany or $isManyToMany ) :
+									$objectName = ( substr($col, -3) == '_id' ) ? str_replace('_id', '', $col) : $col;
 									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
@@ -93,14 +92,6 @@
 									$val = $bean[$col];
 									$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
 									?><div><?php echo $output; ?></div><?php
-								// object : show alias/name/etc.
-								elseif ( $isObject ) :
-									?><div><?php
-										if     ( !empty($bean[$objectName]->alias) ) echo $bean[$objectName]->alias;
-										elseif ( !empty($bean[$objectName]->name ) ) echo $bean[$objectName]->name;
-										elseif ( !empty($bean[$objectName]->title) ) echo $bean[$objectName]->title;
-										else echo "[id={$bean[$objectName]->id}]";
-									?></div><?php
 								// url : show link
 								elseif ( $isURL ) :
 									?><div><a
