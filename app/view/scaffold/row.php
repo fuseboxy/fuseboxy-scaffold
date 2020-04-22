@@ -74,7 +74,10 @@
 									><?php echo basename($bean[$col]); ?></a><?php
 								// checkbox : turn list into items
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
-									?><div><?php echo str_replace('|', '</div><div>', $bean[$col]); ?></div><?php
+									$arr = explode('|', $bean[$col]);
+									foreach ( $arr as $item ) :
+										?><div><?php echo !empty($field['options'][$item]) ? $field['options'][$item] : $item; ?></div><?php
+									endforeach;
 								// many-to-many : show alias/name/etc.
 								elseif ( $isManyToMany ) :
 									foreach ( $bean['shared'.ucfirst($objectName)] as $associateBean ) :
