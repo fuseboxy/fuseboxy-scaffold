@@ -62,6 +62,7 @@ if ( isset($field['value']) ) {
 	$field['value'] = '';
 }
 
+
 // fix options (when necessary)
 // ===> when options was not specified
 // ===> use field value as options
@@ -74,6 +75,7 @@ if ( isset($field['format']) and in_array($field['format'], array('radio','check
 	}
 }
 
+
 // fix checkbox value (when necessary)
 // ===> turn pipe-delimited list into array
 if ( isset($field['format']) and $field['format'] == 'checkbox' and !is_array($field['value']) ) {
@@ -81,195 +83,43 @@ if ( isset($field['format']) and $field['format'] == 'checkbox' and !is_array($f
 }
 
 
-
-
 // display : pre-help
-if ( !empty($field['pre-help']) ) :
-	?><small class="form-text text-muted mb-1"><?php echo $field['pre-help']; ?></small><?php
-endif;
+if ( !empty($field['pre-help']) ) {
+	include F::appPath('view/scaffold/input.pre_help.php');
+}
 
 
 // display : output
-if ( isset($field['format']) and $field['format'] == 'output' ) :
-	?><div class="form-control-plaintext form-control-sm"><?php echo $field['value']; ?></div><?php
-
-
+if ( isset($field['format']) and $field['format'] == 'output' ) {
+	include F::appPath('view/scaffold/input.output.php');
 // display : radio
-elseif ( isset($field['format']) and $field['format'] == 'radio' ) :
-	$optIndex = 0;
-	foreach ( $field['options'] as $optValue => $optText ) :
-		$radioID = uuid();
-		?><div class="form-check">
-			<input
-				id="<?php echo $radioID; ?>"
-				class="form-check-input"
-				type="radio"
-				name="data[<?php echo $field['name']; ?>]"
-				value="<?php echo htmlspecialchars($optValue); ?>"
-				<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
-				<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-				<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-			 />
-			<label 
-				for="<?php echo $radioID; ?>" 
-				class="form-check-label small"
-			><?php echo $optText; ?></label>
-		</div><?php
-		$optIndex++;
-	endforeach;
-	if ( !empty($field['readonly']) ) :
-		?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
-	endif;
-
-
+} elseif ( isset($field['format']) and $field['format'] == 'radio' ) {
+	include F::appPath('view/scaffold/input.radio.php');
 // display : checkbox (submit array value)
-elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) :
-	?><input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="" /><?php
-	$optIndex = 0;
-	foreach ( $field['options'] as $optValue => $optText ) :
-		$checkboxID = uuid();
-		?><div class="form-check">
-			<input
-				id="<?php echo $checkboxID; ?>"
-				class="form-check-input"
-				type="checkbox"
-				name="data[<?php echo $field['name']; ?>][]"
-				value="<?php echo htmlspecialchars($optValue); ?>"
-				<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
-				<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-				<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-			 />
-			<label 
-				for="<?php echo $checkboxID; ?>" 
-				class="form-check-label small"
-			><?php echo $optText; ?></label>
-		</div><?php
-		$optIndex++;
-	endforeach;
-	if ( !empty($field['readonly']) ) :
-		foreach ( $field['value'] as $val ) :
-			?><input type="hidden" name="data[<?php echo $field['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
-		endforeach;
-	endif;
-
-
+} elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
+	include F::appPath('view/scaffold/input.checkbox.php');
 // display : textarea
-elseif ( isset($field['format']) and $field['format'] == 'textarea' ) :
-	?><div class="input-group"><?php
-		if ( !empty($field['icon']) ) :
-			?><div class="input-group-prepend">
-				<span class="input-group-text">
-					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-				</span>
-			</div><?php
-		endif;
-		?><textarea
-			class="form-control form-control-sm"
-			name="data[<?php echo $field['name']; ?>]"
-			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
-			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-		><?php echo $field['value']; ?></textarea><?php
-	?></div><?php
-
-
+} elseif ( isset($field['format']) and $field['format'] == 'textarea' ) {
+	include F::appPath('view/scaffold/input.textarea.php');
 // display : html editor
-elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) :
+} elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) {
 	include F::appPath('view/scaffold/input.wysiwyg.php');
-
-
 // display : file upload
-elseif ( isset($field['format']) and $field['format'] == 'file' ) :
+} elseif ( isset($field['format']) and $field['format'] == 'file' ) {
 	include F::appPath('view/scaffold/input.file.php');
-
-
-// display : listbox
-elseif ( isset($field['options']) ) :
-	?><div class="input-group"><?php
-		if ( !empty($field['icon']) ) :
-			?><div class="input-group-prepend">
-				<span class="input-group-text">
-					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-				</span>
-			</div><?php
-		endif;
-		?><select
-			class="custom-select custom-select-sm"
-			name="data[<?php echo $field['name']; ?>]"
-			<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
-			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-		>
-			<option value="">
-				<?php if ( isset($field['placeholder']) ) echo $field['placeholder']; ?>
-			</option>
-			<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-				<option
-					value="<?php echo $optValue; ?>"
-					<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-				><?php echo $optText; ?></option>
-			<?php endforeach; ?>
-		</select>
-	</div><?php
-	if ( !empty($field['readonly']) ) :
-		?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
-	endif;
-
-
+// display : dropdown
+} elseif ( isset($field['options']) ) {
+	include F::appPath('view/scaffold/input.dropdown.php');
 // display : date & time
-elseif ( !empty($field['format']) and in_array($field['format'], array('date', 'time', 'datetime')) ) :
-	?><div class="input-group">
-		<div class="input-group-prepend">
-			<span class="input-group-text"><?php
-				if     ( !empty($field['icon'])     ) : $fieldIcon = $field['icon'];
-				elseif ( $field['format'] == 'time' ) : $fieldIcon = 'far fa-clock';
-				else                                  : $fieldIcon = 'fa fa-calendar-alt';
-				endif;
-				?><i class="fa-fw <?php echo $fieldIcon; ?>"></i>
-			</span>
-		</div>
-		<input
-			type="text"
-			class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?>"
-			name="data[<?php echo $field['name']; ?>]"
-			value="<?php echo htmlspecialchars($field['value']); ?>"
-			autocomplete="off"
-			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		 />
-	</div><?php
-
-
+} elseif ( !empty($field['format']) and in_array($field['format'], array('date', 'time', 'datetime')) ) {
+	include F::appPath('view/scaffold/input.datetime.php');
 // display : normal text
-else :
-	?><div class="input-group"><?php
-		if ( !empty($field['icon']) ) :
-			?><div class="input-group-prepend">
-				<span class="input-group-text">
-					<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-				</span>
-			</div><?php
-		endif;
-		?><input
-			type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-			class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-			name="data[<?php echo $field['name']; ?>]"
-			value="<?php echo htmlspecialchars($field['value']); ?>"
-			<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-			<?php if ( isset($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
-			<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		 />
-	 </div><?php
-
-
-endif;
+} else {
+	include F::appPath('view/scaffold/input.others.php');
+}
 
 
 // display : help
-if ( !empty($field['help']) ) :
-	?><small class="form-text px-1 rounded bg-light text-info"><?php echo $field['help']; ?></small><?php
-endif;
+if ( !empty($field['help']) ) {
+	include F::appPath('view/scaffold/input.help.php');
+}
