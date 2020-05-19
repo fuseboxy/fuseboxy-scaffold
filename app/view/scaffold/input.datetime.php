@@ -19,4 +19,4 @@
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
 	 />
-</div><?php
+</div>
