@@ -2,5 +2,6 @@
 	"name": "fuseboxy/fuseboxy-scaffold",
 	"description": "Fuseboxy Scaffold - Super Friendly CRUD Interface",
 	"license": "MIT",
-	"require": {}
+    "type": "fuseboxy-module",
+    "require": { "fuseboxy/fuseboxy-installer": "*" }
 }
