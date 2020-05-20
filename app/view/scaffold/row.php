@@ -77,8 +77,10 @@
 								elseif ( $isCheckbox and !empty($bean[$col]) ) :
 									$arr = explode('|', $bean[$col]);
 									foreach ( $arr as $val ) :
-										$output = !empty($field['options'][$val]) ? $field['options'][$val] : $val;
-										?><div><?php echo $output; ?></div><?php
+										if ( !empty($val) ) :
+											$output = !empty($field['options'][$val]) ? $field['options'][$val] : $val;
+											?><div><?php echo $output; ?></div><?php
+										endif;
 									endforeach;
 								// one-to-many & many-to-many : show multiple values (according to options)
 								elseif ( $isOneToMany or $isManyToMany ) :
@@ -86,14 +88,18 @@
 									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
-										$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
-										?><div><?php echo $output; ?></div><?php
+										if ( !empty($val) ) :
+											$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
+											?><div><?php echo $output; ?></div><?php
+										endif;
 									endforeach;
 								// dropdown : show single value (according to options)
 								elseif ( isset($field['options']) ) :
 									$isObjectID = ( substr($col, -3) == '_id' );
 									$val = $bean[$col];
-									echo !empty($field['options'][$val]) ? $field['options'][$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
+									if ( !empty($val) ) :
+										echo !empty($field['options'][$val]) ? $field['options'][$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
+									endif;
 								// url : show link
 								elseif ( $isURL ) :
 									?><a
