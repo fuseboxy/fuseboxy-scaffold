@@ -1597,7 +1597,7 @@ class Scaffold {
 		if ( $cs === false ) return false;
 		// fix config
 		$uploadDir = self::$config['beanType'].'/'.$arguments['fieldName'].'/';
-		$uploadBaseUrl  = str_replace('\\', '/', F::config('uploadBaseUrl'));
+		$uploadBaseUrl  = str_replace('\\', '/', F::config('uploadUrl'));
 		$uploadBaseUrl .= ( substr($uploadBaseUrl, -1) == '/' ) ? '' : '/';
 		$uploadBaseUrl .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
 		// create folder (when necessary)
@@ -1671,8 +1671,8 @@ class Scaffold {
 		} elseif ( empty(F::config('uploadDir')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadDir] is required';
 			return false;
-		} elseif ( empty(F::config('uploadBaseUrl')) and $hasFileField ) {
-			self::$error = 'Fusebox config [uploadBaseUrl] is required';
+		} elseif ( empty(F::config('uploadUrl')) and $hasFileField ) {
+			self::$error = 'Fusebox config [uploadUrl] is required';
 			return false;
 		// check log component
 		} elseif ( !empty(self::$config['writeLog']) and !class_exists('Log') ) {

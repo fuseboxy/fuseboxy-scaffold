@@ -74,7 +74,7 @@
 			</structure>
 			<structure name="config" scope="$fusebox" comments="for file field">
 				<string name="uploadDir" optional="yes" comments="server path for saving file" />
-				<string name="uploadBaseUrl" optional="yes" comments="web path for image source" />
+				<string name="uploadUrl" optional="yes" comments="web path for image source" />
 			</structure>
 			<array name="breadcrumb" scope="$arguments" optional="yes" comments="custom breadcrumb" />
 		</in>
