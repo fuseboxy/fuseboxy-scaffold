@@ -1,14 +1,13 @@
-<div class="input-group">
-	<div class="input-group-prepend">
-		<span class="input-group-text"><?php
-			if     ( !empty($field['icon'])     ) : $fieldIcon = $field['icon'];
-			elseif ( $field['format'] == 'time' ) : $fieldIcon = 'far fa-clock';
-			else                                  : $fieldIcon = 'fa fa-calendar-alt';
-			endif;
-			?><i class="fa-fw <?php echo $fieldIcon; ?>"></i>
-		</span>
-	</div>
-	<input
+<div class="input-group"><?php
+	if ( !isset($field['icon']) or $field['icon'] !== false ) :
+		$fieldIcon = isset($field['icon']) ? $field['icon'] : ( ($field['format'] == 'time') ? 'far fa-clock' : 'fa fa-calendar-alt' );
+		?><div class="input-group-prepend">
+			<span class="input-group-text">
+				<i class="fa-fw <?php echo $fieldIcon; ?>"></i>
+			</span>
+		</div><?php
+	endif;
+	?><input
 		type="text"
 		class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
