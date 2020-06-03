@@ -41,8 +41,15 @@ class ORM {
 	</fusedoc>
 	*/
 	private static function connectDB() {
-		$dbConfig = F::config('db');
+		// load library
+		$path = self::$libPath['connectDB'];
+		if ( !is_file($path) ) {
+			self::$error = "RedBeanPHP library is missing ({$path})";
+			return false;
+		}
+		require_once($path);
 		// check config
+		$dbConfig = F::config('db');
 		if ( empty($dbConfig) ) {
 			self:$error = 'Database config is missing';
 			return false;
