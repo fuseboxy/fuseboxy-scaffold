@@ -30,6 +30,7 @@ class ORM {
 						<string name="name" />
 						<string name="username" />
 						<string name="password" />
+						<boolean name="freeze" />
 					</structure>
 				</structure>
 			</in>
@@ -40,7 +41,35 @@ class ORM {
 	</fusedoc>
 	*/
 	private static function connectDB() {
-
+		$dbConfig = F::config('db');
+		// check config
+		if ( empty($dbConfig) ) {
+			self:$error = 'Database config is missing';
+			return false;
+		} elseif ( empty($dbConfig['host']) ) {
+			self:$error = 'Database config [host] is required';
+			return false;
+		} elseif ( empty($dbConfig['name']) ) {
+			self:$error = 'Database config [name] is required';
+			return false;
+		} elseif ( empty($dbConfig['username']) ) {
+			self:$error = 'Database config [username] is required';
+			return false;
+		// allow empty password but must be defined
+		} elseif ( !isset($dbConfig['password']) ) {
+			self:$error = 'Database config [password] is required';
+			return false;
+		}
+		// connect to database
+		try {
+			R::setup('mysql:host='.$dbConfig['host'].';dbname='.$dbConfig['name'], $dbConfig['username'], $dbConfig['password']);
+			if ( isset($dbConfig['freeze']) ) R::freeze($dbConfig['freeze']);
+		} catch (Exception $e) {
+			self::$error = $e->getMessage();
+			return false;
+		}
+		// done!
+		return true;
 	}
 
 
@@ -64,7 +93,38 @@ class ORM {
 	</fusedoc>
 	*/
 	public static function all($beanType) {
+		return R::findAll($beanType);
+	}
 
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			get columns of specific table
+		</description>
+		<io>
+			<in>
+				<string name="$beanType" />
+			</in>
+			<out>
+				<array name="~return~">
+					<string name="+" />
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function columns($beanType) {
+		try {
+			$result = R::getColumns($beanType);
+		} catch (Exception $e) {
+			self::$error = $e->getMessage();
+			return false;
+		}
+		// done!
+		return $result;
 	}
 
 
@@ -87,8 +147,8 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	private static function count($beanType, $sql='', $param=array()) {
-
+	public static function count($beanType, $sql=null, $param=null) {
+		return R::count($beanType, $sql, $param);
 	}
 
 
@@ -117,8 +177,20 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	public static function get($beanType, $sqlOrID='', $param=array()) {
-
+	public static function get($beanType, $sqlOrID=null, $param=null) {
+		// get multiple records
+		if ( !is_numeric($sqlOrID) ) {
+			$result = R::find($beanType, $sqlOrID, $param);
+		// get single record
+		} else {
+			$result = R::load($beanType, $sqlOrID);
+			if ( empty($result->id) ) {
+				self::$error = "Record not found (id={$sqlOrID})";
+				return false;
+			}
+		}
+		// done!
+		return $result;
 	}
 
 
@@ -141,8 +213,8 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	public static function first($beanType, $sql='', $param=array()) {
-
+	public static function first($beanType, $sql=null, $param=null) {
+		return R::findOne($beanType, $sql, $param);
 	}
 
 
@@ -163,8 +235,10 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	public static function new($beanType, $data=array()) {
-
+	public static function new($beanType, $data=null) {
+		$bean = R::dispense($beanType);
+		if ( !empty($data) ) $bean->import($data);
+		return $bean;
 	}
 
 
@@ -177,7 +251,7 @@ class ORM {
 		</description>
 		<io>
 			<in>
-				<object_or_number name="$beanOrID" />
+				<object name="$bean" />
 			</in>
 			<out>
 				<boolean name="~return~" />
@@ -185,8 +259,15 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	public static function delete($beanOrID) {
-
+	public static function delete($bean) {
+		try {
+			R::trash($bean);
+		} catch (Exception $e) {
+			self::$error = $e->getMessage();
+			return false;
+		}
+		// done!
+		return true;
 	}
 
 
@@ -208,7 +289,14 @@ class ORM {
 	</fusedoc>
 	*/
 	public static function save($bean) {
-
+		$id = R::store($bean);
+		// validation
+		if ( empty($id) ) {
+			self::$error = empty($bean->id) ? 'Error occurred while creating record' : "Error occurred while updating record (id={$bean->id})";
+			return false;
+		}
+		// done!
+		return true;
 	}
 
 
@@ -228,7 +316,7 @@ class ORM {
 		</io>
 	</fusedoc>
 	*/
-	public static function runSQL($sql, $param=array()) {
+	public static function runSQL($sql, $param=null) {
 
 	}
 
