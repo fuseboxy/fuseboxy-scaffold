@@ -1664,7 +1664,7 @@ class Scaffold {
 			self::$error = 'Scaffold config [beanType] cannot contain underscore';
 			return false;
 		// check layout path
-		} elseif ( empty(self::$config['layoutPath']) ) {
+		} elseif ( !isset(self::$config['layoutPath']) ) {
 			self::$error = 'Scaffold config [layoutPath] is required';
 			return false;
 		// check uploader directory

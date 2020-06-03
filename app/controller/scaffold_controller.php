@@ -151,7 +151,11 @@ switch ( $fusebox->action ) :
 			$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']));
 		}
 		// layout
-		include $scaffold['layoutPath'];
+		if ( $scaffold['layoutPath'] === false ) {
+			echo $layout['content'];
+		} else {
+			include $scaffold['layoutPath'];
+		}
 		break;
 
 
@@ -205,13 +209,11 @@ switch ( $fusebox->action ) :
 		}
 		$layout['content'] = ob_get_clean();
 		// show with layout (when necessary)
-		if ( F::ajaxRequest() ) {
+		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {
 			echo $layout['content'];
 		} else {
 			// breadcrumb
-			if ( !isset($arguments['breadcrumb']) ) {
-				$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']), F::is('*.edit') ? 'Edit' : 'New');
-			}
+			if ( !isset($arguments['breadcrumb']) ) $arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']), F::is('*.edit') ? 'Edit' : 'New');
 			// layout
 			include $scaffold['layoutPath'];
 		}
