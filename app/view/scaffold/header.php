@@ -37,8 +37,9 @@
 					// header field
 					?><th scope="col" class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>"><?php
 						foreach ( $cols as $colIndex => $col ) :
-							$isHR = ( strlen($col) and !strlen(str_replace('-', '', $col)));
-							if ( !$isHR ) :
+							$isDisplayHeader = !empty($scaffold['fieldConfig'][$col]['label']);
+							$isLine = ( strlen($col) and !strlen(str_replace('-', '', $col)));
+							if ( !$isLine and $isDisplayHeader ) :
 								$isSortByThisField = ( isset($arguments['sortField']) and $arguments['sortField'] == $col );
 								$isAscendingOrder = ( empty($arguments['sortRule']) or strtolower($arguments['sortRule']) == 'asc' );
 								// prepare link (when necessary)
@@ -55,19 +56,19 @@
 								endif;
 								// adjust header size
 								$wrapperClass = array("col-{$col} text-nowrap");
-								$wrapperClass[] = ( $colIndex > 0 and !empty($headerText) ) ? 'small text-muted' : 'text-dark';
+								$wrapperClass[] = $colIndex ? 'small text-muted' : 'text-dark';
 								$headerText = '<span class="'.implode(' ', $wrapperClass).'">'.$headerText.'</span>';
 								// wrap by link (when necessary)
 								if ( isset($xfa['sort']) ) :
-									$headerText = '<a href="'.F::url($sortUrl).'" class="scaffold-btn-sort">'.$headerText.'</a>';
+									$headerText = '<a href="'.F::url($sortUrl).'" class="scaffold-btn-sort '.( $colIndex ? 'text-muted' : 'text-dark' ).'">'.$headerText.'</a>';
 								endif;
-								// separator
-								if ( $colIndex > 0 ) :
+								// separator (when necessary)
+								if ( $colIndex ) :
 									?><small class="text-muted mx-1">/</small><?php
 								endif;
 								// display header
 								echo $headerText;
-							endif; // if-not-hr
+							endif; // if-not-line
 						endforeach; // foreach-col
 					?></th><?php
 				endforeach; // foreach-list-field
