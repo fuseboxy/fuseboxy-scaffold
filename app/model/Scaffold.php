@@ -158,7 +158,11 @@ class Scaffold {
 			$beanBeforeDelete = $bean->export();
 		}
 		// commit to delete record
-		R::trash($bean);
+		$deleteResult = ORM::delete($bean);
+		if ( $deleteResult === false ) {
+			self::$error = ORM::error();
+			return false;
+		}
 		// write log (when necessary)
 		if ( self::$config['writeLog'] ) {
 			$logResult = Log::write(array(
@@ -283,13 +287,14 @@ class Scaffold {
 	public static function getBean($id=null) {
 		// get empty record when no argument
 		if ( empty($id) ) {
-			return R::dispense(self::$config['beanType']);
-		}
+			$result = ORM::new(self::$config['beanType']);
 		// get specific record with id was specified
-		$result = R::load(self::$config['beanType'], $id);
+		} else {
+			$result = ORM::get(self::$config['beanType'], $id);
+		}
 		// validation
-		if ( empty($result->id) ) {
-			self::$error = "Record not found (id={$id})";
+		if ( $result === false ) {
+			self::$error = ORM::error();
 			return false;
 		}
 		// done!
@@ -323,9 +328,9 @@ class Scaffold {
 	*/
 	public static function getBeanCount() {
 		if ( is_array(self::$config['listFilter']) ) {
-			return R::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
+			return ORM::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
 		} else {
-			return R::count(self::$config['beanType'], self::$config['listFilter']);
+			return ORM::count(self::$config['beanType'], self::$config['listFilter']);
 		}
 	}
 
@@ -359,9 +364,9 @@ class Scaffold {
 	*/
 	public static function getBeanList() {
 		if ( is_array(self::$config['listFilter']) ) {
-			return R::find(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
+			return ORM::get(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
 		} else {
-			return R::find(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
+			return ORM::get(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
 		}
 	}
 
@@ -814,12 +819,9 @@ class Scaffold {
 	public static function removeExpiredFile($fieldName, $uploadDir) {
 		// get all records of specific field
 		// ===> only required file name
-		$nonOrphanFiles = R::getCol("SELECT {$fieldName} FROM ".self::$config['beanType']." WHERE {$fieldName} IS NOT NULL");
-		foreach ( $nonOrphanFiles as $i => $path ) {
-			if ( !empty($path) ) {
-				$nonOrphanFiles[$i] = basename($path);
-			}
-		}
+		$nonOrphanFiles = array();
+		$arr = ORM::get(self::$config['beanType'], "{$fieldName} IS NOT NULL");
+		foreach ( $arr as $item ) if ( !empty($item->{$fieldName}) ) $nonOrphanFiles[] = basename($item->{$fieldName});
 		// go through every file in upload directory
 		if ( !empty($nonOrphanFiles) ) {
 			$fileList = self::getFileList($uploadDir);
@@ -1087,7 +1089,11 @@ class Scaffold {
 				$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 				$bean->{$propertyName} = array();
 				foreach ( $data[$fieldName] as $associateID ) {
-					$associateBean = R::load($associateName, $associateID);
+					$associateBean = ORM::get($associateName, $associateID);
+					if ( $associateBean === false ) {
+						self::$error = ORM::error();
+						return false;
+					}
 					$bean->{$propertyName}[] = $associateBean;
 				}
 				unset($data[$fieldName]);
@@ -1108,9 +1114,9 @@ class Scaffold {
 			$bean->seq = 0;
 		}
 		// save bean
-		$id = R::store($bean);
-		if ( empty($id) ) {
-			self::$error = 'Error occurred while saving record';
+		$id = ORM::save($bean);
+		if ( $id === false ) {
+			self::$error = ORM::error();
 			return false;
 		}
 		// write log (when necessary)
@@ -1146,14 +1152,12 @@ class Scaffold {
 		// obtain all columns of specified table
 		// ===> if no column (or non-exist table)
 		// ===> rely on {fieldConfig} (if any)
-		try {
-			self::$config['_columns_'] = R::getColumns( self::$config['beanType'] );
-		} catch (Exception $e) {
-			if ( preg_match('/Base table or view not found/i', $e->getMessage()) ) {
-				self::$config['_columns_'] = array();
-			} else {
-				throw $e;
-			}
+		self::$config['_columns_'] = ORM::columns(self::$config['beanType']);
+		if ( self::$config['_columns_'] === false and preg_match('/Base table or view not found/i', ORM::error()) ) {
+			self::$config['_columns_'] = array();
+		} elseif ( self::$config['_columns_'] === false ) {
+			self::$error = ORM::error();
+			return false;
 		}
 		if ( empty(self::$config['_columns_']) and isset(self::$config['fieldConfig']) ) {
 			foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
@@ -1538,9 +1542,9 @@ class Scaffold {
 		$bean = self::getBean($id);
 		if ( $bean === false ) return false;
 		$bean->disabled = !$active;
-		$saveResult = R::store($bean);
+		$saveResult = ORM::save($bean);
 		// check result
-		if ( empty($saveResult) ) {
+		if ( $saveResult === false ) {
 			self::$error = "Error occurred while toggling record (id={$id}, active={$active})";
 			return false;
 		}
