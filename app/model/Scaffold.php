@@ -1166,7 +1166,7 @@ class Scaffold {
 		self::$config['allowEdit'] = isset(self::$config['allowEdit']) ? self::$config['allowEdit'] : true;
 		self::$config['allowToggle'] = isset(self::$config['allowToggle']) ? self::$config['allowToggle'] : true;
 		self::$config['allowDelete'] = isset(self::$config['allowDelete']) ? self::$config['allowDelete'] : false;
-		self::$config['allowSort'] = isset(self::$config['allowSort']) ? self::$config['allowSort'] : false;
+		self::$config['allowSort'] = isset(self::$config['allowSort']) ? self::$config['allowSort'] : true;
 		// param default : edit mode
 		self::$config['editMode'] = !empty(self::$config['editMode']) ? self::$config['editMode'] : 'inline';
 		// param default : modal size

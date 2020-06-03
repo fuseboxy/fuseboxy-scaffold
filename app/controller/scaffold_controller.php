@@ -11,7 +11,7 @@
 				<boolean name="allowEdit" optional="yes" default="true" />
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
-				<boolean name="allowSort" optional="yes" default="false" />
+				<boolean name="allowSort" optional="yes" default="true" />
 				<string name="editMode" optional="yes" comments="inline|modal|classic" />
 				<string name="modalSize" optional="yes" comments="sm|md|lg|xl|max" />
 				<array_or_string name="listFilter" optional="yes">
