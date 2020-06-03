@@ -51,20 +51,20 @@ class ORM {
 		// check config
 		$dbConfig = F::config('db');
 		if ( empty($dbConfig) ) {
-			self:$error = 'Database config is missing';
+			self::$error = 'Database config is missing';
 			return false;
 		} elseif ( empty($dbConfig['host']) ) {
-			self:$error = 'Database config [host] is required';
+			self::$error = 'Database config [host] is required';
 			return false;
 		} elseif ( empty($dbConfig['name']) ) {
-			self:$error = 'Database config [name] is required';
+			self::$error = 'Database config [name] is required';
 			return false;
 		} elseif ( empty($dbConfig['username']) ) {
-			self:$error = 'Database config [username] is required';
+			self::$error = 'Database config [username] is required';
 			return false;
 		// allow empty password but must be defined
 		} elseif ( !isset($dbConfig['password']) ) {
-			self:$error = 'Database config [password] is required';
+			self::$error = 'Database config [password] is required';
 			return false;
 		}
 		// connect to database

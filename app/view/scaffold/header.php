@@ -59,8 +59,8 @@
 								$headerText = '<span class="'.implode(' ', $wrapperClass).'">'.$headerText.'</span>';
 								// wrap by link (when necessary)
 								if ( isset($xfa['sort']) ) :
-									$headerText = '<a href="'.F::url($sortUrl);.'" class="scaffold-btn-sort">'.$headerText.'</a>';
-								else :
+									$headerText = '<a href="'.F::url($sortUrl).'" class="scaffold-btn-sort">'.$headerText.'</a>';
+								endif;
 								// separator
 								if ( $colIndex > 0 ) :
 									?><small class="text-muted mx-1">/</small><?php
