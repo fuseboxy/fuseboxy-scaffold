@@ -113,7 +113,7 @@ switch ( $fusebox->action ) :
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
 			if ( $scaffold['editMode'] != 'inline' ) {
-				$xfa['quick'] = "{$fusebox->controller}.quick_new";
+				$xfa['quick'] = "{$fusebox->controller}.quick";
 			}
 			$xfa['new'] = "{$fusebox->controller}.new";
 		}
@@ -184,7 +184,7 @@ switch ( $fusebox->action ) :
 			include $scaffold['scriptPath']['row'];
 		}
 		break;
-	case 'emptyRow':
+	case 'empty':
 		break;
 
 
@@ -192,19 +192,19 @@ switch ( $fusebox->action ) :
 	case 'edit':
 		F::error('id was not specified', empty($arguments['id']));
 	case 'new':
-	case 'quick_new':
+	case 'quick':
 		$bean = Scaffold::getBean( F::is('*.edit') ? $arguments['id'] : null );
 		F::error(Scaffold::error(), $bean === false);
 		// define exit point
 		if ( $scaffold['allowEdit'] ) {
 			$xfa['submit'] = "{$fusebox->controller}.save";
 		}
-		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.emptyRow" : "{$fusebox->controller}.row&id={$bean->id}";
+		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.empty" : "{$fusebox->controller}.row&id={$bean->id}";
 		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
 		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		ob_start();
-		if ( F::is('*.quick_new') or $scaffold['editMode'] == 'inline' ) {
+		if ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) {
 			include $scaffold['scriptPath']['inline_edit'];
 		} else {
 			include $scaffold['scriptPath']['edit'];
