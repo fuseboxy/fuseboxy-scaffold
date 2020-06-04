@@ -50,34 +50,37 @@
 		data-toggle-callback="function(){ $('#<?php echo $scaffold['beanType']; ?>-modal').modal('hide'); }"
 		data-toggle="ajax-submit"
 	<?php endif; ?>
->
-	<!-- title -->
-	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
-		<div class="modal-header">
+><?php
+
+	// title
+	if ( $scaffold['editMode'] == 'modal' ) :
+		?><div class="modal-header">
 			<h5 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h5>
 			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-		</div>
-	<?php endif; ?>
-	<div class="modal-body">
-		<!-- message (if any) -->
-		<?php if ( isset($arguments['flash']) ) : ?>
-			<div class="alert alert-<?php echo isset($arguments['flash']['type']) ? $arguments['flash']['type'] : 'warning'; ?>">
-				<?php echo isset($arguments['flash']['message']) ? $arguments['flash']['message'] : $arguments['flash']; ?>
-			</div>
-		<?php endif; ?>
-		<!-- form fields -->
-		<?php foreach ( $scaffold['modalField'] as $colList => $colWidthList ) : ?>
-			<!-- output : horizontal line -->
-			<?php if ( $colList == str_repeat('-', strlen($colList)) ) : ?>
-				<hr />
-			<!-- output : title -->
-			<?php elseif ( substr($colList, 0, 1).substr($colList, -1) == '[]' ) : ?>
-				<fieldset><legend><?php echo str_replace('[', '', str_replace(']', '', $colList)); ?></legend></fieldset>
-			<!-- input field -->
-			<?php else : ?>
-				<?php $colList = explode('|', $colList); ?>
-				<?php $colWidthList = explode('|', $colWidthList); ?>
-				<div class="form-group row">
+		</div><!--/.modal-header--><?php
+	endif;
+
+	// body
+	?><div class="modal-body"><?php
+		// message (if any)
+		if ( isset($arguments['flash']) ) :
+			?><div class="alert alert-<?php echo isset($arguments['flash']['type']) ? $arguments['flash']['type'] : 'warning'; ?>"><?php
+				echo isset($arguments['flash']['message']) ? $arguments['flash']['message'] : $arguments['flash'];
+			?></div><?php
+		endif;
+		// form fields
+		foreach ( $scaffold['modalField'] as $colList => $colWidthList ) :
+			// output : horizontal line
+			if ( $colList == str_repeat('-', strlen($colList)) ) :
+				?><hr /><?php
+			// output : title
+			elseif ( substr($colList, 0, 1).substr($colList, -1) == '[]' ) :
+				?><fieldset><legend><?php echo str_replace('[', '', str_replace(']', '', $colList)); ?></legend></fieldset><?php
+			// input field
+			else :
+				$colList = explode('|', $colList);
+				$colWidthList = explode('|', $colWidthList);
+				?><div class="form-group row">
 					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
 						foreach ( $colList as $i => $col ) :
 							$headerText = $scaffold['fieldConfig'][$col]['label'];
@@ -89,33 +92,35 @@
 						endforeach;
 					?></label>
 					<div class="col-10">
-						<div class="row">
-							<?php foreach ( $colList as $i => $col ) : ?>
-								<div class="col-sm-<?php echo $colWidthList[$i]; ?>">
-									<?php $field = $scaffold['fieldConfig'][$col] + array('name' => $col); ?>
-									<?php include F::appPath('view/scaffold/input.php'); ?>
-								</div>
-							<?php endforeach; ?>
-						</div>
-					</div>
-				</div>
-			<?php endif; ?>
-		<?php endforeach; ?>
-	</div>
-	<!-- button -->
-	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
-		<div class="modal-footer">
-			<button type="button" class="btn btn-light scaffold-btn-close" data-dismiss="modal">Close</button>
-			<?php if ( isset($xfa['submit']) ) : ?>
-				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
-			<?php endif; ?>
-		</div>
-	<?php elseif ( $scaffold['editMode'] == 'basic' ) : ?>
-		<div class="col-10 offset-2">
-			<?php if ( isset($xfa['submit']) ) : ?>
-				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
-			<?php endif; ?>
-			<a href="javascript:history.back();" class="btn btn-light scaffold-btn-cancel">Cancel</a>
-		</div>
-	<?php endif; ?>
-</form>
+						<div class="row"><?php
+							foreach ( $colList as $i => $col ) :
+								?><div class="col-sm-<?php echo $colWidthList[$i]; ?>"><?php
+									$field = $scaffold['fieldConfig'][$col] + array('name' => $col);
+									include F::appPath('view/scaffold/input.php');
+								?></div><?php
+							endforeach;
+						?></div><!--/.row-->
+					</div><!--/.col-->
+				</div><!--/.form-group--><?php
+			endif;
+		endforeach;
+	?></div><!--/.modal-body--><?php
+
+	// button
+	if ( $scaffold['editMode'] == 'modal' ) :
+		?><div class="modal-footer">
+			<button type="button" class="btn btn-light scaffold-btn-close" data-dismiss="modal">Close</button> <?php
+			if ( isset($xfa['submit']) ) :
+				?><button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button> <?php
+			endif;
+		?></div><!--/.modal-footer--><?php
+	elseif ( $scaffold['editMode'] == 'basic' ) :
+		?><div class="col-10 offset-2"><?php
+			if ( isset($xfa['submit']) ) :
+				?><button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button> <?php
+			endif;
+			?><a href="javascript:history.back();" class="btn btn-light scaffold-btn-cancel">Cancel</a>
+		</div><?php
+	endif;
+
+?></form>
