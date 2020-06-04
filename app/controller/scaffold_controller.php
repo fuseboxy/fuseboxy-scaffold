@@ -109,6 +109,7 @@ switch ( $fusebox->action ) :
 	case 'index':
 		// get all records
 		$beanList = Scaffold::getBeanList();
+		F::error(Scaffold::error(), $beanList === false);
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
 			if ( $scaffold['editMode'] != 'inline' ) {
@@ -164,7 +165,8 @@ switch ( $fusebox->action ) :
 	case 'row':
 		F::error("id was not specified", empty($arguments['id']));
 		// get record
-		$bean = R::load($scaffold['beanType'], $arguments['id']);
+		$bean = Scaffold::getBean($arguments['id']);
+		F::error(Scaffold::error(), $bean === false);
 		// define exit point
 		// ===> refer to index
 		if ( $scaffold['allowEdit'] ) {
