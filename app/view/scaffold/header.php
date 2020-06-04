@@ -4,9 +4,9 @@
 		<in>
 			<structure name="$scaffold">
 				<string name="beanType" />
-				<string name="editMode" comments="inline|modal|classic" />
+				<string name="editMode" />
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
-					<string name="~column-list~" comments="column width" />
+					<string name="~columnList~" comments="column width" />
 				</array>
 				<structure name="fieldConfig">
 					<structure name="~fieldName~">

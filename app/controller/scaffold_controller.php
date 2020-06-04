@@ -12,7 +12,7 @@
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
 				<boolean name="allowSort" optional="yes" default="true" />
-				<string name="editMode" optional="yes" comments="inline|modal|classic" />
+				<string name="editMode" optional="yes" comments="inline|modal|basic" />
 				<string name="modalSize" optional="yes" comments="sm|md|lg|xl|max" />
 				<array_or_string name="listFilter" optional="yes">
 					<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />
@@ -20,12 +20,12 @@
 				</array_or_string>
 				<string name="listOrder" optional="yes" default="order by {seq} (if any), then by {id}" />
 				<array name="listField" optional="yes" comments="determine fields to display in listing">
-					<string name="+" comments="when no key specified, value is column-list" />
-					<string name="~column-list~" comments="when key was specified, key is column list and value is column width" />
+					<string name="+" comments="when no key specified, value is column list" />
+					<string name="~columnList~" comments="when key was specified, key is column list and value is column width" />
 				</array>
 				<array name="modalField" optional="yes" comments="determine fields to show in modal form">
 					<list name="+" comments="when no key specified, value is column list" />
-					<list name="~column-list~" comments="when key was specified, key is column list and value is column width list" />
+					<list name="~columnList~" comments="when key was specified, key is column list and value is column width list" />
 				</array>
 				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />

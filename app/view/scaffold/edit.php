@@ -7,7 +7,7 @@
 			</structure>
 			<structure name="$scaffold">
 				<string name="beanType" />
-				<string name="editMode" comments="inline|modal|classic" />
+				<string name="editMode" comments="inline|modal|basic" />
 				<string name="modalSize" comments="sm|md|lg|xl|max" />
 				<structure name="modalField">
 					<list name="~column list~" comments="value is column width list" delim="|" />
@@ -110,7 +110,7 @@
 				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>
 			<?php endif; ?>
 		</div>
-	<?php elseif ( $scaffold['editMode'] == 'classic' ) : ?>
+	<?php elseif ( $scaffold['editMode'] == 'basic' ) : ?>
 		<div class="col-10 offset-2">
 			<?php if ( isset($xfa['submit']) ) : ?>
 				<button type="submit" class="btn btn-primary scaffold-btn-save">Save changes</button>

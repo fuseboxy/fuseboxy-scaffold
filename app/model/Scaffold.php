@@ -217,11 +217,11 @@ class Scaffold {
 		// param fix : edit mode
 		// ===> enforce normal edit form when not ajax
 		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
-			self::$config['editMode'] = 'classic';
+			self::$config['editMode'] = 'basic';
 		}
 		// param fix : edit mode
 		// ===> validate legal edit mode
-		if ( !in_array(self::$config['editMode'], array('inline','modal','classic')) ) {
+		if ( !in_array(self::$config['editMode'], array('inline','modal','basic')) ) {
 			self::$config['editMode'] = 'inline';
 		}
 		// param fix : file size
