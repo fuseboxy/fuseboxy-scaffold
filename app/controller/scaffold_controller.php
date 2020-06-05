@@ -12,7 +12,7 @@
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
 				<boolean name="allowSort" optional="yes" default="true" />
-				<string name="editMode" optional="yes" comments="inline|modal|basic" />
+				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
 				<string name="modalSize" optional="yes" comments="sm|md|lg|xl|max" />
 				<array_or_string name="listFilter" optional="yes">
 					<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />

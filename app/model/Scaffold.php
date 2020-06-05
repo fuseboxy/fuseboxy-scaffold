@@ -219,11 +219,6 @@ class Scaffold {
 		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
 			self::$config['editMode'] = 'basic';
 		}
-		// param fix : edit mode
-		// ===> validate legal edit mode
-		if ( !in_array(self::$config['editMode'], array('inline','modal','basic')) ) {
-			self::$config['editMode'] = 'inline';
-		}
 		// param fix : file size
 		// ===> turn human-readable string to number
 		foreach ( self::$config['fieldConfig'] as $itemName => $item ) {
@@ -1671,6 +1666,11 @@ class Scaffold {
 		} elseif ( !isset(self::$config['layoutPath']) ) {
 			self::$error = 'Scaffold config [layoutPath] is required';
 			return false;
+		// check edit mode
+		if ( !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
+			self::$error = 'Scaffold config [editMode] is invalid ('.self::$config['editMode'].')';
+			return false;
+		}
 		// check uploader directory
 		} elseif ( empty(F::config('uploadDir')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadDir] is required';
