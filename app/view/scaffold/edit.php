@@ -41,13 +41,13 @@
 	<?php endif; ?>
 	<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 		<?php if ( !empty($bean->id) ) : ?>
-			data-toggle-mode="replace"
+			data-mode="replace"
 			data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $recordID; ?>"
 		<?php else : ?>
-			data-toggle-mode="after"
+			data-mode="after"
 			data-target="#<?php echo $scaffold['beanType']; ?>-header"
 		<?php endif; ?>
-		data-toggle-callback="function(){ $('#<?php echo $scaffold['beanType']; ?>-modal').modal('hide'); }"
+		data-callback="function(){ $('#<?php echo $scaffold['beanType']; ?>-modal').modal('hide'); }"
 		data-toggle="ajax-submit"
 	<?php endif; ?>
 ><?php

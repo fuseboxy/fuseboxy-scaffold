@@ -20,8 +20,8 @@ if ( isset($xfa['quick']) ) :
 			href="<?php echo F::url($xfa['quick']); ?>"
 			class="btn btn-sm py-0 px-1 btn-light scaffold-btn-quick"
 			data-toggle="ajax-load"
-			data-toggle-loading="none"
-			data-toggle-mode="after"
+			data-loading="none"
+			data-mode="after"
 			data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
 		><i class="fa fa-sort-amount-down"></i> Quick</a><?php
 		// dropdown button
@@ -52,12 +52,12 @@ if ( isset($xfa['new']) ) :
 			<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 				data-toggle="ajax-modal"
 				data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"
-				data-toggle-loading="none"
+				data-loading="none"
 			<?php elseif ( $scaffold['editMode'] == 'inline' ) : ?>
 				data-toggle="ajax-load"
-				data-toggle-mode="after"
+				data-mode="after"
 				data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
-				data-toggle-loading="none"
+				data-loading="none"
 			<?php endif; ?>
 		><i class="fa fa-plus"></i> New</a><?php
 		// add multiple (when necessary)
