@@ -31,9 +31,11 @@
 		<out />
 	</io>
 </fusedoc>
-*/ ?>
-<?php $recordID = empty($bean->id) ? uuid() : $bean->id; ?>
-<form
+*/
+$recordID = empty($bean->id) ? uuid() : $bean->id;
+
+// display
+?><form
 	id="<?php echo $scaffold['beanType']; ?>-edit-<?php echo $recordID; ?>"
 	class="scaffold-edit <?php if ( $scaffold['editMode'] == 'inline-modal' ) echo 'card bg-light my-3'; ?>"
 	<?php if ( isset($xfa['submit']) ) : ?>

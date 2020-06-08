@@ -14,7 +14,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-list" class="scaffold-list">
-	<?php include $scaffold['scriptPath']['header']; ?>
-	<?php foreach ($beanList as $bean) include $scaffold['scriptPath']['row']; ?>
-</div>
+<div id="<?php echo $scaffold['beanType']; ?>-list" class="scaffold-list"><?php
+	include $scaffold['scriptPath']['header'];
+	foreach ($beanList as $bean) include $scaffold['scriptPath']['row'];
+?></div>
