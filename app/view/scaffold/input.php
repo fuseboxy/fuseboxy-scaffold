@@ -115,7 +115,7 @@ if ( isset($field['format']) and $field['format'] == 'output' ) {
 	include F::appPath('view/scaffold/input.datetime.php');
 // display : normal text
 } else {
-	include F::appPath('view/scaffold/input.others.php');
+	include F::appPath('view/scaffold/input.default.php');
 }
 
 
