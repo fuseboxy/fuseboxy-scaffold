@@ -15,7 +15,7 @@
 			</structure>
 		</in>
 		<out>
-			<structure name="$data" scope="formOrUrl">
+			<structure name="$data" scope="form">
 				<string name="~fieldName~" />
 			</structure>
 		</out>
