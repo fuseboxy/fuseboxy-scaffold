@@ -1,4 +1,30 @@
+<?php /*
+<fusedoc>
+	<io>
+		<in>
+			<structure name="$field">
+				<string name="name" />
+				<string name="value" />
+				<array name="options">
+					<string name="~optValue~" value="~optText~" />
+				</array>
+				<string name="icon" optional="yes" />
+				<boolean name="required" optional="yes" />
+				<boolean name="readonly" optional="yes" />
+				<string name="class" optional="yes" />
+				<string name="style" optional="yes" />
+			</structure>
+		</in>
+		<out>
+			<structure name="$data" scope="form">
+				<string name="~fieldName~" />
+			</structure>
+		</out>
+	</io>
+</fusedoc>
+*/ ?>
 <div class="input-group"><?php
+	// icon
 	if ( !empty($field['icon']) ) :
 		?><div class="input-group-prepend">
 			<span class="input-group-text">
@@ -6,23 +32,26 @@
 			</span>
 		</div><?php
 	endif;
+	// field
 	?><select
-		class="custom-select custom-select-sm"
+		class="custom-select custom-select-sm <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-	>
-		<option value="">
-			<?php if ( isset($field['placeholder']) ) echo $field['placeholder']; ?>
-		</option>
-		<?php foreach ( $field['options'] as $optValue => $optText ) : ?>
-			<option
+		<?php if ( !empty($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+	><?php
+		// empty first item
+		?><option value=""><?php 
+			if ( !empty($field['placeholder']) ) echo $field['placeholder']; 
+		?></option><?php
+		// user-defined items
+		foreach ( $field['options'] as $optValue => $optText ) :
+			?><option
 				value="<?php echo $optValue; ?>"
 				<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-			><?php echo $optText; ?></option>
-		<?php endforeach; ?>
-	</select>
+			><?php echo $optText; ?></option><?php
+		endforeach;
+	?></select>
 </div><?php
 if ( !empty($field['readonly']) ) :
 	?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
