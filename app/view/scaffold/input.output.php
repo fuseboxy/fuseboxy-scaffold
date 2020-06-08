@@ -13,6 +13,14 @@
 	</io>
 </fusedoc>
 */ ?>
-<div class="form-control-plaintext form-control-sm <?php if ( isset($field['class']) ) echo $field['class']; ?>"
+<div 
+	class="form-control-plaintext form-control-sm <?php if ( isset($field['class']) ) echo $field['class']; ?>"
 	<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
-><?php echo $field['value']; ?></div>
+><?php
+	// icon
+	if ( !empty($field['icon']) ) :
+		?><i class="fa-fw <?php echo $field['icon']; ?>"></i><?php
+	endif;
+	// content
+	echo $field['value'];
+?></div>
