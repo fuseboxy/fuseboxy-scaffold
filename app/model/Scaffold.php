@@ -1214,13 +1214,17 @@ class Scaffold {
 		// param default : label
 		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
 			if ( !isset($_val['label']) or $_val['label'] === true ) {
-				self::$config['fieldConfig'][$_key]['label'] = in_array($_key, array('id','url')) ? strtoupper($_key) : ucwords(str_replace('_', ' ', $_key));
+				self::$config['fieldConfig'][$_key]['label'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $_key)));
 			}
 		}
 		// param default : placeholder
 		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
 			if ( isset($_val['placeholder']) and $_val['placeholder'] === true ) {
-				self::$config['fieldConfig'][$_key]['placeholder'] = in_array($_key, array('id','url')) ? strtoupper($_key) : ucwords(str_replace('_', ' ', $_key));
+				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $_key)));
 			}
 		}
 		// param default : field config (field {id} must be readonly)
