@@ -1206,7 +1206,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['fieldConfig'];
 		self::$config['fieldConfig'] = array();
-		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array(trim($val)=>[]) : array(trim($key)=>trim($val));
 		// fix param : field config (id)
 		// ===> compulsory
 		// ===> must be readonly
@@ -1246,7 +1246,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['modalField'];
 		self::$config['modalField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array(trim($val)=>[]) : array(trim($key)=>trim($val))
 		// fix param : modal field
 		// ===> must have {id} field
 		$hasID = false;
@@ -1266,7 +1266,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['listField'];
 		self::$config['listField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array(trim($val)=>'') : array(trim($key)=>trim($val));
 		// param default : permission
 		if ( !isset(self::$config['allowNew']) ) self::$config['allowNew'] = true;
 		if ( !isset(self::$config['allowEdit']) ) self::$config['allowEdit'] = true;
