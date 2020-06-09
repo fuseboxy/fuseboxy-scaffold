@@ -1206,7 +1206,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['fieldConfig'];
 		self::$config['fieldConfig'] = array();
-		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) ? array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
 		// fix param : field config (id)
 		// ===> compulsory
 		// ===> must be readonly
@@ -1246,7 +1246,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['modalField'];
 		self::$config['modalField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>[]) ? array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
 		// fix param : modal field
 		// ===> must have {id} field
 		$hasID = false;
@@ -1256,8 +1256,8 @@ class Scaffold {
 		// ===> assign default column width
 		foreach ( self::$config['modalField'] as $key => $val ) {
 			if ( empty($val) ) {
-				$count = explode('|', $key);
-				self::$config['modalField'][$key] = ( 12 % count($count) == 0 ) ? array_fill(0, $count, 12/$count) : array_fill(0, $count, 1);
+				$count = count( explode('|', $key) );
+				self::$config['modalField'][$key] = ( 12 % $count == 0 ) ? array_fill(0, $count, 12/$count) : array_fill(0, $count, 1);
 			}
 		}
 		// param default : list field
@@ -1266,7 +1266,7 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = self::$config['listField'];
 		self::$config['listField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') ? array($key=>$val);
+		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
 		// param default : permission
 		if ( !isset(self::$config['allowNew']) ) self::$config['allowNew'] = true;
 		if ( !isset(self::$config['allowEdit']) ) self::$config['allowEdit'] = true;
