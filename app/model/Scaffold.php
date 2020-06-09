@@ -1253,8 +1253,8 @@ class Scaffold {
 		// ===> make line unique in length (avoid override after convert key)
 		$i = 3;
 		foreach ( self::$config['modalField'] as $key => $val ) {
-			$isLine = ( !empty($colList) and ( trim($colList, '-') == '' or trim($colList, '=') == '' ) );
-			self::$config['modalField'][$key] = str_repeat('-', $i);
+			$isLine = ( !empty($val) and ( trim($val, '-') == '' or trim($val, '=') == '' ) );
+			if ( $isLine ) self::$config['modalField'][$key] = str_repeat('-', $i);
 			$i++;
 		}
 		// fix param : modal field (key)
