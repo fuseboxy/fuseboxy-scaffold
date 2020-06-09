@@ -11,9 +11,9 @@
 				<string name="editMode" comments="inline|modal|inline-modal|basic" />
 				<string name="modalSize" comments="sm|md|lg|xl|max" />
 				<structure name="modalField">
-					<string name="~heading~" example="## General" comments="number of pound-signs means H1,H2,H3..." />
-					<string name="~line~" example="---" comments="any number of dash(-) or equal(=)" />
-					<list name="~colmnList~" value="~columnWidthList~" delim="|" optional="yes" />
+					<list name="~columnList~" optional="yes" value="~columnWidthList~" delim="|" />
+					<string name="~line~" optional="yes" example="---" />
+					<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 				</structure>
 				<structure name="fieldConfig">
 					<structure name="~column~">
@@ -94,8 +94,8 @@ $recordID = empty($bean->id) ? uuid() : $bean->id;
 		endif;
 		// form fields
 		foreach ( $scaffold['modalField'] as $colList => $colWidthList ) :
-			$isHeading = ( strlen($colList) - strlen(ltrim($colList, '#')) );
-			$isLine = ( !empty($colList) and ( empty(trim($colList, '-')) or empty(trim($colList, '=')) ) );
+			$isHeading = ( strlen($colList) != strlen(ltrim($colList, '#')) );
+			$isLine = ( !empty($colList) and trim($colList, '-') == '' );
 			// output : heading
 			if ( $isHeading ) :
 				$size = 'h'.( strlen($colList) - strlen(ltrim($colList, '#')) );

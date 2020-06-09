@@ -24,8 +24,10 @@
 					<string name="~columnList~" comments="when key was specified, key is column list and value is column width" />
 				</array>
 				<array name="modalField" optional="yes" comments="determine fields to show in modal form">
-					<list name="+" comments="when no key specified, value is column list" />
-					<list name="~columnList~" comments="when key was specified, key is column list and value is column width list" />
+					<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is column list" />
+					<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
+					<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+					<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 				</array>
 				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
