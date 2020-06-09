@@ -11,7 +11,9 @@
 				<string name="editMode" comments="inline|modal|inline-modal|basic" />
 				<string name="modalSize" comments="sm|md|lg|xl|max" />
 				<structure name="modalField">
-					<list name="~column list~" comments="value is column width list" delim="|" />
+					<string name="~heading~" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+					<string name="~line~" example="---" comments="any number of dash(-) or equal(=)" />
+					<list name="~colmnList~" value="~columnWidthList~" delim="|" optional="yes" />
 				</structure>
 				<structure name="fieldConfig">
 					<structure name="~column~">
@@ -92,12 +94,15 @@ $recordID = empty($bean->id) ? uuid() : $bean->id;
 		endif;
 		// form fields
 		foreach ( $scaffold['modalField'] as $colList => $colWidthList ) :
-			// output : horizontal line
-			if ( $colList == str_repeat('-', strlen($colList)) ) :
+			$isHeading = ( strlen($colList) - strlen(ltrim($colList, '#')) );
+			$isLine = ( !empty($colList) and ( empty(trim($colList, '-')) or empty(trim($colList, '=')) ) );
+			// output : heading
+			if ( $isHeading ) :
+				$size = 'h'.( strlen($colList) - strlen(ltrim($colList, '#')) );
+				?><div class="<?php echo $size; ?>"><?php echo trim(ltrim($colList, '#')); ?></div><?php
+			// output : line
+			elseif ( $isLine ) :
 				?><hr /><?php
-			// output : title
-			elseif ( substr($colList, 0, 1).substr($colList, -1) == '[]' ) :
-				?><fieldset><legend><?php echo str_replace('[', '', str_replace(']', '', $colList)); ?></legend></fieldset><?php
 			// input field
 			else :
 				$colList = explode('|', $colList);
