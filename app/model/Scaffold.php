@@ -1166,9 +1166,6 @@ class Scaffold {
 					<boolean name="allowSort" default="true" />
 					<string name="editMode" default="inline" />
 					<string name="modalSize" deafult="lg" />
-					<structure name="listField" default="~fieldConfig|tableColumns~">
-						<string name="~fieldName~" value="~columnWidth~" />
-					</structure>
 					<string name="listFilter" default="1 = 1" />
 					<string name="listOrder" default="ORDER BY (seq,) id" />
 					<structure name="fieldConfig">
@@ -1179,6 +1176,15 @@ class Scaffold {
 							<string name="label" comments="derived from field name when not specified or true" />
 							<string name="placeholder" comments="derived from field name when true" />
 						</structure>
+					</structure>
+					<structure name="listField" default="~fieldConfig|tableColumns~">
+						<string name="~columnList~" value="~columnWidth~" />
+					</structure>
+					<structure name="modalField">
+						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
+						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
+						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 					</structure>
 				</structure>
 				<string name="sortField" scope="$arguments" optional="yes" comments="indicate which label in table header to show the arrow" />
@@ -1242,17 +1248,26 @@ class Scaffold {
 		}
 		// param default : modal field
 		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : modal field
+		// fix param : modal field (line)
+		// ===> unify to use dash (simplify display logic)
+		// ===> make line unique in length (avoid override after convert key)
+		$i = 3;
+		foreach ( self::$config['modalField'] as $key => $val ) {
+			$isLine = ( !empty($colList) and ( trim($colList, '-') == '' or trim($colList, '=') == '' ) );
+			self::$config['modalField'][$key] = str_repeat('-', $i);
+			$i++;
+		}
+		// fix param : modal field (key)
 		// ===> convert numeric key to field name
 		$arr = self::$config['modalField'];
 		self::$config['modalField'] = array();
 		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
-		// fix param : modal field
-		// ===> must have {id} field
+		// fix param : modal field (id)
+		// ===> compulsory
 		$hasID = false;
 		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
 		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
-		// fix param : modal field
+		// fix param : modal field (width)
 		// ===> assign default column width
 		foreach ( self::$config['modalField'] as $key => $val ) {
 			if ( empty($val) ) {
@@ -1262,7 +1277,7 @@ class Scaffold {
 		}
 		// param default : list field
 		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : list field
+		// fix param : list field (key)
 		// ===> convert numeric key to field name
 		$arr = self::$config['listField'];
 		self::$config['listField'] = array();
