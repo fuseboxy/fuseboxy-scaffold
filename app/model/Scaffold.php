@@ -1647,9 +1647,36 @@ class Scaffold {
 
 
 
-	// perform validation on config
+	/**
+	<fusedoc>
+		<description>
+			perform validation on scaffold config (which specified in controller)
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<string name="beanType" />
+					<string name="layoutPath" comments="can be false but cannot be null" />
+					<string name="editMode" comments="inline|modal|inline-modal|basic" />
+					<structure name="fieldConfig">
+						<structure name="~fieldName~" />
+					</structure>
+					<boolean name="writeLog" />
+				</structure>
+				<structure name="config" scope="$fusebox">
+					<string name="uploadDir" />
+					<string name="uploadUrl" />
+				</structure>
+				<class name="Log" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function validateConfig() {
-		// check if any file-field
+		// has any file field?
 		$hasFileField = false;
 		if ( isset(self::$config['fieldConfig']) ) {
 			foreach ( self::$config['fieldConfig'] as $_key => $_field ) {
@@ -1671,11 +1698,10 @@ class Scaffold {
 			self::$error = 'Scaffold config [layoutPath] is required';
 			return false;
 		// check edit mode
-		if ( !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
+		} elseif ( !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
 			self::$error = 'Scaffold config [editMode] is invalid ('.self::$config['editMode'].')';
 			return false;
-		}
-		// check uploader directory
+		// check uploader directory (when has file field)
 		} elseif ( empty(F::config('uploadDir')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadDir] is required';
 			return false;
