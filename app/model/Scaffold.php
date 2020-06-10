@@ -1264,14 +1264,6 @@ class Scaffold {
 		$hasID = false;
 		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
 		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
-		// fix param : modal field (width)
-		// ===> assign default column width
-		foreach ( self::$config['modalField'] as $key => $val ) {
-			if ( empty($val) ) {
-				$count = count( explode('|', $key) );
-				self::$config['modalField'][$key] = implode('|', array_fill(0, $count, ( 12 % $count == 0 ) ? (12/$count) : 1));
-			}
-		}
 		// param default : list field
 		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
 		// fix param : list field (key)
