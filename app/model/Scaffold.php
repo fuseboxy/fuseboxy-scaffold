@@ -1293,7 +1293,7 @@ class Scaffold {
 		// param default : modal size
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// param default : list filter & order
-		if ( isset(self::$config['listFilter']) ) self::$config['listFilter'] = '1 = 1 ';
+		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
 		if ( self::$config['allowSort'] and isset($arguments['sortField']) ) {
 			// use sort-field specified (when necessary)
 			self::$config['listOrder'] = "ORDER BY `{$arguments['sortField']}` ";
