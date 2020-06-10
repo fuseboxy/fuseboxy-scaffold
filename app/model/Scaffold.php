@@ -1075,11 +1075,11 @@ class Scaffold {
 		// fix submitted multi-selection value
 		foreach ( self::$config['fieldConfig'] as $fieldName => $field ) {
 			// remove empty item from submitted checkboxes
-			if ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
+			if ( !empty($field['format']) and in_array($field['format'], ['checkbox','one-to-many','many-to-many']) ) {
 				$data[$fieldName] = array_filter($data[$fieldName], 'strlen');
 			}
 			// extract {one-to-many|many-to-many} from submitted data before saving
-			if ( isset($field['format']) and in_array($field['format'], array('one-to-many','many-to-many')) ) {
+			if ( !empty($field['format']) and in_array($field['format'], ['one-to-many','many-to-many']) ) {
 				$associateName = str_replace('_id', '', $fieldName);
 				$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 				$bean->{$propertyName} = array();
@@ -1093,21 +1093,18 @@ class Scaffold {
 				}
 				unset($data[$fieldName]);
 			// turn checkbox into pipe-delimited list
-			} elseif ( isset($field['format']) and $field['format'] == 'checkbox' ) {
+			} elseif ( !empty($field['format']) and $field['format'] == 'checkbox' ) {
 				$data[$fieldName] = implode('|', $data[$fieldName]);
 			}
 		}
 		// put submitted data into bean
 		$bean->import($data);
 		foreach ( $bean as $key => $val ) if ( $val === '' ) $bean[$key] = null;
-		// default value
-		// ===> allow no <seq> field, but <disabled> field is compulsory
-		if ( !isset($bean->disabled) or $bean->disabled == '' ) {
-			$bean->disabled = 0;
-		}
-		if ( isset($bean->seq) and $bean->seq == '' ) {
-			$bean->seq = 0;
-		}
+		// default value for <disabled> and <seq>
+		// ===> field <disabled> is compulsory
+		// ===> field <seq> is optional
+		if ( !isset($bean->disabled) or $bean->disabled == '' ) $bean->disabled = 0;
+		if ( isset($bean->seq) and $bean->seq == '' ) $bean->seq = 0;
 		// save bean
 		$id = ORM::save($bean);
 		if ( $id === false ) {
@@ -1652,14 +1649,14 @@ class Scaffold {
 		// init object (specify [uploaderID] to know which DOM to update)
 		$uploader = new FileUpload($arguments['uploaderID']);
 		// config : array of permitted file extensions (only allow image & doc by default)
-		if ( isset(self::$config['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
+		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
 			$uploader->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
 		} else {
 			$uploader->allowedExtensions = explode(',', 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx');
 		}
 		// config : max file upload size in bytes (default 10MB in library)
 		// ===> scaffold-controller turns human-readable-filesize into numeric
-		if ( isset(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
+		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
 			$uploader->sizeLimit = self::$config['fieldConfig'][$arguments['fieldName']]['filesize_numeric'];
 		}
 		// config : assign unique name to avoid overwrite
