@@ -22,16 +22,16 @@ if ( isset($xfa['quick']) ) :
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['quick']); ?>"
-			class="btn btn-sm py-0 px-1 btn-light scaffold-btn-quick"
+			class="btn btn-sm py-0 px-1 btn-outline-info border-right-0 scaffold-btn-quick"
 			data-toggle="ajax-load"
 			data-loading="none"
 			data-mode="after"
 			data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
-		><i class="fa fa-sort-amount-down"></i><span class="ml-1">Quick</span></a><?php
+		><i class="fa fa-bolt"></i><span class="mx-1">Quick</span></a><?php
 		// dropdown button
 		?><button 
 			type="button" 
-			class="btn btn-sm py-0 px-1 btn-light dropdown-toggle dropdown-toggle-split scaffold-btn-quick-multiple" 
+			class="btn btn-sm py-0 px-1 btn-outline-info border-left-0 dropdown-toggle dropdown-toggle-split scaffold-btn-quick-multiple" 
 			data-toggle="dropdown" 
 			aria-haspopup="true" 
 			aria-expanded="false" 
