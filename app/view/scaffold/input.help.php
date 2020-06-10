@@ -10,4 +10,4 @@
 	</io>
 </fusedoc>
 */ ?>
-<small class="form-text px-1 rounded bg-light text-info"><?php echo $field['help']; ?></small>
+<small class="form-text text-info mx-1"><?php echo $field['help']; ?></small>
