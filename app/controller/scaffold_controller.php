@@ -113,10 +113,10 @@ switch ( $fusebox->action ) :
 		$beanList = Scaffold::getBeanList();
 		F::error(Scaffold::error(), $beanList === false);
 		// define exit point
+		if ( $scaffold['allowNew'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
+			$xfa['quick'] = "{$fusebox->controller}.quick";
+		}
 		if ( $scaffold['allowNew'] ) {
-			if ( $scaffold['editMode'] != 'inline' ) {
-				$xfa['quick'] = "{$fusebox->controller}.quick";
-			}
 			$xfa['new'] = "{$fusebox->controller}.new";
 		}
 		if ( $scaffold['allowEdit'] ) {

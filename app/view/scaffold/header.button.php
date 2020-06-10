@@ -6,6 +6,10 @@
 				<string name="quick" optional="yes" />
 				<string name="new" optional="yes" />
 			</structure>
+			<structure name="$scaffold">
+				<string name="beanType" />
+				<string name="editMode" comments="inline|modal|inline-modal|basic" />
+			</structure>
 		</in>
 		<out />
 	</io>
@@ -14,7 +18,7 @@
 
 // quick button
 if ( isset($xfa['quick']) ) :
-	?><div class="btn-group"><?php
+	?><div class="btn-group ml-1"><?php
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['quick']); ?>"
@@ -23,7 +27,7 @@ if ( isset($xfa['quick']) ) :
 			data-loading="none"
 			data-mode="after"
 			data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
-		><i class="fa fa-sort-amount-down"></i> Quick</a><?php
+		><i class="fa fa-sort-amount-down"></i><span class="ml-1">Quick</span></a><?php
 		// dropdown button
 		?><button 
 			type="button" 
@@ -44,7 +48,7 @@ endif;
 
 // new button
 if ( isset($xfa['new']) ) :
-	?><div class="btn-group"><?php
+	?><div class="btn-group ml-1"><?php
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['new']); ?>"
@@ -53,13 +57,13 @@ if ( isset($xfa['new']) ) :
 				data-toggle="ajax-modal"
 				data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"
 				data-loading="none"
-			<?php elseif ( $scaffold['editMode'] == 'inline' ) : ?>
+			<?php elseif ( in_array($scaffold['editMode'], ['inline','inline-modal']) ) : ?>
 				data-toggle="ajax-load"
 				data-mode="after"
 				data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
 				data-loading="none"
 			<?php endif; ?>
-		><i class="fa fa-plus"></i> New</a><?php
+		><i class="fa fa-plus"></i><span class="ml-1 <?php if ( isset($xfa['quick']) ) echo 'mr-1'; ?>">New</span></a><?php
 		// add multiple (when necessary)
 		if ( !isset($xfa['quick']) ) :
 			// dropdown button
