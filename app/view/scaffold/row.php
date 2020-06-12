@@ -13,7 +13,6 @@
 						<string name="format" />
 						<string name="class" optional="yes" />
 						<string name="style" optional="yes" />
-						<boolean name="preview" comments="for [format=file] only" />
 					</structure>
 				</array>
 			</structure>
@@ -43,8 +42,8 @@
 							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
 							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
 							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
-							$isImage      = ( isset($field['format']) and $field['format'] == 'file' and !empty($field['preview']) );
-							$isFile       = ( isset($field['format']) and $field['format'] == 'file' and !$isImage );
+							$isImage      = ( isset($field['format']) and $field['format'] == 'image' );
+							$isFile       = ( isset($field['format']) and $field['format'] == 'file' );
 							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
 							// display : each field
 							$fieldClass = array('col-'.$col);

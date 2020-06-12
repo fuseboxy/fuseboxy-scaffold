@@ -22,11 +22,10 @@
 				<string name="style" optional="yes" />
 				<string name="pre-help" comments="help text show before input field" />
 				<string name="help" comments="help text show after input field" />
-				<!-- below are for [format=file] only -->
-				<string name="filesize" optional="yes" comments="max file size in bytes" />
+				<!-- for [format=file|image] only -->
+				<string name="filesize" optional="yes" comments="max file size in bytes" example="10MB|2000KB" />
 				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
-				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
-				<boolean name="preview" optional="yes" />
+				<list name="filetype" optional="yes" delim="," example="gif,jpg,jpeg,png" />
 			</structure>
 			<object name="$bean" comments="for field value" />
 		</in>
@@ -96,7 +95,7 @@ if ( isset($field['format']) and $field['format'] == 'output' ) {
 } elseif ( isset($field['format']) and $field['format'] == 'radio' ) {
 	include F::appPath('view/scaffold/input.radio.php');
 // display : checkbox (submit array value)
-} elseif ( isset($field['format']) and in_array($field['format'], array('checkbox','one-to-many','many-to-many')) ) {
+} elseif ( isset($field['format']) and in_array($field['format'], ['checkbox','one-to-many','many-to-many']) ) {
 	include F::appPath('view/scaffold/input.checkbox.php');
 // display : textarea
 } elseif ( isset($field['format']) and $field['format'] == 'textarea' ) {
@@ -105,13 +104,13 @@ if ( isset($field['format']) and $field['format'] == 'output' ) {
 } elseif ( isset($field['format']) and $field['format'] == 'wysiwyg' ) {
 	include F::appPath('view/scaffold/input.wysiwyg.php');
 // display : file upload
-} elseif ( isset($field['format']) and $field['format'] == 'file' ) {
+} elseif ( isset($field['format']) and in_array($field['format'], ['file','image']) ) {
 	include F::appPath('view/scaffold/input.file.php');
 // display : dropdown
 } elseif ( isset($field['options']) ) {
 	include F::appPath('view/scaffold/input.dropdown.php');
 // display : date & time
-} elseif ( !empty($field['format']) and in_array($field['format'], array('date', 'time', 'datetime')) ) {
+} elseif ( !empty($field['format']) and in_array($field['format'], ['date', 'time', 'datetime']) ) {
 	include F::appPath('view/scaffold/input.datetime.php');
 // display : normal text
 } else {

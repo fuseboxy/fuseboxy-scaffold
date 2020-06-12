@@ -17,7 +17,6 @@
 				<string name="filesize" optional="yes" comments="max file size in bytes" />
 				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
 				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
-				<boolean name="preview" optional="yes" />
 			</structure>
 		</in>
 		<out />
@@ -66,8 +65,8 @@ $uniqid = "{$scaffold['beanType']}-input-{$field['format']}-{$field['name']}-".u
 			<button type="button" class="input-group-text btn-abort">Cancel</button>
 		</div>
 	</div><!--/.progress-row--><?php
-	// preview
-	if ( !empty($field['preview']) ) :
+	// preview image
+	if ( $field['format'] == 'image' ) :
 		?><a
 			href="<?php echo $field['value']; ?>"
 			title="<?php echo basename($field['value']); ?>"
