@@ -1273,7 +1273,7 @@ class Scaffold {
 			}
 			// filesize
 			if ( empty($_val['filesize']) and isset($_val['format']) and in_array($_val['format'], ['file','image']) ) {
-				self::$config['fieldConfig'][$_key]['filesize'];
+				self::$config['fieldConfig'][$_key]['filesize'] = '10MB';
 			}
 		}
 		// param default : modal field
