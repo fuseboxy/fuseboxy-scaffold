@@ -1199,7 +1199,7 @@ class Scaffold {
 			self::$error = ORM::error();
 			return false;
 		}
-		$tableColumns = empty($tableColumns) ? $tableColumns : array();
+		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
 		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
 		// param default : field config
 		// ===> merge table columns to field config
