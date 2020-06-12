@@ -186,6 +186,49 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			convert human-readable file-size string to number
+		</description>
+		<io>
+			<in>
+				<string name="$input" example="2MB|110KB" />
+			</in>
+			<out>
+				<number name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function fileSizeNumeric($input) {
+		$kb = 1024;
+		$mb = $kb * 1024;
+		$gb = $mb * 1024;
+		$tb = $gb * 1024;
+		// extra unit
+		$input = strtoupper(str_replace(' ', '', $input));
+		$lastOneDigit = substr($input, -1);
+		$lastTwoDigit = substr($input, -2);
+		// calculation
+		if ( $lastOneDigit == 'T' or $lastTwoDigit == 'TB' ) {
+			$result = floatval($input) * $tb;
+		} elseif ( $lastOneDigit == 'G' or $lastTwoDigit == 'GB' ) {
+			$result = floatval($input) * $gb;
+		} elseif ( $lastOneDigit == 'M' or $lastTwoDigit == 'MB' ) {
+			$result = floatval($input) * $mb;
+		} elseif ( $lastOneDigit == 'K' or $lastTwoDigit == 'KB' ) {
+			$result = floatval($input) * $kb;
+		} else {
+			$result = floatval($input);
+		}
+		// done!
+		return $result;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			adjust parameters to meet the needs of controller
 		</description>
 		<io>
@@ -218,33 +261,6 @@ class Scaffold {
 		// ===> enforce normal edit form when not ajax
 		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
 			self::$config['editMode'] = 'basic';
-		}
-		// param fix : file size
-		// ===> turn human-readable string to number
-		foreach ( self::$config['fieldConfig'] as $itemName => $item ) {
-			if ( !empty($item['filesize']) ) {
-				$kb = 1024;
-				$mb = $kb * 1024;
-				$gb = $mb * 1024;
-				$tb = $gb * 1024;
-				// turn human-readable file size to number
-				$item['filesize'] = strtoupper(str_replace(' ', '', $item['filesize']));
-				$lastOneDigit = substr($item['filesize'], -1);
-				$lastTwoDigit = substr($item['filesize'], -2);
-				if ( $lastOneDigit == 'T' or $lastTwoDigit == 'TB' ) {
-					$item['filesize'] = floatval($item['filesize']) * $tb;
-				} elseif ( $lastOneDigit == 'G' or $lastTwoDigit == 'GB' ) {
-					$item['filesize'] = floatval($item['filesize']) * $gb;
-				} elseif ( $lastOneDigit == 'M' or $lastTwoDigit == 'MB' ) {
-					$item['filesize'] = floatval($item['filesize']) * $mb;
-				} elseif ( $lastOneDigit == 'K' or $lastTwoDigit == 'KB' ) {
-					$item['filesize'] = floatval($item['filesize']) * $kb;
-				} else {
-					$item['filesize'] = floatval($item['filesize']);
-				}
-				// put into result
-				self::$config['fieldConfig'][$itemName]['filesize_numeric'] = $item['filesize'];
-			}
 		}
 		// param fix : list order
 		// ===> add limit and offset to statement
@@ -1662,7 +1678,7 @@ class Scaffold {
 		// config : max file upload size in bytes (default 10MB in library)
 		// ===> scaffold-controller turns human-readable-filesize into numeric
 		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
-			$uploader->sizeLimit = self::$config['fieldConfig'][$arguments['fieldName']]['filesize_numeric'];
+			$uploader->sizeLimit = self::fileSizeNumeric( self::$config['fieldConfig'][$arguments['fieldName']]['filesize'] );
 		}
 		// config : assign unique name to avoid overwrite
 		$arguments['originalName'] = urldecode($arguments['originalName']);

@@ -24,7 +24,6 @@
 				<string name="help" comments="help text show after input field" />
 				<!-- for [format=file|image] only -->
 				<string name="filesize" optional="yes" comments="max file size in bytes" example="10MB|2000KB" />
-				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
 				<list name="filetype" optional="yes" delim="," example="gif,jpg,jpeg,png" />
 			</structure>
 			<object name="$bean" comments="for field value" />

@@ -14,8 +14,7 @@
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
 				<string name="style" comments="apply to preview image" />
-				<string name="filesize" optional="yes" comments="max file size in bytes" />
-				<number name="filesize_numeric" optional="yes" comments="use this for comparison" />
+				<string name="filesize" optional="yes" comments="max file size in bytes; add numeric value for client size checking" />
 				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
 			</structure>
 		</in>
@@ -27,10 +26,10 @@ $uniqid = "{$scaffold['beanType']}-input-{$field['format']}-{$field['name']}-".u
 ?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 
-	<?php if ( isset($xfa['ajaxUpload'])         ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?> 
+	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?> 
 	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?> 
-	<?php if ( isset($field['filetype'])         ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?> 
-	<?php if ( isset($field['filesize'])         ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo $field['filesize_numeric']; ?>"<?php endif; ?>
+	<?php if ( isset($field['filetype']) ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?> 
+	<?php if ( isset($field['filesize']) ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($field['filesize']); ?>"<?php endif; ?>
 >
 	<div class="input-group input-group-sm"><?php
 		// buttons
