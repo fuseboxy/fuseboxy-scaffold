@@ -33,10 +33,10 @@
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
 						<string name="label" optional="yes" comments="display name at table/form header">
-						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|one-to-many|many-to-many|wysiwyg|url" default="text" />
-						<array name="options" optional="yes" comments="show dropdown when specified">
-							<string name="~key is option-value~" comments="value is option-text" />
-						</array>
+						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg" default="text" />
+						<structure name="options" optional="yes" comments="show dropdown when specified">
+							<string name="~optionValue~" value="~optionText~" />
+						</structure>
 						<boolean name="required" optional="yes" />
 						<boolean name="readonly" optional="yes" comments="output does not pass value; readonly does" />
 						<string name="placeholder" optional="yes" default="column display name" />
@@ -46,10 +46,11 @@
 						<string name="style" optional="yes" />
 						<string name="pre-help" optional="yes" comments="help text show before input field" />
 						<string name="help" optional="yes" comments="help text show after input field" />
-						<!-- below are for [format=file] only -->
-						<string name="filesize" optional="yes" comments="max file size in bytes" />
-						<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
-						<boolean name="preview" optional="yes" />
+						<!-- below are for [format=file|image] only -->
+						<string name="filesize" optional="yes" comments="max file size in bytes" example="2MB|500KB" />
+						<list name="filetype" optional="yes" delim="," example="pdf,doc,docx" />
+						<!-- for [format=image] only -->
+						<string name="resize" optional="yes" example="800x600|1024w|100h" />
 					</structure>
 				</structure>
 				<!-- advanced settings for UI customization -->
