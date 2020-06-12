@@ -1623,8 +1623,8 @@ class Scaffold {
 			$err[] = 'Argument [fieldName] is required';
 		} elseif ( !isset(self::$config['fieldConfig'][$arguments['fieldName']]) ) {
 			$err[] = "Field config for [{$arguments['fieldName']}] is required";
-		} elseif ( self::$config['fieldConfig'][$arguments['fieldName']]['format'] != 'file' ) {
-			$err[] = "Field [{$arguments['fieldName']}] must be [format=file]";
+		} elseif ( !in_array(self::$config['fieldConfig'][$arguments['fieldName']]['format'], ['file','image']) ) {
+			$err[] = "Field [{$arguments['fieldName']}] must be [format=file|image]";
 		}
 		// validation error (if any)
 		if ( !empty($err) ) {
@@ -1716,7 +1716,7 @@ class Scaffold {
 		$hasFileField = false;
 		if ( isset(self::$config['fieldConfig']) ) {
 			foreach ( self::$config['fieldConfig'] as $_key => $_field ) {
-				if ( isset($_field['format']) and $_field['format'] == 'file' ) {
+				if ( isset($_field['format']) and in_array($_field['format'], ['file','image']) ) {
 					$hasFileField = true;
 					break;
 				}
