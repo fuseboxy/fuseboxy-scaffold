@@ -8,7 +8,7 @@
 			</structure>
 			<structure name="$field">
 				<string name="name" />
-				<string name="format" comments="file" />
+				<string name="format" comments="file|image" />
 				<string name="value" />
 				<string name="placeholder" />
 				<boolean name="required" />
@@ -24,9 +24,8 @@
 	</io>
 </fusedoc>
 */
-$uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
-?>
-<div 
+$uniqid = "{$scaffold['beanType']}-input-{$field['format']}-{$field['name']}-".uuid();
+?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 
 	<?php if ( isset($xfa['ajaxUpload'])         ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?> 
@@ -34,18 +33,17 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 	<?php if ( isset($field['filetype'])         ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?> 
 	<?php if ( isset($field['filesize'])         ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo $field['filesize_numeric']; ?>"<?php endif; ?>
 >
-	<!-- field -->
-	<div class="input-group input-group-sm">
-		<!-- buttons -->
-		<?php if ( empty($field['readonly']) ) : ?>
-			<div class="input-group-prepend">
+	<div class="input-group input-group-sm"><?php
+		// buttons
+		if ( empty($field['readonly']) ) :
+			?><div class="input-group-prepend">
 				<button type="button" class="text-white input-group-text btn-upload">Choose</button>
 				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
 				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
-			</div>
-		<?php endif; ?>
-		<!-- file path -->
-		<input
+			</div><?php
+		endif;
+		// file path
+		?><input
 			type="text"
 			class="form-control"
 			name="data[<?php echo $field['name']; ?>]"
@@ -54,11 +52,11 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 			readonly
 			<?php if ( !empty($field['required']) ) echo 'required'; ?>
 		 />
-	</div><!--/.input-group-->
-	<!-- (client-side) error message -->
-	<div class="form-text text-danger small px-1 mt-1 d-none"></div>
-	<!-- progress bar -->
-	<div class="progress-row input-group input-group-sm mt-1 d-none" style="height: 31px;">
+	</div><!--/.input-group--><?php
+	// (client-side) error message
+	?><div class="form-text text-danger small px-1 mt-1 d-none"></div><?php
+	// progress bar
+	?><div class="progress-row input-group input-group-sm mt-1 d-none" style="height: 31px;">
 		<div class="form-control overflow-hidden p-0" style="height: 100%">
 			<div class="progress rounded-0" style="height: 100%">
 				<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -67,10 +65,10 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 		<div class="progress-abort input-group-append" style="height: 100%;">
 			<button type="button" class="input-group-text btn-abort">Cancel</button>
 		</div>
-	</div><!--/.progress-row-->
-	<!-- preview -->
-	<?php if ( !empty($field['preview']) ) : ?>
-		<a
+	</div><!--/.progress-row--><?php
+	// preview
+	if ( !empty($field['preview']) ) :
+		?><a
 			href="<?php echo $field['value']; ?>"
 			title="<?php echo basename($field['value']); ?>"
 			class="<?php if ( empty($field['value']) ) echo 'd-none'; ?>"
@@ -81,6 +79,6 @@ $uniqid = "{$scaffold['beanType']}-input-file-{$field['name']}-".uuid();
 			alt="<?php echo basename($field['value']); ?>"
 			src="<?php echo $field['value']; ?>"
 			class="img-thumbnail mt-1"
-		/></a>
-	<?php endif; ?>
-</div><!--/.scaffold-input-file-->
+		/></a><?php
+	endif;
+?></div><!--/.scaffold-input-file-->
