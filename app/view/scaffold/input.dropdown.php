@@ -5,9 +5,9 @@
 			<structure name="$field">
 				<string name="name" />
 				<string name="value" />
-				<array name="options">
+				<structure name="options">
 					<string name="~optValue~" value="~optText~" />
-				</array>
+				</structure>
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
