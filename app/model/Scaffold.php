@@ -1172,6 +1172,7 @@ class Scaffold {
 						<structure name="~fieldName~">
 							<string name="label" comments="derived from field name when not specified or true" />
 							<string name="placeholder" comments="derived from field name when true" />
+							<list name="filetype" comments="for [format=image] field" />
 						</structure>
 					</structure>
 					<structure name="listField" default="~fieldConfig|tableColumns~">
@@ -1241,6 +1242,12 @@ class Scaffold {
 				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $_key)));
+			}
+		}
+		// param default : field config (filetype)
+		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
+			if ( isset($_val['format']) and $_val['format'] === 'image' and empty($_val['filetype']) ) {
+				self::$config['fieldConfig'][$_key]['filetype'] = 'gif,jpg,jpeg,png';
 			}
 		}
 		// param default : modal field
