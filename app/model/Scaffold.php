@@ -1658,11 +1658,7 @@ class Scaffold {
 		// init object (specify [uploaderID] to know which DOM to update)
 		$uploader = new FileUpload($arguments['uploaderID']);
 		// config : array of permitted file extensions (only allow image & doc by default)
-		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filetype']) ) {
-			$uploader->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
-		} else {
-			$uploader->allowedExtensions = explode(',', 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx');
-		}
+		$uploader->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
 		// config : max file upload size in bytes (default 10MB in library)
 		// ===> scaffold-controller turns human-readable-filesize into numeric
 		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
