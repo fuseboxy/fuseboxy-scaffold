@@ -1205,7 +1205,11 @@ class Scaffold {
 		// param default : field config
 		// ===> merge table columns to field config
 		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
-		self::$config['fieldConfig'] = array_merge(self::$config['fieldConfig'], $tableColumns);
+		foreach ( self::$config['fieldConfig'] as $key => $val ) {
+			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
+				self::$config['fieldConfig'][$key] = array();
+			}
+		}
 		// fix param : field config
 		// ===> convert numeric key to field name
 		$arr = self::$config['fieldConfig'];
@@ -1227,27 +1231,33 @@ class Scaffold {
 			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
 		}
 		// param default : field config (label)
-		// ===> derived from field name
+		// param default : field config (placeholder)
+		// param default : field config (filetype)
+		// param default : field config (filesize)
 		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
+			// label : derived from field name
 			if ( !isset($_val['label']) or $_val['label'] === true ) {
 				self::$config['fieldConfig'][$_key]['label'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $_key)));
 			}
-		}
-		// param default : field config (placeholder)
-		// ===> drived from field name
-		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
+			// placeholder : derived from field name
 			if ( isset($_val['placeholder']) and $_val['placeholder'] === true ) {
 				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $_key)));
 			}
-		}
-		// param default : field config (filetype)
-		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
-			if ( isset($_val['format']) and $_val['format'] === 'image' and empty($_val['filetype']) ) {
+			// filetype : image
+			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'image' ) {
 				self::$config['fieldConfig'][$_key]['filetype'] = 'gif,jpg,jpeg,png';
+			}
+			// filetype : file
+			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'file' ) {
+				self::$config['fieldConfig'][$_key]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
+			}
+			// filesize
+			if ( empty($_val['filesize']) and isset($_val['format']) and in_array($_val['format'], ['file','image']) ) {
+				self::$config['fieldConfig'][$_key]['filesize'];
 			}
 		}
 		// param default : modal field
