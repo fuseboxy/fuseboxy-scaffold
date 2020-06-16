@@ -22,5 +22,5 @@
 		?><i class="fa-fw <?php echo $field['icon']; ?>"></i><?php
 	endif;
 	// content
-	echo $field['value'];
+	if ( !empty($field['value']) ) echo $field['value'];
 ?></div>
