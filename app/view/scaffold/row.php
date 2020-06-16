@@ -51,7 +51,7 @@
 							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 								// output : show custom content
 								if ( $isOutput ) :
-									if ( !empty($field['value']) ) echo $field['value'];
+									echo isset($field['value']) ? $field['value'] : '';
 								// image : show thumbnail
 								elseif ( $isImage and !empty($bean[$col]) ) :
 									?><a
