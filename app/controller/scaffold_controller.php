@@ -166,7 +166,7 @@ switch ( $fusebox->action ) :
 	// click cancel button to return to view mode
 	// ===> or nothing when cancel of new record form
 	case 'row':
-		F::error("id was not specified", empty($arguments['id']));
+		F::error('Argument [id] is required', empty($arguments['id']));
 		// get record
 		$bean = Scaffold::getBean($arguments['id']);
 		F::error(Scaffold::error(), $bean === false);
@@ -193,7 +193,7 @@ switch ( $fusebox->action ) :
 
 	// edit record (or create new record)
 	case 'edit':
-		F::error('id was not specified', empty($arguments['id']));
+		F::error('Argument [id] is required', empty($arguments['id']));
 	case 'new':
 	case 'quick':
 		$bean = Scaffold::getBean( F::is('*.edit') ? $arguments['id'] : null );
@@ -228,9 +228,9 @@ switch ( $fusebox->action ) :
 	// show or hide record
 	// ===> show record row after save
 	case 'toggle':
-		F::error('toggle is not allowed', !$scaffold['allowToggle']);
-		F::error("id was not specified", empty($arguments['id']));
-		F::error("argument [disabled] is required", !isset($arguments['disabled']));
+		F::error('Forbidden (allowToggle=false)', !$scaffold['allowToggle']);
+		F::error('Argument [id] is required', empty($arguments['id']));
+		F::error('Argument [disabled] is required', !isset($arguments['disabled']));
 		// save record
 		$toggleBean = Scaffold::toggleBean($arguments['id'], !$arguments['disabled']);
 		F::error(Scaffold::error(), $toggleBean === false);
@@ -242,9 +242,9 @@ switch ( $fusebox->action ) :
 
 	// save record (and go to default page)
 	case 'save':
-		F::error('data were not submitted', empty($arguments['data']));
-		F::error('create record not allowed', !$scaffold['allowNew'] and empty($arguments['data']['id']));
-		F::error('update record not allowed', !$scaffold['allowEdit'] and !empty($arguments['data']['id']));
+		F::error('No data submitted', empty($arguments['data']));
+		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew'] and empty($arguments['data']['id']));
+		F::error('Forbidden (allowEdit=false)', !$scaffold['allowEdit'] and !empty($arguments['data']['id']));
 		// save record
 		$id = Scaffold::saveBean($arguments['data']);
 		F::error(Scaffold::error(), $id === false);
@@ -256,8 +256,8 @@ switch ( $fusebox->action ) :
 
 	// delete record (and go to default page)
 	case 'delete':
-		F::error('delete is not allowed', !$scaffold['allowDelete']);
-		F::error('id was not specified', empty($arguments['id']));
+		F::error('Forbidden (allowDelete=false)', !$scaffold['allowDelete']);
+		F::error('Argument [id] is required', empty($arguments['id']));
 		// delete record
 		$deleteBean = Scaffold::deleteBean($arguments['id']);
 		F::error(Scaffold::error(), $deleteBean === false);
