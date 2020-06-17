@@ -193,9 +193,12 @@ switch ( $fusebox->action ) :
 
 	// edit record (or create new record)
 	case 'edit':
+		F::error('Forbidden (allowEdit=false)', !$scaffold['allowEdit']);
 		F::error('Argument [id] is required', empty($arguments['id']));
 	case 'new':
 	case 'quick':
+		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew']);
+		// get record
 		$bean = Scaffold::getBean( F::is('*.edit') ? $arguments['id'] : null );
 		F::error(Scaffold::error(), $bean === false);
 		// define exit point
