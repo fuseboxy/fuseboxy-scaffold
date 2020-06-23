@@ -96,8 +96,8 @@ $validateConfig = Scaffold::validateConfig();
 F::error(Scaffold::error(), $validateConfig === false);
 
 // set parameter default value
-$setParamDefault = Scaffold::setParamDefault();
-F::error(Scaffold::error(), $setParamDefault === false);
+$defaultParam = Scaffold::defaultParam();
+F::error(Scaffold::error(), $defaultParam === false);
 
 // adjust parameter
 $fixParam = Scaffold::fixParam();
