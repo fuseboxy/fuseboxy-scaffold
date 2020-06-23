@@ -197,7 +197,7 @@ switch ( $fusebox->action ) :
 		F::error('Argument [id] is required', empty($arguments['id']));
 	case 'new':
 	case 'quick':
-		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew']);
+		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew'] and !F::is('*.edit'));
 		// get record
 		$bean = Scaffold::getBean( F::is('*.edit') ? $arguments['id'] : null );
 		F::error(Scaffold::error(), $bean === false);
