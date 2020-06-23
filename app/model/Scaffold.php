@@ -135,222 +135,6 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
-			assign default value to parameters
-		</description>
-		<io>
-			<in>
-				<structure name="$config" scope="self">
-					<array name="fieldConfig">
-						<string name="+" value="~fieldName~" />
-					</array>
-				</structure>
-				<structure name="$tableColumns" comments="from {ORM::columns} method">
-					<string name="~columnName~" value="~columnType~" example="varchar(255)" />
-				</structure>
-			</in>
-			<out>
-				<structure name="$config" scope="self">
-					<boolean name="allowNew" default="true" />
-					<boolean name="allowEdit" default="true" />
-					<boolean name="allowToggle" default="true" />
-					<boolean name="allowDelete" default="false" />
-					<boolean name="allowSort" default="true" />
-					<string name="editMode" default="inline" />
-					<string name="modalSize" deafult="lg" />
-					<string name="listFilter" default="1 = 1" />
-					<string name="listOrder" default="ORDER BY (seq,) id" />
-					<structure name="fieldConfig">
-						<structure name="id">
-							<boolean name="readonly" value="true" comments="force {ID} field exists; force readonly" />
-						</structure>
-						<structure name="~fieldName~">
-							<string name="label" comments="derived from field name when not specified or true" />
-							<string name="placeholder" comments="derived from field name when true" />
-							<list name="filetype" comments="for [format=image] field" />
-						</structure>
-					</structure>
-					<structure name="listField" default="~fieldConfig|tableColumns~">
-						<string name="~columnList~" value="~columnWidth~" />
-					</structure>
-					<structure name="modalField">
-						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
-						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
-						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
-						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
-					</structure>
-				</structure>
-				<string name="sortField" scope="$arguments" optional="yes" comments="indicate which label in table header to show the arrow" />
-				<string name="sortRule" scope="$arguments" optional="yes" comments="indicate the direction of arrow shown at table header" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function defaultParam() {
-		global $arguments;
-		// obtain all columns of specific table
-		// ===> allow proceed further if table not exists (simply treated as no column)
-		$tableColumns = ORM::columns(self::$config['beanType']);
-		if ( $tableColumns === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
-		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
-		// param default : field config
-		// ===> merge table columns to field config
-		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
-		foreach ( self::$config['fieldConfig'] as $key => $val ) {
-			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
-				self::$config['fieldConfig'][$key] = array();
-			}
-		}
-		// fix param : field config
-		// ===> convert numeric key to field name
-		$arr = self::$config['fieldConfig'];
-		self::$config['fieldConfig'] = array();
-		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
-		// fix param : field config (id)
-		// ===> compulsory
-		// ===> must be readonly
-		if ( !isset(self::$config['fieldConfig']['id']) ) self::$config['fieldConfig']['id'] = array();
-		self::$config['fieldConfig']['id']['readonly'] = true;
-		// fix param : field config (seq)
-		// ===> optional
-		// ===> must be number
-		if ( isset(self::$config['fieldConfig']['seq']) ) self::$config['fieldConfig']['seq']['format'] = 'number';
-		// param default : field config (disabled)
-		// ===> optional
-		// ===> default as boolean dropdown (when not specified)
-		if ( isset(self::$config['fieldConfig']['disabled']) and empty(self::$config['fieldConfig']['disabled']) ) {
-			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
-		}
-		// param default : field config (label)
-		// param default : field config (placeholder)
-		// param default : field config (filetype)
-		// param default : field config (filesize)
-		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
-			// label : derived from field name
-			if ( !isset($_val['label']) or $_val['label'] === true ) {
-				self::$config['fieldConfig'][$_key]['label'] = implode(' ', array_map(function($word){
-					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $_key)));
-			}
-			// placeholder : derived from field name
-			if ( isset($_val['placeholder']) and $_val['placeholder'] === true ) {
-				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
-					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $_key)));
-			}
-			// filetype : image
-			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'image' ) {
-				self::$config['fieldConfig'][$_key]['filetype'] = 'gif,jpg,jpeg,png';
-			}
-			// filetype : file
-			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'file' ) {
-				self::$config['fieldConfig'][$_key]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
-			}
-			// filesize
-			if ( empty($_val['filesize']) and isset($_val['format']) and in_array($_val['format'], ['file','image']) ) {
-				self::$config['fieldConfig'][$_key]['filesize'] = '10MB';
-			}
-		}
-		// param default : modal field
-		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : modal field (line)
-		// ===> unify to use dash (simplify display logic)
-		// ===> make line unique in length (avoid override after convert key)
-		$i = 3;
-		foreach ( self::$config['modalField'] as $key => $val ) {
-			$isLine = ( !empty($val) and ( trim($val, '-') == '' or trim($val, '=') == '' ) );
-			if ( $isLine ) self::$config['modalField'][$key] = str_repeat('-', $i);
-			$i++;
-		}
-		// fix param : modal field (key)
-		// ===> convert numeric key to field name
-		$arr = self::$config['modalField'];
-		self::$config['modalField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
-		// fix param : modal field (id)
-		// ===> compulsory
-		$hasID = false;
-		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
-		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
-		// param default : list field
-		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : list field (key)
-		// ===> convert numeric key to field name
-		$arr = self::$config['listField'];
-		self::$config['listField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
-		// param default : permission
-		if ( !isset(self::$config['allowNew']) ) self::$config['allowNew'] = true;
-		if ( !isset(self::$config['allowEdit']) ) self::$config['allowEdit'] = true;
-		if ( !isset(self::$config['allowSort']) ) self::$config['allowSort'] = true;
-		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
-		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
-		// param default : edit mode
-		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
-		// param default : modal size
-		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
-		// param default : list filter & order
-		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
-		if ( self::$config['allowSort'] and isset($arguments['sortField']) ) {
-			// use sort-field specified and options (when necessary)
-			self::$config['listOrder'] = 'ORDER BY ';
-			if ( !empty(self::$config['fieldConfig'][$arguments['sortField']]['options']) ) {
-				self::$config['listOrder'] .= "CASE `{$arguments['sortField']}` ";
-				foreach ( self::$config['fieldConfig'][$arguments['sortField']]['options'] as $optValue => $optText ) {
-					$optValue = str_replace("'", "''", $optValue);
-					$optText  = str_replace("'", "''", $optText);
-					self::$config['listOrder'] .= "WHEN '{$optValue}' THEN '{$optText}' ";
-				}
-				self::$config['listOrder'] .= 'END ';
-				if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
-				self::$config['listOrder'] .= ', ';
-			}
-			self::$config['listOrder'] .= "`{$arguments['sortField']}` ";
-			if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
-		} elseif ( !isset(self::$config['listOrder']) ) {
-			// otherwise, use specify a default list order (when necessary)
-			self::$config['listOrder'] = 'ORDER BY ';
-			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
-			self::$config['listOrder'] .= 'id ';
-		}
-		// param default : sort field (when necessary)
-		// ===> extract from list order
-		if ( !isset($arguments['sortField']) ) {
-			$tmp = trim(str_replace('ORDER BY ', '', self::$config['listOrder']));
-			$tmp = explode(',', $tmp);  // turn {column-direction} list into array
-			$tmp = $tmp[0];  // extract first {column-direction}
-			$tmp = explode(' ', $tmp);
-			$arguments['sortField'] = $tmp[0];  // extract {column}
-			if ( isset($tmp[1]) ) $arguments['sortRule'] = $tmp[1];
-		}
-		// param default : script path
-		foreach ( ['edit','header','inline_edit','list','row','modal'] as $item ) {
-			if ( !isset(self::$config['scriptPath']) ) self::$config['scriptPath'] = array();
-			if ( !isset(self::$config['scriptPath'][$item]) ) self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
-		}
-		// param default : write log
-		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
-		// param default : pagination
-		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
-		if ( !empty(self::$config['pagination']) ) {
-			if ( !is_array(self::$config['pagination']) ) self::$config['pagination'] = array();
-			self::$config['pagination']['recordCount']   = self::getBeanCount();
-			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
-			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
-		}
-		// done!
-		return true;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			remove specific bean
 		</description>
 		<io>
@@ -437,56 +221,6 @@ class Scaffold {
 		}
 		// done!
 		return $result;
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			adjust parameters to meet the needs of controller
-		</description>
-		<io>
-			<in>
-				<structure name="$config" scope="self">
-					<string name="editMode" />
-					<array name="fieldConfig" />
-						<structure name="+">
-							<string name="fileSize" optional="yes" />
-						</structure>
-					</array>
-					<string name="listOrder" />
-					<structure name="pagination" optional="yes">
-						<number name="recordCount" />
-						<number name="recordPerPage" />
-						<number name="pageVisible" />
-					</structure>
-					<number name="page" scope="$_GET" optional="yes" />
-					<boolean name="showAll" scope="$_GET" optional="yes" />
-				</structure>
-			</in>
-			<out>
-				<boolean name="~return~" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function fixParam() {
-		// param fix : edit mode
-		// ===> enforce normal edit form when not ajax
-		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
-			self::$config['editMode'] = 'basic';
-		}
-		// param fix : list order
-		// ===> add limit and offset to statement
-		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
-			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
-			$limit = self::$config['pagination']['recordPerPage'];
-			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
-		}
-		// done!
-		return true;
 	}
 
 
@@ -1365,6 +1099,246 @@ class Scaffold {
 		}
 		// done!
 		return $id;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			assign default and fix value of parameters
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<string name="editMode" />
+					<array name="fieldConfig" />
+						<string name="+" value="~fieldName~" />
+					</array>
+					<string name="listOrder" />
+					<structure name="pagination" optional="yes">
+						<number name="recordCount" />
+						<number name="recordPerPage" />
+						<number name="pageVisible" />
+					</structure>
+					<number name="page" scope="$_GET" optional="yes" />
+					<boolean name="showAll" scope="$_GET" optional="yes" />
+				</structure>
+				<structure name="$tableColumns" comments="from {ORM::columns} method">
+					<string name="~columnName~" value="~columnType~" example="varchar(255)" />
+				</structure>
+			</in>
+			<out>
+				<!-- return -->
+				<boolean name="~return~" />
+				<!-- modified -->
+				<structure name="$config" scope="self">
+					<boolean name="allowNew" default="true" />
+					<boolean name="allowEdit" default="true" />
+					<boolean name="allowToggle" default="true" />
+					<boolean name="allowDelete" default="false" />
+					<boolean name="allowSort" default="true" />
+					<string name="editMode" default="inline" />
+					<string name="modalSize" deafult="lg" />
+					<string name="listFilter" default="1 = 1" />
+					<string name="listOrder" default="ORDER BY (seq,) id" />
+					<structure name="fieldConfig">
+						<structure name="id">
+							<boolean name="readonly" value="true" comments="force {ID} field exists; force readonly" />
+						</structure>
+						<structure name="~fieldName~">
+							<string name="label" comments="derived from field name when not specified or true" />
+							<string name="placeholder" comments="derived from field name when true" />
+							<list name="filetype" comments="for [format=image] field" />
+						</structure>
+					</structure>
+					<structure name="listField" default="~fieldConfig|tableColumns~">
+						<string name="~columnList~" value="~columnWidth~" />
+					</structure>
+					<structure name="modalField">
+						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
+						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
+						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+					</structure>
+				</structure>
+				<string name="sortField" scope="$arguments" optional="yes" comments="indicate which label in table header to show the arrow" />
+				<string name="sortRule" scope="$arguments" optional="yes" comments="indicate the direction of arrow shown at table header" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function setDefaultAndFixParam() {
+		global $arguments;
+		// obtain all columns of specific table
+		// ===> allow proceed further if table not exists (simply treated as no column)
+		$tableColumns = ORM::columns(self::$config['beanType']);
+		if ( $tableColumns === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
+		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
+		// param default : field config
+		// ===> merge table columns to field config
+		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
+		foreach ( self::$config['fieldConfig'] as $key => $val ) {
+			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
+				self::$config['fieldConfig'][$key] = array();
+			}
+		}
+		// fix param : field config
+		// ===> convert numeric key to field name
+		$arr = self::$config['fieldConfig'];
+		self::$config['fieldConfig'] = array();
+		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
+		// fix param : field config (id)
+		// ===> compulsory
+		// ===> must be readonly
+		if ( !isset(self::$config['fieldConfig']['id']) ) self::$config['fieldConfig']['id'] = array();
+		self::$config['fieldConfig']['id']['readonly'] = true;
+		// fix param : field config (seq)
+		// ===> optional
+		// ===> must be number
+		if ( isset(self::$config['fieldConfig']['seq']) ) self::$config['fieldConfig']['seq']['format'] = 'number';
+		// param default : field config (disabled)
+		// ===> optional
+		// ===> default as boolean dropdown (when not specified)
+		if ( isset(self::$config['fieldConfig']['disabled']) and empty(self::$config['fieldConfig']['disabled']) ) {
+			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
+		}
+		// param default : field config (label)
+		// param default : field config (placeholder)
+		// param default : field config (filetype)
+		// param default : field config (filesize)
+		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
+			// label : derived from field name
+			if ( !isset($_val['label']) or $_val['label'] === true ) {
+				self::$config['fieldConfig'][$_key]['label'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $_key)));
+			}
+			// placeholder : derived from field name
+			if ( isset($_val['placeholder']) and $_val['placeholder'] === true ) {
+				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $_key)));
+			}
+			// filetype : image
+			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'image' ) {
+				self::$config['fieldConfig'][$_key]['filetype'] = 'gif,jpg,jpeg,png';
+			}
+			// filetype : file
+			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'file' ) {
+				self::$config['fieldConfig'][$_key]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
+			}
+			// filesize
+			if ( empty($_val['filesize']) and isset($_val['format']) and in_array($_val['format'], ['file','image']) ) {
+				self::$config['fieldConfig'][$_key]['filesize'] = '10MB';
+			}
+		}
+		// param default : modal field
+		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
+		// fix param : modal field (line)
+		// ===> unify to use dash (simplify display logic)
+		// ===> make line unique in length (avoid override after convert key)
+		$i = 3;
+		foreach ( self::$config['modalField'] as $key => $val ) {
+			$isLine = ( !empty($val) and ( trim($val, '-') == '' or trim($val, '=') == '' ) );
+			if ( $isLine ) self::$config['modalField'][$key] = str_repeat('-', $i);
+			$i++;
+		}
+		// fix param : modal field (key)
+		// ===> convert numeric key to field name
+		$arr = self::$config['modalField'];
+		self::$config['modalField'] = array();
+		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		// fix param : modal field (id)
+		// ===> compulsory
+		$hasID = false;
+		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
+		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
+		// param default : list field
+		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
+		// fix param : list field (key)
+		// ===> convert numeric key to field name
+		$arr = self::$config['listField'];
+		self::$config['listField'] = array();
+		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		// param default : permission
+		if ( !isset(self::$config['allowNew']) ) self::$config['allowNew'] = true;
+		if ( !isset(self::$config['allowEdit']) ) self::$config['allowEdit'] = true;
+		if ( !isset(self::$config['allowSort']) ) self::$config['allowSort'] = true;
+		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
+		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
+		// param default : edit mode
+		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
+		// param default : modal size
+		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
+		// param default : list filter & order
+		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
+		if ( self::$config['allowSort'] and isset($arguments['sortField']) ) {
+			// use sort-field specified and options (when necessary)
+			self::$config['listOrder'] = 'ORDER BY ';
+			if ( !empty(self::$config['fieldConfig'][$arguments['sortField']]['options']) ) {
+				self::$config['listOrder'] .= "CASE `{$arguments['sortField']}` ";
+				foreach ( self::$config['fieldConfig'][$arguments['sortField']]['options'] as $optValue => $optText ) {
+					$optValue = str_replace("'", "''", $optValue);
+					$optText  = str_replace("'", "''", $optText);
+					self::$config['listOrder'] .= "WHEN '{$optValue}' THEN '{$optText}' ";
+				}
+				self::$config['listOrder'] .= 'END ';
+				if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
+				self::$config['listOrder'] .= ', ';
+			}
+			self::$config['listOrder'] .= "`{$arguments['sortField']}` ";
+			if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
+		} elseif ( !isset(self::$config['listOrder']) ) {
+			// otherwise, use specify a default list order (when necessary)
+			self::$config['listOrder'] = 'ORDER BY ';
+			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
+			self::$config['listOrder'] .= 'id ';
+		}
+		// param default : sort field (when necessary)
+		// ===> extract from list order
+		if ( !isset($arguments['sortField']) ) {
+			$tmp = trim(str_replace('ORDER BY ', '', self::$config['listOrder']));
+			$tmp = explode(',', $tmp);  // turn {column-direction} list into array
+			$tmp = $tmp[0];  // extract first {column-direction}
+			$tmp = explode(' ', $tmp);
+			$arguments['sortField'] = $tmp[0];  // extract {column}
+			if ( isset($tmp[1]) ) $arguments['sortRule'] = $tmp[1];
+		}
+		// param default : script path
+		foreach ( ['edit','header','inline_edit','list','row','modal'] as $item ) {
+			if ( !isset(self::$config['scriptPath']) ) self::$config['scriptPath'] = array();
+			if ( !isset(self::$config['scriptPath'][$item]) ) self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
+		}
+		// param default : write log
+		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
+		// param default : pagination
+		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
+		if ( !empty(self::$config['pagination']) ) {
+			if ( !is_array(self::$config['pagination']) ) self::$config['pagination'] = array();
+			self::$config['pagination']['recordCount']   = self::getBeanCount();
+			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
+			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
+		}
+		// param fix : edit mode
+		// ===> enforce normal edit form when not ajax
+		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
+			self::$config['editMode'] = 'basic';
+		}
+		// param fix : list order
+		// ===> add limit and offset to statement
+		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
+			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
+			$limit = self::$config['pagination']['recordPerPage'];
+			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
+		}
+		// done!
+		return true;
 	}
 
 
