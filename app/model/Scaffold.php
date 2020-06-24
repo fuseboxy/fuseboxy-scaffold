@@ -1744,7 +1744,7 @@ class Scaffold {
 			self::$error = 'Scaffold config [layoutPath] is required';
 			return false;
 		// check edit mode
-		} elseif ( !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
+		} elseif ( !empty(self::$config['editMode']) and !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
 			self::$error = 'Scaffold config [editMode] is invalid ('.self::$config['editMode'].')';
 			return false;
 		// check uploader directory (when has file field)
