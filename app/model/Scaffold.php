@@ -1113,6 +1113,8 @@ class Scaffold {
 			<in>
 				<structure name="$config" scope="self">
 					<string name="editMode" />
+					<boolean name="allowSort" optional="yes" />
+					<list name="allowSort" optional="yes" delim="|" />
 					<array name="fieldConfig" />
 						<string name="+" value="~fieldName~" />
 					</array>
@@ -1138,7 +1140,9 @@ class Scaffold {
 					<boolean name="allowEdit" default="true" />
 					<boolean name="allowToggle" default="true" />
 					<boolean name="allowDelete" default="false" />
-					<boolean name="allowSort" default="true" />
+					<array name="allowSort" default="~allFields~">
+						<string name="~fieldName~" />
+					</array>
 					<string name="editMode" default="inline" />
 					<string name="modalSize" deafult="lg" />
 					<string name="listFilter" default="1 = 1" />
@@ -1170,7 +1174,6 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function setDefaultAndFixParam() {
-		global $_GET;
 		// obtain all columns of specific table
 		// ===> allow proceed further if table not exists (simply treated as no column)
 		$tableColumns = ORM::columns(self::$config['beanType']);
@@ -1272,13 +1275,23 @@ class Scaffold {
 		if ( !isset(self::$config['allowSort']) ) self::$config['allowSort'] = true;
 		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
 		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
+		// param fix : permission (allowSort)
+		// ===> convert boolean to all fields
+		// ===> convert list to array
+		if ( self::$config['allowSort'] === true ) {
+			self::$config['allowSort'] = array_keys(self::$config['fieldConfig']);
+		} elseif ( self::$config['allowSort'] === false ) {
+			self::$config['allowSort'] = array();
+		} elseif ( is_string(self::$config['allow']) ) {
+			self::$config['allowSort'] = explode('|', self::$config['allowSort']);
+		}
 		// param default : edit mode
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
 		// param default : modal size
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// param default : list filter & order
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
-		if ( self::$config['allowSort'] and isset($_GET['sortField']) ) {
+		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) ) {
 			// use sort-field specified and options (when necessary)
 			self::$config['listOrder'] = 'ORDER BY ';
 			if ( !empty(self::$config['fieldConfig'][$_GET['sortField']]['options']) ) {

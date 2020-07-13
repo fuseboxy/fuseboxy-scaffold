@@ -126,7 +126,7 @@ switch ( $fusebox->action ) :
 			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
 			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
 		}
-		if ( $scaffold['allowSort'] ) {
+		if ( !empty($scaffold['allowSort']) ) {
 			// retain url params when change sorting
 			$xfa['sort'] = $fusebox->controller;
 			foreach ( $_GET as $key => $val ) {

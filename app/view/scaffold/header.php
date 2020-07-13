@@ -5,6 +5,9 @@
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" />
+				<array name="allowSort">
+					<string name="~fieldName~" />
+				</array>
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
 					<string name="~columnList~" comments="column width" />
 				</array>
@@ -43,7 +46,7 @@
 								$isSortByThisField = ( isset($arguments['sortField']) and $arguments['sortField'] == $col );
 								$isAscendingOrder = ( empty($arguments['sortRule']) or strtolower($arguments['sortRule']) == 'asc' );
 								// prepare link (when necessary)
-								if ( isset($xfa['sort']) ) :
+								if ( isset($xfa['sort']) and in_array($col, $scaffold['allowSort']) ) :
 									$sortUrl = "{$xfa['sort']}&sortField={$col}";
 									if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
 								endif;
@@ -59,7 +62,7 @@
 								$wrapperClass[] = $colIndex ? 'small text-muted' : 'text-dark';
 								$headerText = '<span class="'.implode(' ', $wrapperClass).'">'.$headerText.'</span>';
 								// wrap by link (when necessary)
-								if ( isset($xfa['sort']) ) :
+								if ( isset($xfa['sort']) and in_array($col, $scaffold['allowSort']) ) :
 									$headerText = '<a href="'.F::url($sortUrl).'" class="scaffold-btn-sort '.( $colIndex ? 'text-muted' : 'text-dark' ).'">'.$headerText.'</a>';
 								endif;
 								// separator (when necessary)
