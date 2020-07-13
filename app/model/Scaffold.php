@@ -1163,14 +1163,14 @@ class Scaffold {
 						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 					</structure>
 				</structure>
-				<string name="sortField" scope="$arguments" optional="yes" comments="indicate which label in table header to show the arrow" />
-				<string name="sortRule" scope="$arguments" optional="yes" comments="indicate the direction of arrow shown at table header" />
+				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
+				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function setDefaultAndFixParam() {
-		global $arguments;
+		global $_GET;
 		// obtain all columns of specific table
 		// ===> allow proceed further if table not exists (simply treated as no column)
 		$tableColumns = ORM::columns(self::$config['beanType']);
@@ -1278,22 +1278,22 @@ class Scaffold {
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// param default : list filter & order
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
-		if ( self::$config['allowSort'] and isset($arguments['sortField']) ) {
+		if ( self::$config['allowSort'] and isset($_GET['sortField']) ) {
 			// use sort-field specified and options (when necessary)
 			self::$config['listOrder'] = 'ORDER BY ';
-			if ( !empty(self::$config['fieldConfig'][$arguments['sortField']]['options']) ) {
-				self::$config['listOrder'] .= "CASE `{$arguments['sortField']}` ";
-				foreach ( self::$config['fieldConfig'][$arguments['sortField']]['options'] as $optValue => $optText ) {
+			if ( !empty(self::$config['fieldConfig'][$_GET['sortField']]['options']) ) {
+				self::$config['listOrder'] .= "CASE `{$_GET['sortField']}` ";
+				foreach ( self::$config['fieldConfig'][$_GET['sortField']]['options'] as $optValue => $optText ) {
 					$optValue = str_replace("'", "''", $optValue);
 					$optText  = str_replace("'", "''", $optText);
 					self::$config['listOrder'] .= "WHEN '{$optValue}' THEN '{$optText}' ";
 				}
 				self::$config['listOrder'] .= 'END ';
-				if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
+				if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
 				self::$config['listOrder'] .= ', ';
 			}
-			self::$config['listOrder'] .= "`{$arguments['sortField']}` ";
-			if ( isset($arguments['sortRule']) ) self::$config['listOrder'] .= $arguments['sortRule'];
+			self::$config['listOrder'] .= "`{$_GET['sortField']}` ";
+			if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
 		} elseif ( !isset(self::$config['listOrder']) ) {
 			// otherwise, use specify a default list order (when necessary)
 			self::$config['listOrder'] = 'ORDER BY ';
@@ -1302,13 +1302,13 @@ class Scaffold {
 		}
 		// param default : sort field (when necessary)
 		// ===> extract from list order
-		if ( !isset($arguments['sortField']) ) {
+		if ( !isset($_GET['sortField']) ) {
 			$tmp = trim(str_replace('ORDER BY ', '', self::$config['listOrder']));
 			$tmp = explode(',', $tmp);  // turn {column-direction} list into array
 			$tmp = $tmp[0];  // extract first {column-direction}
 			$tmp = explode(' ', $tmp);
-			$arguments['sortField'] = $tmp[0];  // extract {column}
-			if ( isset($tmp[1]) ) $arguments['sortRule'] = $tmp[1];
+			$_GET['sortField'] = $tmp[0];  // extract {column}
+			if ( isset($tmp[1]) ) $_GET['sortRule'] = $tmp[1];
 		}
 		// param default : script path
 		foreach ( ['edit','header','inline_edit','list','row','modal'] as $item ) {
