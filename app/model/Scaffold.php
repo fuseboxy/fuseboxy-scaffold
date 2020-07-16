@@ -1282,7 +1282,7 @@ class Scaffold {
 			self::$config['allowSort'] = array_keys(self::$config['fieldConfig']);
 		} elseif ( self::$config['allowSort'] === false ) {
 			self::$config['allowSort'] = array();
-		} elseif ( is_string(self::$config['allow']) ) {
+		} elseif ( is_string(self::$config['allowSort']) ) {
 			self::$config['allowSort'] = explode('|', self::$config['allowSort']);
 		}
 		// param default : edit mode
