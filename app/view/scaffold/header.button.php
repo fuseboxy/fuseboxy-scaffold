@@ -22,7 +22,7 @@ if ( isset($xfa['quick']) ) :
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['quick']); ?>"
-			class="btn btn-sm py-0 px-1 btn-outline-info border-right-0 scaffold-btn-quick"
+			class="btn btn-sm py-0 px-1 btn-outline-info br-0 scaffold-btn-quick"
 			data-toggle="ajax-load"
 			data-loading="none"
 			data-mode="after"
@@ -31,7 +31,7 @@ if ( isset($xfa['quick']) ) :
 		// dropdown button
 		?><button 
 			type="button" 
-			class="btn btn-sm py-0 px-1 btn-outline-info border-left-0 dropdown-toggle dropdown-toggle-split scaffold-btn-quick-multiple" 
+			class="btn btn-sm py-0 px-1 btn-outline-info bl-0 dropdown-toggle dropdown-toggle-split scaffold-btn-quick-multiple" 
 			data-toggle="dropdown" 
 			aria-haspopup="true" 
 			aria-expanded="false" 
