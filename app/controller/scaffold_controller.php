@@ -35,7 +35,10 @@
 						<string name="label" optional="yes" comments="display name at table/form header">
 						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg|url" default="text" />
 						<structure name="options" optional="yes" comments="show dropdown when specified">
-							<string name="~optionValue~" value="~optionText~" />
+							<string name="~optionValue~" value="~optionText~" optional="yes" />
+							<structure name="~optGroup~" optional="yes">
+								<structure name="~optionValue~" value="~optionText~" />
+							</structure>
 						</structure>
 						<boolean name="required" optional="yes" />
 						<boolean name="readonly" optional="yes" comments="output does not pass value; readonly does" />

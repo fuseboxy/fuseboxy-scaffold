@@ -6,7 +6,10 @@
 				<string name="name" />
 				<string name="value" />
 				<structure name="options">
-					<string name="~optValue~" value="~optText~" />
+					<string name="~optionValue~" value="~optionText~" optional="yes" />
+					<structure name="~optGroup~" optional="yes">
+						<structure name="~optionValue~" value="~optionText~" />
+					</structure>
 				</structure>
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
@@ -46,10 +49,26 @@
 		?></option><?php
 		// user-defined items
 		foreach ( $field['options'] as $optValue => $optText ) :
-			?><option
-				value="<?php echo $optValue; ?>"
-				<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-			><?php echo $optText; ?></option><?php
+			// optgroup
+			if ( is_array($optText) ) :
+				$optGroupLabel = $optValue;
+				$optGroupItems = $optText;
+				?><optgroup label="<?php echo $optGroupLabel; ?>"><?php
+					// optgroup-option
+					foreach ( $optGroupItems as $optValue => $optText ) :
+						?><option
+							value="<?php echo $optValue; ?>"
+							<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
+						><?php echo $optText; ?></option><?php
+					endforeach;
+				?></optgroup><?php
+			// option
+			else :
+				?><option
+					value="<?php echo $optValue; ?>"
+					<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
+				><?php echo $optText; ?></option><?php
+			endif;
 		endforeach;
 	?></select>
 </div><?php
