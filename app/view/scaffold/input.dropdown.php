@@ -56,18 +56,12 @@
 				?><optgroup label="<?php echo $optGroupLabel; ?>"><?php
 					// optgroup-option
 					foreach ( $optGroupItems as $optValue => $optText ) :
-						?><option
-							value="<?php echo $optValue; ?>"
-							<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-						><?php echo $optText; ?></option><?php
+						include F::appPath('view/scaffold/input.dropdown.item.php');
 					endforeach;
 				?></optgroup><?php
 			// option
 			else :
-				?><option
-					value="<?php echo $optValue; ?>"
-					<?php if ( $field['value'] == $optValue ) echo 'selected'; ?>
-				><?php echo $optText; ?></option><?php
+				include F::appPath('view/scaffold/input.dropdown.item.php');
 			endif;
 		endforeach;
 	?></select>
