@@ -22,18 +22,20 @@
 </fusedoc>
 */
 // flatten options with optgroup into single-dimensional array
-if ( !function_exists('scaffold_options_flatten') ) function scaffold_options_flatten($options) { 
-	if ( !is_array($options) ) return false; 
-	$result = array(); 
-	foreach ( $options as $key => $val ) { 
-		if ( is_array($val) ) { 
-			$result = array_merge($result, scaffold_options_flatten($val)); 
-		} else { 
-			$result = array_merge($result, array($key => $val));
+if ( !function_exists('scaffold_options_flatten') ) :
+	function scaffold_options_flatten($options) { 
+		if ( !is_array($options) ) return false; 
+		$result = array(); 
+		foreach ( $options as $key => $val ) { 
+			if ( is_array($val) ) { 
+				$result = array_merge($result, scaffold_options_flatten($val)); 
+			} else { 
+				$result = array_merge($result, array($key => $val));
+			} 
 		} 
-	} 
-	return $result; 
-}
+		return $result; 
+	}
+endif;
 ?><div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
 	<table class="table table-hover table-sm mb-0">
 		<tbody>

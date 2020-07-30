@@ -32,7 +32,7 @@ foreach ( $field['options'] as $optValue => $optText ) :
 		$optGroupLabel = $optValue;
 		$optGroupItems = $optText;
 		?><small><strong><?php echo $optGroupLabel; ?></strong></small><?php
-		foreach ( $optGroupItes as $optValue => $optText ) :
+		foreach ( $optGroupItems as $optValue => $optText ) :
 			include F::appPath('view/scaffold/input.radio.item.php');
 			$optIndex++;
 		endforeach;
