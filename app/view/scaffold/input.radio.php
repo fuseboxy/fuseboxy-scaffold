@@ -6,7 +6,10 @@
 				<string name="name" />
 				<string name="value" />
 				<array name="options">
-					<string name="~optValue~" value="~optText~" />
+					<string name="~optionValue~" value="~optionText~" optional="yes" />
+					<structure name="~optGroup~" optional="yes">
+						<structure name="~optionValue~" value="~optionText~" />
+					</structure>
 				</array>
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
