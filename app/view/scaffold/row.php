@@ -20,8 +20,21 @@
 		<out />
 	</io>
 </fusedoc>
-*/ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
+*/
+// flatten options with optgroup into single-dimensional array
+if ( !function_exists('scaffold_options_flatten') ) function scaffold_options_flatten($options) { 
+	if ( !is_array($options) ) return false; 
+	$result = array(); 
+	foreach ( $options as $key => $val ) { 
+		if ( is_array($val) ) { 
+			$result = array_merge($result, scaffold_options_flatten($val)); 
+		} else { 
+			$result = array_merge($result, array($key => $val));
+		} 
+	} 
+	return $result; 
+}
+?><div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
 	<table class="table table-hover table-sm mb-0">
 		<tbody>
 			<tr <?php if ( !empty($bean->disabled) ) : ?>class="table-active op-50"<?php endif; ?>><?php
@@ -77,7 +90,8 @@
 									$arr = explode('|', $bean[$col]);
 									foreach ( $arr as $val ) :
 										if ( !empty($val) ) :
-											$output = !empty($field['options'][$val]) ? $field['options'][$val] : $val;
+											$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+											$output = !empty($options[$val]) ? $options[$val] : $val;
 											?><div><?php echo $output; ?></div><?php
 										endif;
 									endforeach;
@@ -88,7 +102,8 @@
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
 										if ( !empty($val) ) :
-											$output = !empty($field['options'][$val]) ? $field['options'][$val] : "[{$col}={$val}]";
+											$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+											$output = !empty($options[$val]) ? $options[$val] : "[{$col}={$val}]";
 											?><div><?php echo $output; ?></div><?php
 										endif;
 									endforeach;
@@ -97,7 +112,8 @@
 									$isObjectID = ( substr($col, -3) == '_id' );
 									$val = $bean[$col];
 									if ( !empty($val) ) :
-										echo !empty($field['options'][$val]) ? $field['options'][$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
+										$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+										echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
 									endif;
 								// url : show link
 								elseif ( $isURL ) :
