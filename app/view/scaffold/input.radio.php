@@ -28,24 +28,18 @@
 */
 $optIndex = 0;
 foreach ( $field['options'] as $optValue => $optText ) :
-	$radioID = uuid();
-	?><div class="form-check">
-		<input
-			id="<?php echo $radioID; ?>"
-			class="form-check-input"
-			type="radio"
-			name="data[<?php echo $field['name']; ?>]"
-			value="<?php echo htmlspecialchars($optValue); ?>"
-			<?php if ( $field['value'] == $optValue ) echo 'checked'; ?>
-			<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-			<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-		 />
-		<label 
-			for="<?php echo $radioID; ?>" 
-			class="form-check-label small"
-		><?php echo $optText; ?></label>
-	</div><?php
-	$optIndex++;
+	if ( is_array($optText) ) :
+		$optGroupLabel = $optValue;
+		$optGroupItems = $optText;
+		?><small><strong><?php echo $optGroupLabel; ?></strong></small><?php
+		foreach ( $optGroupItes as $optValue => $optText ) :
+			include F::appPath('view/scaffold/input.radio.item.php');
+			$optIndex++;
+		endforeach;
+	else :
+		include F::appPath('view/scaffold/input.radio.item.php');
+		$optIndex++;
+	endif;
 endforeach;
 if ( !empty($field['readonly']) ) :
 	?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
