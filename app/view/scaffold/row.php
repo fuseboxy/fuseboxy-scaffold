@@ -23,14 +23,14 @@
 */
 // flatten options with optgroup into single-dimensional array
 if ( !function_exists('scaffold_options_flatten') ) :
-	function scaffold_options_flatten($options) { 
+	function scaffold_options_flatten($options) {
 		if ( !is_array($options) ) return false; 
 		$result = array(); 
 		foreach ( $options as $key => $val ) { 
 			if ( is_array($val) ) { 
-				$result = array_merge($result, scaffold_options_flatten($val)); 
+				$result += scaffold_options_flatten($val);
 			} else { 
-				$result = array_merge($result, array($key => $val));
+				$result += array($key => $val);
 			} 
 		} 
 		return $result; 
