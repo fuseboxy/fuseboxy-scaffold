@@ -194,26 +194,25 @@ switch ( $fusebox->action ) :
 	case 'edit':
 		F::error('Forbidden (allowEdit=false)', !$scaffold['allowEdit']);
 		F::error('Argument [id] is required', empty($arguments['id']));
+		// get record
+		$bean = Scaffold::getBean($arguments['id']);
+		F::error(Scaffold::error(), $bean === false);
 	case 'new':
 	case 'quick':
 		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew'] and !F::is('*.edit'));
-		// get record
-		$bean = Scaffold::getBean( F::is('*.edit') ? $arguments['id'] : null );
+		// get empty record (when necessary)
+		if ( !isset($bean) ) $bean = Scaffold::getBean();
 		F::error(Scaffold::error(), $bean === false);
-		// define exit point
-		if ( $scaffold['allowEdit'] ) {
-			$xfa['submit'] = "{$fusebox->controller}.save";
-		}
+		// exit point
+		if ( $scaffold['allowEdit'] ) $xfa['submit'] = "{$fusebox->controller}.save";
 		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.empty" : "{$fusebox->controller}.row&id={$bean->id}";
 		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
 		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		ob_start();
-		if ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) {
-			include $scaffold['scriptPath']['inline_edit'];
-		} else {
-			include $scaffold['scriptPath']['edit'];
-		}
+		if ( empty($arguments['count']) ) $arguments['count'] = 1;
+		$formType = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'inline_edit' : 'edit';
+		for ( $__rowIndex=0; $__rowIndex<$arguments['count']; $__rowIndex++ ) include $scaffold['scriptPath'][$formType];
 		$layout['content'] = ob_get_clean();
 		// show with layout (when necessary)
 		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {

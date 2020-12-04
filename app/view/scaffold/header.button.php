@@ -3,15 +3,17 @@
 	<io>
 		<in>
 			<structure name="$xfa">
-				<string name="quick" optional="yes" />
 				<string name="new" optional="yes" />
+				<string name="quick" optional="yes" />
 			</structure>
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" comments="inline|modal|inline-modal|basic" />
 			</structure>
 		</in>
-		<out />
+		<out>
+			<number name="count" scope="url" oncondition="xfa.new|xfa.quick" />
+		</out>
 	</io>
 </fusedoc>
 */
@@ -39,7 +41,14 @@ if ( isset($xfa['quick']) ) :
 		// dropdown
 		?><ul class="dropdown-menu dropdown-menu-right" style="min-width: 100%;"><?php
 			for ( $i=2; $i<=9; $i++ ) :
-				?><li class="dropdown-item text-center small"><?php echo $i; ?></li><?php
+				?><li class="text-center small"><a 
+					href="<?php echo F::url($xfa['quick'].'&count='.$i); ?>"
+					class="dropdown-item"
+					data-toggle="ajax-load"
+					data-loading="none"
+					data-mode="after"
+					data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+				><?php echo $i; ?></a></li><?php
 			endfor;
 		?></ul>
 	</div><?php
@@ -77,7 +86,14 @@ if ( isset($xfa['new']) ) :
 			// dropdown
 			?><ul class="dropdown-menu dropdown-menu-right" style="min-width: 100%;"><?php
 				for ( $i=2; $i<=9; $i++ ) :
-					?><li class="dropdown-item text-center small"><?php echo $i; ?></li><?php
+					?><li class="text-center small"><a 
+						href="<?php echo F::url($xfa['new'].'&count='.$i); ?>"
+						class="dropdown-item"
+						data-toggle="ajax-load"
+						data-mode="after"
+						data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+						data-loading="none"
+					><?php echo $i; ?></a></li><?php
 				endfor;
 			?></ul><?php
 		endif;
