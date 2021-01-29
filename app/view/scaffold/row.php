@@ -68,28 +68,28 @@ endif;
 								if ( $isOutput ) :
 									echo isset($field['value']) ? $field['value'] : '';
 								// image : show thumbnail
-								elseif ( $isImage and !empty($bean[$col]) ) :
+								elseif ( $isImage and !empty($bean->{$col}) ) :
 									?><a
-										title="<?php echo basename($bean[$col]); ?>"
-										href="<?php echo $bean[$col]; ?>"
+										title="<?php echo basename($bean->{$col}); ?>"
+										href="<?php echo $bean->{$col}; ?>"
 										target="_blank"
 										data-fancybox
 									><img
-										alt="<?php echo basename($bean[$col]); ?>"
-										src="<?php echo $bean[$col]; ?>"
+										alt="<?php echo basename($bean->{$col}); ?>"
+										src="<?php echo $bean->{$col}; ?>"
 										class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
 										style="max-width: 100%; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
 									/></a><?php
 								// file : show link
-								elseif ( $isFile and !empty($bean[$col]) ) :
+								elseif ( $isFile and !empty($bean->{$col}) ) :
 									?><a
-										href="<?php echo $bean[$col]; ?>"
+										href="<?php echo $bean->{$col}; ?>"
 										style="word-break: break-all;"
 										target="_blank"
-									><?php echo basename($bean[$col]); ?></a><?php
+									><?php echo basename($bean->{$col}); ?></a><?php
 								// checkbox : turn list into items
-								elseif ( $isCheckbox and !empty($bean[$col]) ) :
-									$arr = explode('|', $bean[$col]);
+								elseif ( $isCheckbox and !empty($bean->{$col}) ) :
+									$arr = explode('|', $bean->{$col});
 									foreach ( $arr as $val ) :
 										if ( !empty($val) ) :
 											$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
@@ -112,7 +112,7 @@ endif;
 								// dropdown : show single value (according to options)
 								elseif ( isset($field['options']) ) :
 									$isObjectID = ( substr($col, -3) == '_id' );
-									$val = $bean[$col];
+									$val = $bean->{$col};
 									if ( !empty($val) ) :
 										$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
 										echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
@@ -120,16 +120,16 @@ endif;
 								// url : show link
 								elseif ( $isURL ) :
 									?><a
-										href="<?php echo $bean[$col]; ?>"
+										href="<?php echo $bean->{$col}; ?>"
 										style="word-break: break-all;"
 										target="_blank"
-									><?php echo $bean[$col]; ?></a><?php
+									><?php echo $bean->{$col}; ?></a><?php
 								// wysiwyg : show html
 								elseif ( $isWYSIWYG ) :
-									echo $bean[$col];
+									echo $bean->{$col};
 								// default : show field value
 								elseif ( !$isHidden ) :
-									echo nl2br($bean[$col]);
+									echo nl2br($bean->{$col});
 								endif;
 							?></div><?php
 						endforeach; // foreach-cols
