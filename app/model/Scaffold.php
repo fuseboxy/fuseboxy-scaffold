@@ -167,7 +167,7 @@ class Scaffold {
 				'action' => 'DELETE_'.self::$config['beanType'],
 				'entity_type' => self::$config['beanType'],
 				'entity_id' => $id,
-				'remark' => method_exists('Bean', 'toString') ? Bean::toString($beanBeforeDelete) : null,
+				'remark' => Bean::toString($beanBeforeDelete),
 			));
 			if ( $logResult === false ) {
 				self::$error = Log::error();
@@ -1077,18 +1077,11 @@ class Scaffold {
 		}
 		// write log (when necessary)
 		if ( self::$config['writeLog'] ) {
-			if ( !empty($data['id']) and method_exists('Bean', 'diff') ) {
-				$logRemark = Bean::diff($beanBeforeSave, $bean);
-			} elseif ( empty($data['id']) and method_exists('Bean', 'toString') ) {
-				$logRemark = Bean::toString($bean);
-			} else {
-				$logRemark = null;
-			}
 			$logResult = Log::write(array(
 				'action' => ( empty($data['id']) ? 'CREATE' : 'UPDATE' ).'_'.self::$config['beanType'],
 				'entity_type' => self::$config['beanType'],
 				'entity_id' => $id,
-				'remark' => $logRemark,
+				'remark' => !empty($data['id']) ? Bean::diff($beanBeforeSave, $bean) : Bean::toString($bean),
 			));
 			if ( $logResult === false ) {
 				self::$error = Log::error();
