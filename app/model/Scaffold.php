@@ -154,9 +154,7 @@ class Scaffold {
 	public static function deleteBean($id) {
 		$bean = self::getBean($id);
 		// get record value for log (when necessary)
-		if ( self::$config['writeLog'] ) {
-			$beanBeforeDelete = $bean->export();
-		}
+		if ( self::$config['writeLog'] ) $beanBeforeDelete = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
 		// commit to delete record
 		$deleteResult = ORM::delete($bean);
 		if ( $deleteResult === false ) {
@@ -1037,7 +1035,7 @@ class Scaffold {
 		// get current bean or create new bean
 		$bean = self::getBean( !empty($data['id']) ? $data['id'] : null );
 		if ( $bean === false ) return false;
-		if ( self::$config['writeLog'] ) $beanBeforeSave = $bean->export();
+		if ( self::$config['writeLog'] ) $beanBeforeSave = method_exists($bean, 'export') ? $bean->export() : get_object_vars($bean);
 		// fix submitted multi-selection value
 		foreach ( self::$config['fieldConfig'] as $fieldName => $field ) {
 			// remove empty item from submitted checkboxes
