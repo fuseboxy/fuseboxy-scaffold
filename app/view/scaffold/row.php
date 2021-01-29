@@ -100,7 +100,7 @@ endif;
 								// one-to-many & many-to-many : show multiple values (according to options)
 								elseif ( $isOneToMany or $isManyToMany ) :
 									$objectName = ( substr($col, -3) == '_id' ) ? substr($col, 0, strlen($col)-3) : $col;
-									$arr = $bean[ ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName) ];
+									$arr = $isOneToMany ? $bean->('own'.ucfirst($objectName)) : $bean->('shared'.ucfirst($objectName));
 									foreach ( $arr as $associateBean ) :
 										$val = $associateBean->id;
 										if ( !empty($val) ) :

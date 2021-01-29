@@ -1065,7 +1065,7 @@ class Scaffold {
 		}
 		// put submitted data into bean
 		foreach ( $data as $key => $val ) $bean->{$key} = $val;
-		foreach ( $bean as $key => $val ) if ( $val === '' ) $bean[$key] = null;
+		foreach ( $bean as $key => $val ) if ( $val === '' ) $bean->{$key} = null;
 		// default value for <disabled> and <seq>
 		// ===> field <disabled> is compulsory
 		// ===> field <seq> is optional

@@ -47,8 +47,8 @@ if ( isset($field['value']) ) {
 
 // other type
 // ===> simple value
-} elseif ( isset($bean[$field['name']]) ) {
-	$field['value'] = $bean[$field['name']];
+} elseif ( isset($bean->{$field['name']}) ) {
+	$field['value'] = $bean->{$field['name']};
 
 // no value
 // ===> apply default value
