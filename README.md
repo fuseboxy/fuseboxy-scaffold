@@ -1,5 +1,5 @@
-Fuseboxy Scaffold
-=================
+Fuseboxy Scaffold (v2.x)
+========================
 
 Component to generate user interface and business logic for CRUD operation.
 
