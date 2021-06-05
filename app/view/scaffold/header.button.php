@@ -20,7 +20,7 @@
 
 // quick button
 if ( isset($xfa['quick']) ) :
-	?><div class="btn-group ml-1"><?php
+	?><div class="btn-group"><?php
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['quick']); ?>"
@@ -51,13 +51,13 @@ if ( isset($xfa['quick']) ) :
 				><?php echo $i; ?></a></li><?php
 			endfor;
 		?></ul>
-	</div><?php
+	</div> <?php
 endif;
 
 
 // new button
 if ( isset($xfa['new']) ) :
-	?><div class="btn-group ml-1"><?php
+	?><div class="btn-group"><?php
 		// main button
 		?><a
 			href="<?php echo F::url($xfa['new']); ?>"
@@ -97,7 +97,7 @@ if ( isset($xfa['new']) ) :
 				endfor;
 			?></ul><?php
 		endif;
-	?></div><?php
+	?></div> <?php
 endif;
 
 
