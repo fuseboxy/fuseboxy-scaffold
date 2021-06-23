@@ -34,7 +34,7 @@
 	</io>
 </fusedoc>
 */
-$recordID = empty($bean->id) ? uuid() : $bean->id;
+$recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 
 // display
 ?><form

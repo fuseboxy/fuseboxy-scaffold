@@ -24,7 +24,7 @@
 	</io>
 </fusedoc>
 */
-$radioID = uuid();
+$radioID = Util::uuid();
 ?><div class="form-check">
 	<input
 		id="<?php echo $radioID; ?>"

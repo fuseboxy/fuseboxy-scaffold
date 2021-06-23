@@ -26,7 +26,7 @@
 	</io>
 </fusedoc>
 */
-$recordID = empty($bean->id) ? uuid() : $bean->id;
+$recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 ?><form
 	id="<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
 	class="<?php echo $scaffold['beanType']; ?>-inline-edit scaffold-inline-edit form-horizontal"

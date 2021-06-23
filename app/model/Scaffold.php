@@ -1676,7 +1676,7 @@ class Scaffold {
 		}
 		// config : assign unique name to avoid overwrite
 		$arguments['originalName'] = urldecode($arguments['originalName']);
-		$uniqueName = pathinfo($arguments['originalName'], PATHINFO_FILENAME).'_'.uuid().'.'.pathinfo($arguments['originalName'], PATHINFO_EXTENSION);
+		$uniqueName = pathinfo($arguments['originalName'], PATHINFO_FILENAME).'_'.Util::uuid().'.'.pathinfo($arguments['originalName'], PATHINFO_EXTENSION);
 		$uploader->newFileName = $uniqueName;
 		// check resize config (when necessary)
 		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['resize']) ) {
@@ -1759,6 +1759,10 @@ class Scaffold {
 			return false;
 		} elseif ( empty(F::config('uploadUrl')) and $hasFileField ) {
 			self::$error = 'Fusebox config [uploadUrl] is required';
+			return false;
+		// check util component (for uuid)
+		} elseif ( !class_exists('Util') ) {
+			self::$error = 'Util component is required';
 			return false;
 		// check log component
 		} elseif ( !empty(self::$config['writeLog']) and !class_exists('Log') ) {
