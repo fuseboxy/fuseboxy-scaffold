@@ -29,7 +29,7 @@ if ( isset($xfa['quick']) ) :
 			data-loading="none"
 			data-mode="after"
 			data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
-		><i class="fa fa-bolt"></i><span class="ml-1">Quick</span></a><?php
+		><i class="fa fa-plus"></i><span class="ml-1">Quick</span></a><?php
 		// dropdown button
 		?><button 
 			type="button" 
