@@ -1128,6 +1128,7 @@ class Scaffold {
 				<!-- modified -->
 				<structure name="$config" scope="self">
 					<boolean name="allowNew" default="true" />
+					<boolean name="allowQuick" default="~allowNew~" />
 					<boolean name="allowEdit" default="true" />
 					<boolean name="allowToggle" default="true" />
 					<boolean name="allowDelete" default="false" />
@@ -1261,9 +1262,10 @@ class Scaffold {
 		self::$config['listField'] = array();
 		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
 		// param default : permission
-		if ( !isset(self::$config['allowNew']) ) self::$config['allowNew'] = true;
-		if ( !isset(self::$config['allowEdit']) ) self::$config['allowEdit'] = true;
-		if ( !isset(self::$config['allowSort']) ) self::$config['allowSort'] = true;
+		if ( !isset(self::$config['allowNew'])    ) self::$config['allowNew']    = true;
+		if ( !isset(self::$config['allowQuick'])  ) self::$config['allowQuick']  = self::$config['allowNew'];
+		if ( !isset(self::$config['allowEdit'])   ) self::$config['allowEdit']   = true;
+		if ( !isset(self::$config['allowSort'])   ) self::$config['allowSort']   = true;
 		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
 		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
 		// param fix : permission (allowSort)
