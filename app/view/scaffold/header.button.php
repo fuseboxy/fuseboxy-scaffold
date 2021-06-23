@@ -72,7 +72,7 @@ if ( isset($xfa['new']) ) :
 				data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
 				data-loading="none"
 			<?php endif; ?>
-		><i class="fa fa-plus"></i><span class="ml-1 <?php if ( isset($xfa['quick']) ) echo 'mr-1'; ?>">New</span></a><?php
+		><i class="fa fa-plus"></i><span class="<?php ( $scaffold['editMode'] == 'inline' ) ? 'ml-1' : 'mx-1'; ?>">New</span></a><?php
 		// add multiple (when necessary)
 		if ( $scaffold['editMode'] == 'inline' ) :
 			// dropdown button
