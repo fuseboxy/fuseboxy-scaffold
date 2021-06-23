@@ -8,6 +8,7 @@
 				<string name="layoutPath" />
 				<!-- below config are all optional -->
 				<boolean name="allowNew" optional="yes" default="true" />
+                <boolean name="allowQuick" optional="yes" default="true" />
 				<boolean name="allowEdit" optional="yes" default="true" />
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
@@ -113,12 +114,12 @@ switch ( $fusebox->action ) :
 		$beanList = Scaffold::getBeanList();
 		F::error(Scaffold::error(), $beanList === false);
 		// define exit point
-		if ( $scaffold['allowNew'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
-			$xfa['quick'] = "{$fusebox->controller}.quick";
-		}
 		if ( $scaffold['allowNew'] ) {
 			$xfa['new'] = "{$fusebox->controller}.new";
 		}
+        if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
+            $xfa['quick'] = "{$fusebox->controller}.quick";
+        }
 		if ( $scaffold['allowEdit'] ) {
 			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
 		}
