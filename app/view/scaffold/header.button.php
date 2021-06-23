@@ -74,7 +74,7 @@ if ( isset($xfa['new']) ) :
 			<?php endif; ?>
 		><i class="fa fa-plus"></i><span class="ml-1 <?php if ( isset($xfa['quick']) ) echo 'mr-1'; ?>">New</span></a><?php
 		// add multiple (when necessary)
-		if ( !isset($xfa['quick']) ) :
+		if ( $scaffold['editMode'] == 'inline' ) :
 			// dropdown button
 			?><button 
 				type="button" 
