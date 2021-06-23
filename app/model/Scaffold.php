@@ -1762,7 +1762,6 @@ class Scaffold {
 		} elseif ( !class_exists('Util') ) {
 			self::$error = 'Util component is required';
 			return false;
-		}
 		// check log component
 		} elseif ( !empty(self::$config['writeLog']) and !class_exists('Log') ) {
 			self::$error = 'Log component is required';
