@@ -11,7 +11,6 @@
 						<structure name="~optionValue~" value="~optionText~" />
 					</structure>
 				</structure>
-				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
 				<string name="class" optional="yes" />
@@ -26,18 +25,10 @@
 	</io>
 </fusedoc>
 */ ?>
-<div class="input-group"><?php
-	// icon
-	if ( !empty($field['icon']) ) :
-		?><div class="input-group-prepend">
-			<span class="input-group-text">
-				<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-			</span>
-		</div><?php
-	endif;
-	// field
+<div class="input-group input-group-sm"><?php
+	include F::appPath('view/scaffold/input.icon.php');
 	?><select
-		class="custom-select custom-select-sm <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
+		class="custom-select <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>

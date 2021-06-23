@@ -23,16 +23,7 @@
 </fusedoc>
 */ ?>
 <div class="input-group"><?php
-	// icon (default showing icon; use <false> to hide icon forcefully)
-	if ( !isset($field['icon']) or $field['icon'] !== false ) :
-		$fieldIcon = isset($field['icon']) ? $field['icon'] : ( ($field['format'] == 'time') ? 'far fa-clock' : 'fa fa-calendar-alt' );
-		?><div class="input-group-prepend">
-			<span class="input-group-text">
-				<i class="fa-fw <?php echo $fieldIcon; ?>"></i>
-			</span>
-		</div><?php
-	endif;
-	// field
+	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="text"
 		class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"

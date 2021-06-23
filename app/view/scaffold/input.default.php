@@ -6,7 +6,6 @@
 				<string name="name" />
 				<string name="value" />
 				<string name="format" optional="yes" default="text" />
-				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
 				<string name="placeholder" optional="yes" />
@@ -22,19 +21,11 @@
 	</io>
 </fusedoc>
 */ ?>
-<div class="input-group"><?php
-	// icon
-	if ( !empty($field['icon']) ) :
-		?><div class="input-group-prepend">
-			<span class="input-group-text">
-				<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-			</span>
-		</div><?php
-	endif;
-	// field
+<div class="input-group input-group-sm"><?php
+	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="<?php echo empty($field['format']) ? 'text' : $field['format']; ?>"
-		class="form-control form-control-sm scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
+		class="form-control scaffold-input-<?php echo empty($field['format']) ? 'text' : $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo htmlspecialchars($field['value']); ?>"
 		<?php if ( !empty($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>

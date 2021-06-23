@@ -1146,6 +1146,7 @@ class Scaffold {
 						<structure name="~fieldName~">
 							<string name="label" comments="derived from field name when not specified or true" />
 							<string name="placeholder" comments="derived from field name when true" />
+							<string name="inline-label" comments="derived from field name when true" />
 							<list name="filetype" comments="for [format=image] field" />
 						</structure>
 					</structure>
@@ -1207,30 +1208,42 @@ class Scaffold {
 		// param default : field config (placeholder)
 		// param default : field config (filetype)
 		// param default : field config (filesize)
-		foreach ( self::$config['fieldConfig'] as $_key => $_val ) {
+		// param default : field config (icon)
+		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			// label : derived from field name
-			if ( !isset($_val['label']) or $_val['label'] === true ) {
-				self::$config['fieldConfig'][$_key]['label'] = implode(' ', array_map(function($word){
+			if ( !isset($cfg['label']) or $cfg['label'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['label'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $_key)));
+				}, explode('_', $fieldName)));
 			}
 			// placeholder : derived from field name
-			if ( isset($_val['placeholder']) and $_val['placeholder'] === true ) {
-				self::$config['fieldConfig'][$_key]['placeholder'] = implode(' ', array_map(function($word){
+			if ( isset($cfg['placeholder']) and $cfg['placeholder'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['placeholder'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $_key)));
+				}, explode('_', $fieldName)));
+			}
+			// inline-label : derived from field name
+			if ( isset($cfg['inline-label']) and $cfg['inline-label'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['inline-label'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $fieldName)));
 			}
 			// filetype : image
-			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'image' ) {
-				self::$config['fieldConfig'][$_key]['filetype'] = 'gif,jpg,jpeg,png';
+			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'image' ) {
+				self::$config['fieldConfig'][$fieldName]['filetype'] = 'gif,jpg,jpeg,png';
 			}
 			// filetype : file
-			if ( empty($_val['filetype']) and isset($_val['format']) and $_val['format'] == 'file' ) {
-				self::$config['fieldConfig'][$_key]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
+			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'file' ) {
+				self::$config['fieldConfig'][$fieldName]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
 			}
 			// filesize
-			if ( empty($_val['filesize']) and isset($_val['format']) and in_array($_val['format'], ['file','image']) ) {
-				self::$config['fieldConfig'][$_key]['filesize'] = '10MB';
+			if ( empty($cfg['filesize']) and isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
+				self::$config['fieldConfig'][$fieldName]['filesize'] = '10MB';
+			}
+			// icon : default icon for datetime/date/time
+			// ===> use <false> to hide icon forcefully
+			if ( isset($cfg['format']) and in_array($cfg['format'], ['datetime','date','time']) ) {
+				if ( !isset($cfg['icon']) ) $field['icon'] = ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt';
 			}
 		}
 		// param default : modal field
