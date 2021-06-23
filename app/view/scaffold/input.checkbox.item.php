@@ -26,7 +26,7 @@
 	</io>
 </fusedoc>
 */
-$checkboxID = uuid();
+$checkboxID = Util::uuid();
 ?><div class="form-check">
 	<input
 		id="<?php echo $checkboxID; ?>"
