@@ -1243,7 +1243,9 @@ class Scaffold {
 			// icon : default icon for datetime/date/time
 			// ===> use <false> to hide icon forcefully
 			if ( isset($cfg['format']) and in_array($cfg['format'], ['datetime','date','time']) ) {
-				if ( !isset($cfg['icon']) ) $field['icon'] = ( $field['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt';
+				if ( !isset($cfg['icon']) ) {
+					self::$config['fieldConfig'][$fieldName]['icon'] = ( $cfg['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt';
+				}
 			}
 		}
 		// param default : modal field
