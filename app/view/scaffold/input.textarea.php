@@ -21,18 +21,10 @@
 	</io>
 </fusedoc>
 */ ?>
-<div class="input-group"><?php
-	// icon
-	if ( !empty($field['icon']) ) :
-		?><div class="input-group-prepend">
-			<span class="input-group-text">
-				<i class="fa-fw <?php echo $field['icon']; ?>"></i>
-			</span>
-		</div><?php
-	endif;
-	// field
+<div class="input-group input-group-sm"><?php
+	include F::appPath('view/scaffold/input.icon.php');
 	?><textarea
-		class="form-control form-control-sm <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
+		class="form-control <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>

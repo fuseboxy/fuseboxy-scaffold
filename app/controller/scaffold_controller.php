@@ -34,6 +34,8 @@
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
 						<string name="label" optional="yes" comments="display name at table/form header">
+						<string name="placeholder" optional="yes" default="display name in field" />
+						<string name="inline-label" optional="yes" default="display name at beginning of field" />
 						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg|url" default="text" />
 						<structure name="options" optional="yes" comments="show dropdown when specified">
 							<string name="~optionValue~" value="~optionText~" optional="yes" />
@@ -43,7 +45,6 @@
 						</structure>
 						<boolean name="required" optional="yes" />
 						<boolean name="readonly" optional="yes" comments="output does not pass value; readonly does" />
-						<string name="placeholder" optional="yes" default="column display name" />
 						<string name="value" optional="yes" comments="force filling with this value even if field has value" />
 						<string name="default" optional="yes" comments="filling with this value if field has no value" />
 						<string name="class" optional="yes" />
