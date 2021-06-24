@@ -22,11 +22,11 @@
 	</io>
 </fusedoc>
 */ ?>
-<div class="input-group"><?php
+<div class="input-group input-group-sm"><?php
 	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="text"
-		class="form-control form-control-sm scaffold-input-<?php echo $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
+		class="form-control scaffold-input-<?php echo $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo htmlspecialchars($field['value']); ?>"
 		autocomplete="off"
