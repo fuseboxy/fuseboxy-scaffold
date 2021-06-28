@@ -29,8 +29,8 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-header" class="scaffold-header bg-white small">
-	<table class="table table-sm table-borderless border-bottom mb-0">
+<div id="<?php echo $scaffold['beanType']; ?>-header" class="scaffold-header small">
+	<table class="table table-sm table-borderless border-bottom mb-0 bg-white">
 		<thead>
 			<tr><?php
 				// go through list config
