@@ -95,14 +95,18 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 		// form fields
 		foreach ( $scaffold['modalField'] as $colList => $colWidthList ) :
 			$isHeading = ( strlen($colList) != strlen(ltrim($colList, '#')) );
-			$isLine = ( !empty($colList) and trim($colList, '-') == '' );
+			$isLine = ( !empty($colList) and trim($colList, '-') === '' );
+			$isBR = ( !empty($colList) and trim($colList, '\\') === '' );
 			// output : heading
 			if ( $isHeading ) :
 				$size = 'h'.( strlen($colList) - strlen(ltrim($colList, '#')) );
 				?><div class="<?php echo $size; ?>"><?php echo trim(ltrim($colList, '#')); ?></div><?php
-			// output : line
+			// output : horizontal line
 			elseif ( $isLine ) :
 				?><hr /><?php
+			// output : linebreak
+			elseif ( $isBR ) :
+				?><br /><?php
 			// input field
 			else :
 				$colList = explode('|', $colList);
