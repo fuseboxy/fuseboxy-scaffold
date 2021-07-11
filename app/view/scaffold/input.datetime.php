@@ -26,13 +26,19 @@
 	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="text"
-		class="form-control scaffold-input-<?php echo $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		name="data[<?php echo $field['name']; ?>]"
 		value="<?php echo htmlspecialchars($field['value']); ?>"
+		class="form-control br-0 scaffold-input-<?php echo $field['format']; ?> <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
 		autocomplete="off"
 		<?php if ( !empty($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($field['placeholder']) ) : ?>placeholder="<?php echo $field['placeholder']; ?>"<?php endif; ?>
 		<?php if ( !empty($field['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-	 />
+	 /><?php
+	// calendar or clock
+	?><div class="input-group-append">
+		<span class="input-group-text bg-transparent px-2 bl-0">
+			<i class="<?php if ( $field['format'] == 'time') ? 'far fa-clock' : 'far fa-calendar-alt'; ?> op-30"></i>
+		</span>
+	</div>
 </div>

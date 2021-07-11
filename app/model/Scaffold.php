@@ -1240,13 +1240,6 @@ class Scaffold {
 			if ( empty($cfg['filesize']) and isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
 				self::$config['fieldConfig'][$fieldName]['filesize'] = '10MB';
 			}
-			// icon : default icon for datetime/date/time
-			// ===> use <false> to hide icon forcefully
-			if ( isset($cfg['format']) and in_array($cfg['format'], ['datetime','date','time']) ) {
-				if ( !isset($cfg['icon']) ) {
-					self::$config['fieldConfig'][$fieldName]['icon'] = ( $cfg['format'] == 'time' ) ? 'far fa-clock' : 'fa fa-calendar-alt';
-				}
-			}
 		}
 		// param default : modal field
 		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
