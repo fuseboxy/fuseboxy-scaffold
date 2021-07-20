@@ -96,13 +96,13 @@ F::error('Forbidden', F::is('scaffold.*'));
 // allow component to access and update the config variable
 Scaffold::$config = &$scaffold;
 
-// validation
-$validateConfig = Scaffold::validateConfig();
-F::error(Scaffold::error(), $validateConfig === false);
-
 // set parameter default value
-$initConfig = Scaffold::initConfig();
-F::error(Scaffold::error(), $initConfig === false);
+$init = Scaffold::initConfig();
+F::error(Scaffold::error(), $init === false);
+
+// validation
+$valid = Scaffold::validateConfig();
+F::error(Scaffold::error(), $valid === false);
 
 
 // start!

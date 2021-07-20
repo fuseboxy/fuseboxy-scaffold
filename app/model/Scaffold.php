@@ -1783,8 +1783,8 @@ class Scaffold {
 		// has any file field?
 		$hasFileField = false;
 		if ( isset(self::$config['fieldConfig']) ) {
-			foreach ( self::$config['fieldConfig'] as $_key => $_field ) {
-				if ( isset($_field['format']) and in_array($_field['format'], ['file','image']) ) {
+			foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
+				if ( isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
 					$hasFileField = true;
 					break;
 				}
@@ -1820,6 +1820,38 @@ class Scaffold {
 		} elseif ( !empty(self::$config['writeLog']) and !class_exists('Log') ) {
 			self::$error = 'Log component is required';
 			return false;
+		}
+		// check field config : any missing @ listField
+		foreach ( self::$config['listField'] as $fieldNameList => $columnWidth ) {
+			$fieldNameList = explode('|', $fieldNameList);
+			foreach ( $fieldNameList as $fieldName ) {
+				if ( !empty($fieldName) and !isset(self::$config['fieldConfig'][$fieldName]) ) {
+					self::$error = "Field config for [{$fieldName}] is required";
+					return false;
+				}
+			} // foreach-fieldName
+		} // foreach-listField
+		// check field config : any missing
+		foreach ( self::$config['modalField'] as $fieldNameList => $fieldWidthList ) {
+			if ( self::parseFieldRow($fieldNameList, true) == 'fields' ) {
+				$fieldNameList = explode('|', $fieldNameList);
+				foreach ( $fieldNameList as $fieldName ) {
+					if ( !empty($fieldName) and !isset(self::$config['fieldConfig'][$fieldName]) ) {
+						self::$error = "Field config for [{$fieldName}] is required";
+						return false;
+					}
+				} // foreach-fieldName
+			} // if-parseFieldRow-fields
+		} // foreach-modalField
+		// check field config : options
+		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
+			if ( isset($cfg['format']) and in_array($cfg['format'], ['checkbox','radio']) and !isset($cfg['options']) ) {
+				self::$error = "Options for [{$fieldName}] is required";
+				return false;
+			} elseif ( isset($cfg['options']) and $cfg['options'] !== false and !is_array($cfg['options']) ) {
+				self::$error = "Options for [{$fieldName}] must be array";
+				return false;
+			}
 		}
 		// done!
 		return true;
