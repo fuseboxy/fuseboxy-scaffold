@@ -4,7 +4,7 @@
 		<in>
 			<string name="$optValue" />
 			<string name="$optText" />
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="name" />
 				<array name="value">
 					<string name="+" />
@@ -32,11 +32,11 @@ $checkboxID = Util::uuid();
 		id="<?php echo $checkboxID; ?>"
 		class="form-check-input"
 		type="checkbox"
-		name="data[<?php echo $field['name']; ?>][]"
+		name="data[<?php echo $fieldConfig['name']; ?>][]"
 		value="<?php echo htmlspecialchars($optValue); ?>"
-		<?php if ( in_array($optValue, $field['value']) ) echo 'checked'; ?>
-		<?php if ( !empty($field['required']) and $optIndex == 0 ) echo 'required'; ?>
-		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
+		<?php if ( in_array($optValue, $fieldConfig['value']) ) echo 'checked'; ?>
+		<?php if ( !empty($fieldConfig['required']) and $optIndex == 0 ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['readonly']) ) echo 'disabled'; ?>
 	 />
 	<label 
 		for="<?php echo $checkboxID; ?>" 

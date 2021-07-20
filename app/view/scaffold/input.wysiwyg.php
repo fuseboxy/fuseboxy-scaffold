@@ -6,7 +6,7 @@
 	</description>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="format" comments="wysiwyg" />
 				<string name="name" />
 				<string name="value" />
@@ -25,22 +25,22 @@
 </fusedoc>
 */
 // editable
-if ( empty($field['readonly']) ) :
+if ( empty($fieldConfig['readonly']) ) :
 	?><textarea
-		name="data[<?php echo $field['name']; ?>]"
-		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
-		style="min-height: 10em; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-	><?php echo $field['value']; ?></textarea><?php
+		name="data[<?php echo $fieldConfig['name']; ?>]"
+		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
+		style="min-height: 10em; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
+		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+	><?php echo $fieldConfig['value']; ?></textarea><?php
 
 // readonly
 else :
 	// hidden field to submit data
-	?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
+	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldConfig['value']); ?>" /><?php
 	// display html
 	?><div 
-		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
-		style="overflow: auto; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
-	><?php echo $field['value']; ?></div><?php
+		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
+		style="overflow: auto; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
+	><?php echo $fieldConfig['value']; ?></div><?php
 
 endif;

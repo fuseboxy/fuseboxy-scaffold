@@ -49,24 +49,24 @@ endif;
 					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>"><?php
 						// go through each field
 						foreach ( $cols as $colIndex => $col ) :
-							$field = $scaffold['fieldConfig'][$col];
+							$fieldConfig = $scaffold['fieldConfig'][$col];
 							// determine field format
-							$isManyToMany = ( isset($field['format']) and $field['format'] == 'many-to-many' );
-							$isOneToMany  = ( isset($field['format']) and $field['format'] == 'one-to-many' );
-							$isCheckbox   = ( isset($field['format']) and $field['format'] == 'checkbox' );
-							$isWYSIWYG    = ( isset($field['format']) and $field['format'] == 'wysiwyg' );
-							$isOutput     = ( isset($field['format']) and $field['format'] == 'output' );
-							$isHidden     = ( isset($field['format']) and $field['format'] == 'hidden' );
-							$isImage      = ( isset($field['format']) and $field['format'] == 'image' );
-							$isFile       = ( isset($field['format']) and $field['format'] == 'file' );
-							$isURL        = ( isset($field['format']) and $field['format'] == 'url' );
+							$isManyToMany = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'many-to-many' );
+							$isOneToMany  = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'one-to-many' );
+							$isCheckbox   = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' );
+							$isWYSIWYG    = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' );
+							$isOutput     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' );
+							$isHidden     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'hidden' );
+							$isImage      = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'image' );
+							$isFile       = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'file' );
+							$isURL        = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'url' );
 							// display : each field
 							$fieldClass = array('col-'.$col);
 							if ( $colIndex > 0 ) $fieldClass[] = 'small text-muted';
 							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 								// output : show custom content
 								if ( $isOutput ) :
-									echo isset($field['value']) ? $field['value'] : '';
+									echo isset($fieldConfig['value']) ? $fieldConfig['value'] : '';
 								// image : show thumbnail
 								elseif ( $isImage and !empty($bean->{$col}) ) :
 									?><a
@@ -78,7 +78,7 @@ endif;
 										alt="<?php echo basename($bean->{$col}); ?>"
 										src="<?php echo $bean->{$col}; ?>"
 										class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
-										style="max-width: 100%; <?php if ( !empty($field['style']) ) echo $field['style']; ?>"
+										style="max-width: 100%; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 									/></a><?php
 								// file : show link
 								elseif ( $isFile and !empty($bean->{$col}) ) :
@@ -92,7 +92,7 @@ endif;
 									$arr = explode('|', $bean->{$col});
 									foreach ( $arr as $val ) :
 										if ( !empty($val) ) :
-											$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+											$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
 											$output = !empty($options[$val]) ? $options[$val] : $val;
 											?><div><?php echo $output; ?></div><?php
 										endif;
@@ -104,17 +104,17 @@ endif;
 									foreach ( $bean->$associateField as $associateBean ) :
 										$val = $associateBean->id;
 										if ( !empty($val) ) :
-											$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+											$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
 											$output = !empty($options[$val]) ? $options[$val] : "[{$col}={$val}]";
 											?><div><?php echo $output; ?></div><?php
 										endif;
 									endforeach;
 								// dropdown : show single value (according to options)
-								elseif ( isset($field['options']) ) :
+								elseif ( isset($fieldConfig['options']) ) :
 									$isObjectID = ( substr($col, -3) == '_id' );
 									$val = $bean->{$col};
 									if ( !empty($val) ) :
-										$options = isset($field['options']) ? scaffold_options_flatten($field['options']) : array();
+										$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
 										echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
 									endif;
 								// url : show link

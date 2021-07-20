@@ -1037,15 +1037,15 @@ class Scaffold {
 		if ( $bean === false ) return false;
 		if ( self::$config['writeLog'] ) $beanBeforeSave = Bean::export($bean);
 		// fix submitted multi-selection value
-		foreach ( self::$config['fieldConfig'] as $fieldName => $field ) {
+		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			// remove empty item from submitted checkboxes
-			if ( !empty($field['format']) and in_array($field['format'], ['checkbox','one-to-many','many-to-many']) ) {
+			if ( !empty($cfg['format']) and in_array($cfg['format'], ['checkbox','one-to-many','many-to-many']) ) {
 				$data[$fieldName] = array_filter($data[$fieldName], 'strlen');
 			}
 			// extract {one-to-many|many-to-many} from submitted data before saving
-			if ( !empty($field['format']) and in_array($field['format'], ['one-to-many','many-to-many']) ) {
+			if ( !empty($cfg['format']) and in_array($cfg['format'], ['one-to-many','many-to-many']) ) {
 				$associateName = str_replace('_id', '', $fieldName);
-				$propertyName = ( ( $field['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
+				$propertyName = ( ( $cfg['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
 				$bean->{$propertyName} = array();
 				foreach ( $data[$fieldName] as $associateID ) {
 					$associateBean = ORM::get($associateName, $associateID);
@@ -1057,7 +1057,7 @@ class Scaffold {
 				}
 				unset($data[$fieldName]);
 			// turn checkbox into pipe-delimited list
-			} elseif ( !empty($field['format']) and $field['format'] == 'checkbox' ) {
+			} elseif ( !empty($cfg['format']) and $cfg['format'] == 'checkbox' ) {
 				$data[$fieldName] = implode('|', $data[$fieldName]);
 			}
 		}
@@ -1158,6 +1158,7 @@ class Scaffold {
 						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
 						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
 						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+						<string name="~output~" optional="yes" example="~<br />" comments="output content/html directly" />
 					</structure>
 				</structure>
 				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />

@@ -2,7 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="icon" optional="yes" />
 				<string name="inline-label" optional="yes" />
 			</structure>
@@ -15,14 +15,14 @@
 	</io>
 </fusedoc>
 */
-if ( !empty($field['icon']) or !empty($field['inline-label']) ) :
+if ( !empty($fieldConfig['icon']) or !empty($fieldConfig['inline-label']) ) :
 	?><div class="input-group-prepend">
 		<span class="input-group-text"><?php
-			if ( !empty($field['icon']) ) :
-				?><i class="fa-fw <?php echo $field['icon']; ?>"></i><?php
+			if ( !empty($fieldConfig['icon']) ) :
+				?><i class="fa-fw <?php echo $fieldConfig['icon']; ?>"></i><?php
 			endif;
-			if ( !empty($field['inline-label']) ) :
-				?><small><?php echo $field['inline-label']; ?></small><?php
+			if ( !empty($fieldConfig['inline-label']) ) :
+				?><small><?php echo $fieldConfig['inline-label']; ?></small><?php
 			endif;
 		?></span>
 	</div><?php

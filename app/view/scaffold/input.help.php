@@ -2,7 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="help" comments="help text show after input field" />
 			</structure>
 		</in>
@@ -10,4 +10,4 @@
 	</io>
 </fusedoc>
 */ ?>
-<small class="form-text text-info mx-1"><?php echo $field['help']; ?></small>
+<small class="form-text text-info mx-1"><?php echo $fieldConfig['help']; ?></small>

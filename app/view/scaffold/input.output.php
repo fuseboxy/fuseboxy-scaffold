@@ -2,7 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="icon" optional="yes" />
 				<string name="value" />
 				<string name="class" optional="yes" />
@@ -14,13 +14,13 @@
 </fusedoc>
 */ ?>
 <div 
-	class="form-control-plaintext form-control-sm <?php if ( isset($field['class']) ) echo $field['class']; ?>"
-	<?php if ( isset($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+	class="form-control-plaintext form-control-sm <?php if ( isset($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
+	<?php if ( isset($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 ><?php
 	// icon
-	if ( !empty($field['icon']) ) :
-		?><i class="fa-fw <?php echo $field['icon']; ?>"></i><?php
+	if ( !empty($fieldConfig['icon']) ) :
+		?><i class="fa-fw <?php echo $fieldConfig['icon']; ?>"></i><?php
 	endif;
 	// content
-	if ( !empty($field['value']) ) echo $field['value'];
+	if ( !empty($fieldConfig['value']) ) echo $fieldConfig['value'];
 ?></div>

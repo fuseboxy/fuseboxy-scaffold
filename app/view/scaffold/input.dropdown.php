@@ -2,7 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="name" />
 				<string name="value" />
 				<structure name="options">
@@ -28,18 +28,18 @@
 <div class="input-group input-group-sm"><?php
 	include F::appPath('view/scaffold/input.icon.php');
 	?><select
-		class="custom-select <?php if ( !empty($field['class']) ) echo $field['class']; ?>"
-		name="data[<?php echo $field['name']; ?>]"
-		<?php if ( !empty($field['readonly']) ) echo 'disabled'; ?>
-		<?php if ( !empty($field['required']) ) echo 'required'; ?>
-		<?php if ( !empty($field['style']) ) : ?>style="<?php echo $field['style']; ?>"<?php endif; ?>
+		class="custom-select <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
+		name="data[<?php echo $fieldConfig['name']; ?>]"
+		<?php if ( !empty($fieldConfig['readonly']) ) echo 'disabled'; ?>
+		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 	><?php
 		// empty first item
 		?><option value=""><?php 
-			if ( !empty($field['placeholder']) ) echo $field['placeholder']; 
+			if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; 
 		?></option><?php
 		// user-defined items
-		foreach ( $field['options'] as $optValue => $optText ) :
+		foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 			// optgroup
 			if ( is_array($optText) ) :
 				$optGroupLabel = $optValue;
@@ -57,6 +57,6 @@
 		endforeach;
 	?></select>
 </div><?php
-if ( !empty($field['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
+if ( !empty($fieldConfig['readonly']) ) :
+	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldConfig['value']); ?>" /><?php
 endif;

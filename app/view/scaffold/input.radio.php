@@ -2,7 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="name" />
 				<string name="value" />
 				<array name="options">
@@ -27,7 +27,7 @@
 </fusedoc>
 */
 $optIndex = 0;
-foreach ( $field['options'] as $optValue => $optText ) :
+foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 	if ( is_array($optText) ) :
 		$optGroupLabel = $optValue;
 		$optGroupItems = $optText;
@@ -41,6 +41,6 @@ foreach ( $field['options'] as $optValue => $optText ) :
 		$optIndex++;
 	endif;
 endforeach;
-if ( !empty($field['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $field['name']; ?>]" value="<?php echo htmlspecialchars($field['value']); ?>" /><?php
+if ( !empty($fieldConfig['readonly']) ) :
+	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldConfig['value']); ?>" /><?php
 endif;

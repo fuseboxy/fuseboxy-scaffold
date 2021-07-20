@@ -46,8 +46,8 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 					foreach ( $cols as $i => $col ) :
 						?><div class="col-<?php echo $col; ?> form-group mb-1"><?php
 							if ( isset($scaffold['fieldConfig'][$col]) ) :
-								$field = $scaffold['fieldConfig'][$col];
-								$field['name'] = $col;
+								$fieldConfig = $scaffold['fieldConfig'][$col];
+								$fieldConfig['name'] = $col;
 								include F::appPath('view/scaffold/input.php');
 							else :
 								?><div class="form-control" readonly>

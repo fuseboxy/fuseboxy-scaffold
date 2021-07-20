@@ -6,7 +6,7 @@
 				<string name="ajaxUpload" />
 				<string name="ajaxUploadProgress" />
 			</structure>
-			<structure name="$field">
+			<structure name="$fieldConfig">
 				<string name="name" />
 				<string name="format" comments="file|image" />
 				<string name="value" />
@@ -22,33 +22,33 @@
 	</io>
 </fusedoc>
 */
-$uniqid = "{$scaffold['beanType']}-input-{$field['format']}-{$field['name']}-".Util::uuid();
+$uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig['name']}-".Util::uuid();
 ?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 
-	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$field['name']}"); ?>"<?php endif; ?> 
+	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$fieldConfig['name']}"); ?>"<?php endif; ?> 
 	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?> 
-	<?php if ( isset($field['filetype']) ) : ?>data-file-type="<?php echo $field['filetype']; ?>"<?php endif; ?> 
-	<?php if ( isset($field['filesize']) ) : ?>data-file-size="<?php echo $field['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($field['filesize']); ?>"<?php endif; ?>
+	<?php if ( isset($fieldConfig['filetype']) ) : ?>data-file-type="<?php echo $fieldConfig['filetype']; ?>"<?php endif; ?> 
+	<?php if ( isset($fieldConfig['filesize']) ) : ?>data-file-size="<?php echo $fieldConfig['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($fieldConfig['filesize']); ?>"<?php endif; ?>
 >
 	<div class="input-group input-group-sm"><?php
 		// buttons
-		if ( empty($field['readonly']) ) :
+		if ( empty($fieldConfig['readonly']) ) :
 			?><div class="input-group-prepend">
 				<button type="button" class="text-white input-group-text btn-upload">Choose</button>
-				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($field['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
-				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $field['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($fieldConfig['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $fieldConfig['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
 			</div><?php
 		endif;
 		// file path
 		?><input
 			type="text"
 			class="form-control"
-			name="data[<?php echo $field['name']; ?>]"
-			value="<?php echo $field['value']; ?>"
-			placeholder="<?php if ( !empty($field['placeholder']) ) echo $field['placeholder']; ?>"
+			name="data[<?php echo $fieldConfig['name']; ?>]"
+			value="<?php echo $fieldConfig['value']; ?>"
+			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
 			readonly
-			<?php if ( !empty($field['required']) ) echo 'required'; ?>
+			<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 		 />
 	</div><!--/.input-group--><?php
 	// (client-side) error message
@@ -65,17 +65,17 @@ $uniqid = "{$scaffold['beanType']}-input-{$field['format']}-{$field['name']}-".U
 		</div>
 	</div><!--/.progress-row--><?php
 	// preview image
-	if ( $field['format'] == 'image' ) :
+	if ( $fieldConfig['format'] == 'image' ) :
 		?><a
-			href="<?php echo $field['value']; ?>"
-			title="<?php echo basename($field['value']); ?>"
-			class="<?php if ( empty($field['value']) ) echo 'd-none'; ?>"
-			style="<?php if (!empty($field['style']) ) echo $field['style']; ?>"
+			href="<?php echo $fieldConfig['value']; ?>"
+			title="<?php echo basename($fieldConfig['value']); ?>"
+			class="<?php if ( empty($fieldConfig['value']) ) echo 'd-none'; ?>"
+			style="<?php if (!empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 			target="_blank"
 			data-fancybox
 		><img
-			alt="<?php echo basename($field['value']); ?>"
-			src="<?php echo $field['value']; ?>"
+			alt="<?php echo basename($fieldConfig['value']); ?>"
+			src="<?php echo $fieldConfig['value']; ?>"
 			class="img-thumbnail mt-1"
 		/></a><?php
 	endif;

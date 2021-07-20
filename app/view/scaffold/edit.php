@@ -126,7 +126,7 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 						<div class="row"><?php
 							foreach ( $colList as $i => $col ) :
 								?><div class="<?php echo !empty($colWidthList[$i]) ? "col-{$colWidthList[$i]}" : 'col'; ?>"><?php
-									$field = $scaffold['fieldConfig'][$col] + array('name' => $col);
+									$fieldConfig = $scaffold['fieldConfig'][$col] + array('name' => $col);
 									include F::appPath('view/scaffold/input.php');
 								?></div><?php
 							endforeach;
