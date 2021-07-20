@@ -32,92 +32,96 @@
 	</io>
 </fusedoc>
 */
-// force using user-defined value (when specified)
-if ( isset($fieldConfig['value']) ) {
-	$fieldValue = $fieldConfig['value'];
+?><div class="scaffold-input form-group"><?php
 
-// checkbox (one-to-many|many-to-many)
-// ===> one-to-many  : get value from own-list
-// ===> many-to-many : get value from shared-list
-} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('one-to-many','many-to-many')) ) {
-	$fieldValue = array();
-	$associateName = str_replace('_id', '', $fieldName);
-	$propertyName = ( ( $fieldConfig['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
-	foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
+	// force using user-defined value (when specified)
+	if ( isset($fieldConfig['value']) ) {
+		$fieldValue = $fieldConfig['value'];
 
-// other type
-// ===> simple value
-} elseif ( isset($bean->{$fieldName}) ) {
-	$fieldValue = $bean->{$fieldName};
+	// checkbox (one-to-many|many-to-many)
+	// ===> one-to-many  : get value from own-list
+	// ===> many-to-many : get value from shared-list
+	} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('one-to-many','many-to-many')) ) {
+		$fieldValue = array();
+		$associateName = str_replace('_id', '', $fieldName);
+		$propertyName = ( ( $fieldConfig['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
+		foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
 
-// no value
-// ===> apply default value
-} elseif ( isset($fieldConfig['default']) ) {
-	$fieldValue = $fieldConfig['default'];
+	// other type
+	// ===> simple value
+	} elseif ( isset($bean->{$fieldName}) ) {
+		$fieldValue = $bean->{$fieldName};
 
-// empty value
-} else {
-	$fieldValue = '';
-}
+	// no value
+	// ===> apply default value
+	} elseif ( isset($fieldConfig['default']) ) {
+		$fieldValue = $fieldConfig['default'];
 
-
-// fix options (when necessary)
-// ===> when options was not specified
-// ===> use field value as options
-if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('radio','checkbox','one-to-many','many-to-many')) and !isset($fieldConfig['options']) ) {
-	$fieldConfig['options'] = array();
-	if ( $fieldConfig['format'] == 'radio' ) {
-		$fieldConfig['options'][$fieldValue] = $fieldValue;
+	// empty value
 	} else {
-		foreach ( $fieldValue as $val ) $fieldConfig['options'][$val] = $val;
+		$fieldValue = '';
 	}
-}
 
 
-// fix checkbox value (when necessary)
-// ===> turn pipe-delimited list into array
-if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
-	$fieldValue = explode('|', $fieldValue);
-}
+	// fix options (when necessary)
+	// ===> when options was not specified
+	// ===> use field value as options
+	if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('radio','checkbox','one-to-many','many-to-many')) and !isset($fieldConfig['options']) ) {
+		$fieldConfig['options'] = array();
+		if ( $fieldConfig['format'] == 'radio' ) {
+			$fieldConfig['options'][$fieldValue] = $fieldValue;
+		} else {
+			foreach ( $fieldValue as $val ) $fieldConfig['options'][$val] = $val;
+		}
+	}
 
 
-// display : pre-help
-if ( !empty($fieldConfig['pre-help']) ) {
-	include F::appPath('view/scaffold/input.pre_help.php');
-}
+	// fix checkbox value (when necessary)
+	// ===> turn pipe-delimited list into array
+	if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
+		$fieldValue = explode('|', $fieldValue);
+	}
 
 
-// display : output
-if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' ) {
-	include F::appPath('view/scaffold/input.output.php');
-// display : radio
-} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'radio' ) {
-	include F::appPath('view/scaffold/input.radio.php');
-// display : checkbox (submit array value)
-} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['checkbox','one-to-many','many-to-many']) ) {
-	include F::appPath('view/scaffold/input.checkbox.php');
-// display : textarea
-} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'textarea' ) {
-	include F::appPath('view/scaffold/input.textarea.php');
-// display : html editor
-} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' ) {
-	include F::appPath('view/scaffold/input.wysiwyg.php');
-// display : file upload
-} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
-	include F::appPath('view/scaffold/input.file.php');
-// display : dropdown
-} elseif ( isset($fieldConfig['options']) ) {
-	include F::appPath('view/scaffold/input.dropdown.php');
-// display : date & time
-} elseif ( !empty($fieldConfig['format']) and in_array($fieldConfig['format'], ['date', 'time', 'datetime']) ) {
-	include F::appPath('view/scaffold/input.datetime.php');
-// display : normal text
-} else {
-	include F::appPath('view/scaffold/input.default.php');
-}
+	// display : pre-help
+	if ( !empty($fieldConfig['pre-help']) ) {
+		include F::appPath('view/scaffold/input.pre_help.php');
+	}
 
 
-// display : help
-if ( !empty($fieldConfig['help']) ) {
-	include F::appPath('view/scaffold/input.help.php');
-}
+	// display : output
+	if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' ) {
+		include F::appPath('view/scaffold/input.output.php');
+	// display : radio
+	} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'radio' ) {
+		include F::appPath('view/scaffold/input.radio.php');
+	// display : checkbox (submit array value)
+	} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['checkbox','one-to-many','many-to-many']) ) {
+		include F::appPath('view/scaffold/input.checkbox.php');
+	// display : textarea
+	} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'textarea' ) {
+		include F::appPath('view/scaffold/input.textarea.php');
+	// display : html editor
+	} elseif ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' ) {
+		include F::appPath('view/scaffold/input.wysiwyg.php');
+	// display : file upload
+	} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
+		include F::appPath('view/scaffold/input.file.php');
+	// display : dropdown
+	} elseif ( isset($fieldConfig['options']) ) {
+		include F::appPath('view/scaffold/input.dropdown.php');
+	// display : date & time
+	} elseif ( !empty($fieldConfig['format']) and in_array($fieldConfig['format'], ['date', 'time', 'datetime']) ) {
+		include F::appPath('view/scaffold/input.datetime.php');
+	// display : normal text
+	} else {
+		include F::appPath('view/scaffold/input.default.php');
+	}
+
+
+	// display : help
+	if ( !empty($fieldConfig['help']) ) {
+		include F::appPath('view/scaffold/input.help.php');
+	}
+
+?></div><!--/.form-group-->

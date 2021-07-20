@@ -98,7 +98,7 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 			else :
 				$fieldNameList = explode('|', $fieldNameList);
 				$fieldWidthList = explode('|', $fieldWidthList);
-				?><div class="form-group row">
+				?><div class="form-row">
 					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
 						foreach ( $fieldNameList as $i => $fieldNameSubList ) :
 							$fieldNameSubList = explode(',', $fieldNameSubList);
