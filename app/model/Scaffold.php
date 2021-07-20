@@ -227,32 +227,6 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
-			parse row of field-layout (usually field-name-list) and determine its type
-		</description>
-		<io>
-			<in>
-				<string name="$fieldRow" />
-			</in>
-			<out>
-				<string name="heading|line|output|fields" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function fieldRowType($fieldRow) {
-		$fieldRow = trim($fieldRow);
-		if ( strlen($fieldRow) != strlen(ltrim($fieldRow, '#')) ) return 'heading';
-		elseif ( strlen($fieldRow) and $fieldRow[0] === '~' ) return 'output';
-		elseif ( trim($fieldRow, '=-') === '' ) return 'line';
-		return 'fields';
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			get specific bean (or empty bean)
 		</description>
 		<io>
@@ -800,6 +774,46 @@ class Scaffold {
 
 
 
+	/**
+	<fusedoc>
+		<description>
+			parse row of field-layout (usually field-name-list) and determine its type
+		</description>
+		<io>
+			<in>
+				<string name="$fieldRow" />
+				<boolean name="$getType" default="false" />
+			</in>
+			<out>
+				<string name="~return~" value="heading|line|output|fields" oncondition="when [getType] is true" />
+				<string name="~return~" comments="display row in corresponding format" oncondition="when [getType] is false" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function parseFieldRow($fieldRow, $getType=false) {
+		$fieldRow = trim($fieldRow);
+		// heading
+		if ( strlen($fieldRow) != strlen(ltrim($fieldRow, '#')) ) {
+			$size = 'h'.( strlen($fieldNameList) - strlen(ltrim($fieldNameList, '#')) );
+			$text = trim(ltrim($fieldNameList, '#'));
+			return $getType ? 'heading' : '<div class="'.$size.'">'.$text.'</div>';
+		// direct output
+		} elseif ( strlen($fieldRow) and $fieldRow[0] === '~' ) {
+			$output = trim(substr($fieldNameList, 1));
+			return $getType ? 'output' : ( strlen($output) ? ('<div>'.$output.'</div>') : '' );
+		// line
+		} elseif ( trim($fieldRow, '=-') === '' ) {
+			return $getType ? 'line' : '<hr />';
+		}
+		// unknown
+		if ( $getType ) self::$error = 'Unknown field row type';
+		return $getType ? false : $fieldRow;
+	}
+
+
+
+
 	// remove expired file according to protocol
 	public static function removeExpiredFile($fieldName, $uploadDir) {
 		// get all records of specific field
@@ -831,6 +845,8 @@ class Scaffold {
 	}
 
 
+
+
 	// rename file at server according to protocol
 	public static function renameFile($source, $destination) {
 		switch ( self::parseConnectionString(null, 'protocol') ) {
@@ -845,6 +861,8 @@ class Scaffold {
 				return self::renameFile__LocalServer($source, $destination);
 		}
 	}
+
+
 
 
 	// rename file at FTP server

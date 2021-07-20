@@ -35,7 +35,6 @@
 </fusedoc>
 */
 $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
-
 // display
 ?><form
 	id="<?php echo $scaffold['beanType']; ?>-edit-<?php echo $recordID; ?>"
@@ -58,7 +57,6 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 		data-target="#<?php echo $scaffold['beanType']; ?>-edit-<?php echo $recordID; ?>"
 	<?php endif; ?>
 ><?php
-
 	// title
 	if ( in_array($scaffold['editMode'], ['modal','inline-modal']) ) :
 		?><div class="modal-header"><?php
@@ -83,7 +81,6 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 			endif;
 		?></div><!--/.modal-header--><?php
 	endif;
-
 	// body
 	?><div class="modal-body"><?php
 		// message (if any)
@@ -93,27 +90,17 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 			?></div><?php
 		endif;
 		// form fields
-		foreach ( $scaffold['modalField'] as $colList => $colWidthList ) :
-			$isHeading = ( strlen($colList) != strlen(ltrim($colList, '#')) );
-			$isLine = ( !empty($colList) and trim($colList, '-') === '' );
-			$isBR = ( !empty($colList) and trim($colList, '\\') === '' );
-			// output : heading
-			if ( $isHeading ) :
-				$size = 'h'.( strlen($colList) - strlen(ltrim($colList, '#')) );
-				?><div class="<?php echo $size; ?>"><?php echo trim(ltrim($colList, '#')); ?></div><?php
-			// output : horizontal line
-			elseif ( $isLine ) :
-				?><hr /><?php
-			// output : linebreak
-			elseif ( $isBR ) :
-				?><br /><?php
-			// input field
+		foreach ( $scaffold['modalField'] as $fieldNameList => $fieldWidthList ) :
+			// heading & line & output
+			if ( Scaffold::parseFieldRow($fieldNameList, true) != 'fields' ) :
+				echo Scaffold::parseFieldRow($fieldNameList);
+			// field list
 			else :
-				$colList = explode('|', $colList);
-				$colWidthList = explode('|', $colWidthList);
+				$fieldNameList = explode('|', $fieldNameList);
+				$fieldWidthList = explode('|', $fieldWidthList);
 				?><div class="form-group row">
 					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
-						foreach ( $colList as $i => $col ) :
+						foreach ( $fieldNameList as $i => $col ) :
 							$headerText = $scaffold['fieldConfig'][$col]['label'];
 							if ( $i == 0 ) {
 								echo $headerText;
@@ -124,8 +111,8 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 					?></label>
 					<div class="col-10">
 						<div class="row"><?php
-							foreach ( $colList as $i => $col ) :
-								?><div class="<?php echo !empty($colWidthList[$i]) ? "col-{$colWidthList[$i]}" : 'col'; ?>"><?php
+							foreach ( $fieldNameList as $i => $col ) :
+								?><div class="<?php echo !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col'; ?>"><?php
 									$fieldConfig = $scaffold['fieldConfig'][$col] + array('name' => $col);
 									include F::appPath('view/scaffold/input.php');
 								?></div><?php
@@ -136,7 +123,6 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 			endif;
 		endforeach;
 	?></div><!--/.modal-body--><?php
-
 	// button @ modal
 	if ( in_array($scaffold['editMode'], ['modal','inline-modal']) ) :
 		?><div class="modal-footer"><?php
@@ -179,5 +165,4 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 			>Cancel</a>
 		</div><?php
 	endif;
-
 ?></form>
