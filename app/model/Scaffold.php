@@ -227,6 +227,32 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			parse row of field-layout (usually field-name-list) and determine its type
+		</description>
+		<io>
+			<in>
+				<string name="$fieldRow" />
+			</in>
+			<out>
+				<string name="heading|line|output|fields" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function fieldRowType($fieldRow) {
+		$fieldRow = trim($fieldRow);
+		if ( strlen($fieldRow) != strlen(ltrim($fieldRow, '#')) ) return 'heading';
+		elseif ( strlen($fieldRow) and $fieldRow[0] === '~' ) return 'output';
+		elseif ( trim($fieldRow, '=-') === '' ) return 'line';
+		return 'fields';
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			get specific bean (or empty bean)
 		</description>
 		<io>
