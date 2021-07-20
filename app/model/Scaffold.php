@@ -1287,14 +1287,13 @@ class Scaffold {
 		}
 		// param default : modal field
 		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : modal field (line)
-		// ===> unify to use dash (simplify display logic)
-		// ===> make line unique in length (avoid override after convert key)
-		$i = 3;
-		foreach ( self::$config['modalField'] as $key => $val ) {
-			$isLine = ( !empty($val) and ( trim($val, '-') == '' or trim($val, '=') == '' ) );
-			if ( $isLine ) self::$config['modalField'][$key] = str_repeat('-', $i);
-			$i++;
+		// fix param : modal field (heading & line & output)
+		// ===> append space to make sure it is unique
+		// ===> avoid being overridden after convert to key
+		foreach ( self::$config['modalField'] as $i => $fieldRow ) {
+			if ( self::parseFieldRow($fieldRow, true) != 'fields' ) {
+				self::$config['modalField'][$i] = $fieldRow.str_repeat(' ', $i);
+			}
 		}
 		// fix param : modal field (key)
 		// ===> convert numeric key to field name
