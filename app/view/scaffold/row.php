@@ -5,8 +5,8 @@
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" />
-				<array name="listField" comments="key is pipe-delimited column list; value is column width">
-					<string name="~columnList~" comments="column width" />
+				<array name="listField">
+					<string name="~fieldNameList~" value="~columnWidth~" />
 				</array>
 				<array name="fieldConfig">
 					<structure name="~column~">
@@ -41,98 +41,98 @@ endif;
 		<tbody>
 			<tr <?php if ( !empty($bean->disabled) ) : ?>class="table-active op-50"<?php endif; ?>><?php
 				// go through each item in scaffold-listField config
-				foreach ( $scaffold['listField'] as $key => $val ) :
-					$cols = array_map('trim', explode('|', is_numeric($key) ? $val : $key));
-					$colWidth = is_numeric($key) ? '' : $val;
+				foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
+					$fieldNameList = explode('|', $fieldNameList);
 					// display : field group
-					$fieldGroupClass = 'col-'.implode('-', $cols);
-					?><td class="<?php echo $fieldGroupClass; ?>" width="<?php echo $colWidth; ?>"><?php
+					?><td class="<?php echo 'col-'.implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>"><?php
 						// go through each field
-						foreach ( $cols as $colIndex => $col ) :
-							$fieldConfig = $scaffold['fieldConfig'][$col];
-							// determine field format
-							$isManyToMany = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'many-to-many' );
-							$isOneToMany  = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'one-to-many' );
-							$isCheckbox   = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' );
-							$isWYSIWYG    = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' );
-							$isOutput     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' );
-							$isHidden     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'hidden' );
-							$isImage      = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'image' );
-							$isFile       = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'file' );
-							$isURL        = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'url' );
-							// display : each field
-							$fieldClass = array('col-'.$col);
-							if ( $colIndex > 0 ) $fieldClass[] = 'small text-muted';
-							?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
-								// output : show custom content
-								if ( $isOutput ) :
-									echo isset($fieldConfig['value']) ? $fieldConfig['value'] : '';
-								// image : show thumbnail
-								elseif ( $isImage and !empty($bean->{$col}) ) :
-									?><a
-										title="<?php echo basename($bean->{$col}); ?>"
-										href="<?php echo $bean->{$col}; ?>"
-										target="_blank"
-										data-fancybox
-									><img
-										alt="<?php echo basename($bean->{$col}); ?>"
-										src="<?php echo $bean->{$col}; ?>"
-										class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
-										style="max-width: 100%; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
-									/></a><?php
-								// file : show link
-								elseif ( $isFile and !empty($bean->{$col}) ) :
-									?><a
-										href="<?php echo $bean->{$col}; ?>"
-										style="word-break: break-all;"
-										target="_blank"
-									><?php echo basename($bean->{$col}); ?></a><?php
-								// checkbox : turn list into items
-								elseif ( $isCheckbox and !empty($bean->{$col}) ) :
-									$arr = explode('|', $bean->{$col});
-									foreach ( $arr as $val ) :
+						foreach ( $fieldNameList as $fieldIndex => $fieldName ) :
+							if ( !empty($fieldName) ) :
+								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
+								// determine field format
+								$isManyToMany = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'many-to-many' );
+								$isOneToMany  = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'one-to-many' );
+								$isCheckbox   = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' );
+								$isWYSIWYG    = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' );
+								$isOutput     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' );
+								$isHidden     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'hidden' );
+								$isImage      = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'image' );
+								$isFile       = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'file' );
+								$isURL        = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'url' );
+								// display : each field
+								$fieldClass = array('col-'.$fieldName);
+								if ( $fieldIndex > 0 ) $fieldClass[] = 'small text-muted';
+								?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
+									// output : show custom content
+									if ( $isOutput ) :
+										echo isset($fieldConfig['value']) ? $fieldConfig['value'] : '';
+									// image : show thumbnail
+									elseif ( $isImage and !empty($bean->{$fieldName}) ) :
+										?><a
+											title="<?php echo basename($bean->{$fieldName}); ?>"
+											href="<?php echo $bean->{$fieldName}; ?>"
+											target="_blank"
+											data-fancybox
+										><img
+											alt="<?php echo basename($bean->{$fieldName}); ?>"
+											src="<?php echo $bean->{$fieldName}; ?>"
+											class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
+											style="max-width: 100%; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
+										/></a><?php
+									// file : show link
+									elseif ( $isFile and !empty($bean->{$fieldName}) ) :
+										?><a
+											href="<?php echo $bean->{$fieldName}; ?>"
+											style="word-break: break-all;"
+											target="_blank"
+										><?php echo basename($bean->{$fieldName}); ?></a><?php
+									// checkbox : turn list into items
+									elseif ( $isCheckbox and !empty($bean->{$fieldName}) ) :
+										$arr = explode('|', $bean->{$fieldName});
+										foreach ( $arr as $val ) :
+											if ( !empty($val) ) :
+												$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
+												$output = !empty($options[$val]) ? $options[$val] : $val;
+												?><div><?php echo $output; ?></div><?php
+											endif;
+										endforeach;
+									// one-to-many & many-to-many : show multiple values (according to options)
+									elseif ( $isOneToMany or $isManyToMany ) :
+										$objectName = ( substr($fieldName, -3) == '_id' ) ? substr($fieldName, 0, strlen($fieldName)-3) : $fieldName;
+										$associateField = ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName);
+										foreach ( $bean->$associateField as $associateBean ) :
+											$val = $associateBean->id;
+											if ( !empty($val) ) :
+												$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
+												$output = !empty($options[$val]) ? $options[$val] : "[{$col}={$val}]";
+												?><div><?php echo $output; ?></div><?php
+											endif;
+										endforeach;
+									// dropdown : show single value (according to options)
+									elseif ( isset($fieldConfig['options']) ) :
+										$isObjectID = ( substr($fieldName, -3) == '_id' );
+										$val = $bean->{$fieldName};
 										if ( !empty($val) ) :
 											$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
-											$output = !empty($options[$val]) ? $options[$val] : $val;
-											?><div><?php echo $output; ?></div><?php
+											echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$fieldName}={$val}]" : $val );
 										endif;
-									endforeach;
-								// one-to-many & many-to-many : show multiple values (according to options)
-								elseif ( $isOneToMany or $isManyToMany ) :
-									$objectName = ( substr($col, -3) == '_id' ) ? substr($col, 0, strlen($col)-3) : $col;
-									$associateField = ( $isOneToMany ? 'own' : 'shared' ).ucfirst($objectName);
-									foreach ( $bean->$associateField as $associateBean ) :
-										$val = $associateBean->id;
-										if ( !empty($val) ) :
-											$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
-											$output = !empty($options[$val]) ? $options[$val] : "[{$col}={$val}]";
-											?><div><?php echo $output; ?></div><?php
-										endif;
-									endforeach;
-								// dropdown : show single value (according to options)
-								elseif ( isset($fieldConfig['options']) ) :
-									$isObjectID = ( substr($col, -3) == '_id' );
-									$val = $bean->{$col};
-									if ( !empty($val) ) :
-										$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
-										echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$col}={$val}]" : $val );
+									// url : show link
+									elseif ( $isURL ) :
+										?><a
+											href="<?php echo $bean->{$fieldName}; ?>"
+											style="word-break: break-all;"
+											target="_blank"
+										><?php echo $bean->{$fieldName}; ?></a><?php
+									// wysiwyg : show html
+									elseif ( $isWYSIWYG ) :
+										echo $bean->{$fieldName};
+									// default : show field value
+									elseif ( !$isHidden ) :
+										echo nl2br($bean->{$fieldName});
 									endif;
-								// url : show link
-								elseif ( $isURL ) :
-									?><a
-										href="<?php echo $bean->{$col}; ?>"
-										style="word-break: break-all;"
-										target="_blank"
-									><?php echo $bean->{$col}; ?></a><?php
-								// wysiwyg : show html
-								elseif ( $isWYSIWYG ) :
-									echo $bean->{$col};
-								// default : show field value
-								elseif ( !$isHidden ) :
-									echo nl2br($bean->{$col});
-								endif;
-							?></div><?php
-						endforeach; // foreach-cols
+								?></div><?php
+							endif; // if-fieldName
+						endforeach; // foreach-fieldNameList
 					?></td><?php
 				endforeach; // foreach-scaffold-listField
 				// display : button
