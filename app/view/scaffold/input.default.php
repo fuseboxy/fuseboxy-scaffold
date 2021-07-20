@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<string name="format" optional="yes" default="text" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
@@ -26,7 +26,7 @@
 	?><input
 		type="<?php echo empty($fieldConfig['format']) ? 'text' : $fieldConfig['format']; ?>"
 		class="form-control scaffold-input-<?php echo empty($fieldConfig['format']) ? 'text' : $fieldConfig['format']; ?> <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
-		name="data[<?php echo $fieldConfig['name']; ?>]"
+		name="data[<?php echo $fieldName; ?>]"
 		value="<?php echo htmlspecialchars($fieldValue); ?>"
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>

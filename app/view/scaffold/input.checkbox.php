@@ -2,11 +2,11 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldName" />
 			<array name="$fieldValue">
 				<string name="+" />
 			</array>
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<array name="options">
 					<string name="~optionValue~" value="~optionText~" optional="yes" />
 					<structure name="~optGroup~" optional="yes">
@@ -32,7 +32,7 @@
 */
 // empty hidden field
 // ===> avoid nothing submitted when no checkbox selected
-?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>][]" value="" /><?php
+?><input type="hidden" name="data[<?php echo $fieldName; ?>][]" value="" /><?php
 // display
 $optIndex = 0;
 foreach ( $fieldConfig['options'] as $optValue => $optText ) :
@@ -51,6 +51,6 @@ foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 endforeach;
 if ( !empty($fieldConfig['readonly']) ) :
 	foreach ( $fieldValue as $val ) :
-		?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
+		?><input type="hidden" name="data[<?php echo $fieldName; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
 	endforeach;
 endif;

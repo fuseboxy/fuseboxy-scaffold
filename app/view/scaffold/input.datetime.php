@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<string name="format" comments="date|time|datetime" />
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
@@ -26,7 +26,7 @@
 	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="text"
-		name="data[<?php echo $fieldConfig['name']; ?>]"
+		name="data[<?php echo $fieldName; ?>]"
 		value="<?php echo htmlspecialchars($fieldValue); ?>"
 		class="form-control br-0 scaffold-input-<?php echo $fieldConfig['format']; ?> <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		autocomplete="off"

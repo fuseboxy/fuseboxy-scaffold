@@ -6,9 +6,9 @@
 				<string name="ajaxUpload" />
 				<string name="ajaxUploadProgress" />
 			</structure>
+			<string name="$fieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<string name="format" comments="file|image" />
 				<string name="placeholder" />
 				<boolean name="required" />
@@ -22,11 +22,11 @@
 	</io>
 </fusedoc>
 */
-$uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig['name']}-".Util::uuid();
+$uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldName}-".Util::uuid();
 ?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 
-	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$fieldConfig['name']}"); ?>"<?php endif; ?> 
+	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$fieldName}"); ?>"<?php endif; ?> 
 	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?> 
 	<?php if ( isset($fieldConfig['filetype']) ) : ?>data-file-type="<?php echo $fieldConfig['filetype']; ?>"<?php endif; ?> 
 	<?php if ( isset($fieldConfig['filesize']) ) : ?>data-file-size="<?php echo $fieldConfig['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($fieldConfig['filesize']); ?>"<?php endif; ?>
@@ -44,7 +44,7 @@ $uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig[
 		?><input
 			type="text"
 			class="form-control"
-			name="data[<?php echo $fieldConfig['name']; ?>]"
+			name="data[<?php echo $fieldName; ?>]"
 			value="<?php echo $fieldValue; ?>"
 			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
 			readonly

@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<structure name="options">
 					<string name="~optionValue~" value="~optionText~" optional="yes" />
 					<structure name="~optGroup~" optional="yes">
@@ -29,7 +29,7 @@
 	include F::appPath('view/scaffold/input.icon.php');
 	?><select
 		class="custom-select <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
-		name="data[<?php echo $fieldConfig['name']; ?>]"
+		name="data[<?php echo $fieldName; ?>]"
 		<?php if ( !empty($fieldConfig['readonly']) ) echo 'disabled'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
@@ -58,5 +58,5 @@
 	?></select>
 </div><?php
 if ( !empty($fieldConfig['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
+	?><input type="hidden" name="data[<?php echo $fieldName; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 endif;

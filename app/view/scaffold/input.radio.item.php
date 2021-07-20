@@ -4,9 +4,9 @@
 		<in>
 			<string name="$optValue" />
 			<string name="$optText" />
+			<string name="$fieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="name" />
 				<array name="options">
 					<string name="~optionValue~" value="~optionText~" optional="yes" />
 					<structure name="~optGroup~" optional="yes">
@@ -30,7 +30,7 @@ $radioID = Util::uuid();
 		id="<?php echo $radioID; ?>"
 		class="form-check-input"
 		type="radio"
-		name="data[<?php echo $fieldConfig['name']; ?>]"
+		name="data[<?php echo $fieldName; ?>]"
 		value="<?php echo htmlspecialchars($optValue); ?>"
 		<?php if ( $fieldValue == $optValue ) echo 'checked'; ?>
 		<?php if ( !empty($fieldConfig['required']) and $optIndex == 0 ) echo 'required'; ?>

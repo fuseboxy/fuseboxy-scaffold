@@ -45,7 +45,6 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 						?><div class="col-<?php echo $fieldName; ?> form-group mb-1"><?php
 							if ( isset($scaffold['fieldConfig'][$fieldName]) ) :
 								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
-								$fieldConfig['name'] = $fieldName;
 								include F::appPath('view/scaffold/input.php');
 							else :
 								?><div class="form-control" readonly>
