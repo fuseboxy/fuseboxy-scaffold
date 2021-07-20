@@ -100,27 +100,34 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 				$fieldWidthList = explode('|', $fieldWidthList);
 				?><div class="form-group row">
 					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
-						foreach ( $fieldNameList as $i => $fieldName ) :
-							if ( !empty($fieldName) ) :
-								$headerText = $scaffold['fieldConfig'][$fieldName]['label'];
-								if ( $i == 0 ) :
-									?><span><?php echo $headerText; ?></span><?php
-								elseif ( !empty($headerText) ) :
-									?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
-								endif;
-							endif;
-						endforeach;
+						foreach ( $fieldNameList as $i => $fieldNameSubList ) :
+							$fieldNameSubList = explode(',', $fieldNameSubList);
+							foreach ( $fieldNameSubList as $fieldName ) :
+								if ( !empty($fieldName) ) :
+									$headerText = $scaffold['fieldConfig'][$fieldName]['label'];
+									if ( $i == 0 ) :
+										?><span><?php echo $headerText; ?></span><?php
+									elseif ( !empty($headerText) ) :
+										?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
+									endif;
+								endif; // if-notEmpty
+							endforeach; // foreach-fieldNameSubList
+						endforeach; // foreach-fieldNameList
 					?></label>
 					<div class="col-10">
 						<div class="row"><?php
-							foreach ( $fieldNameList as $i => $fieldName ) :
-								?><div class="<?php echo !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col'; ?>"><?php
-									if ( !empty($fieldName) ) :
-										$fieldConfig = $scaffold['fieldConfig'][$fieldName] + array('name' => $fieldName);
-										include F::appPath('view/scaffold/input.php');
-									endif;
+							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
+								$fieldWidth = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
+								?><div class="scaffold-col <?php echo $fieldWidth; ?>"><?php
+									$fieldNameSubList = explode(',', $fieldNameSubList);
+									foreach ( $fieldNameSubList as $fieldName ) :
+										if ( !empty($fieldName) ) :
+											$fieldConfig = $scaffold['fieldConfig'][$fieldName] + array('name' => $fieldName);
+											include F::appPath('view/scaffold/input.php');
+										endif; // if-notEmpty
+									endforeach; // foreach-fieldNameSubList
 								?></div><?php
-							endforeach;
+							endforeach; // foreach-fieldNameList
 						?></div><!--/.row-->
 					</div><!--/.col-->
 				</div><!--/.form-group--><?php

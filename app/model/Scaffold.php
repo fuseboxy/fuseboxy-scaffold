@@ -1834,7 +1834,7 @@ class Scaffold {
 		// check field config : any missing
 		foreach ( self::$config['modalField'] as $fieldNameList => $fieldWidthList ) {
 			if ( self::parseFieldRow($fieldNameList, true) == 'fields' ) {
-				$fieldNameList = explode('|', $fieldNameList);
+				$fieldNameList = explode('|', str_replace(',', '|', $fieldNameList));
 				foreach ( $fieldNameList as $fieldName ) {
 					if ( !empty($fieldName) and !isset(self::$config['fieldConfig'][$fieldName]) ) {
 						self::$error = "Field config for [{$fieldName}] is required";
