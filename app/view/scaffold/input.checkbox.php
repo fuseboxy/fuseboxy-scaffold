@@ -2,11 +2,11 @@
 <fusedoc>
 	<io>
 		<in>
+			<array name="$fieldValue">
+				<string name="+" />
+			</array>
 			<structure name="$fieldConfig">
 				<string name="name" />
-				<array name="value">
-					<string name="+" />
-				</array>
 				<array name="options">
 					<string name="~optionValue~" value="~optionText~" optional="yes" />
 					<structure name="~optGroup~" optional="yes">
@@ -50,7 +50,7 @@ foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 	endif;
 endforeach;
 if ( !empty($fieldConfig['readonly']) ) :
-	foreach ( $fieldConfig['value'] as $val ) :
+	foreach ( $fieldValue as $val ) :
 		?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
 	endforeach;
 endif;

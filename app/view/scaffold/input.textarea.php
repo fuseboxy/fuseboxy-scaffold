@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="name" />
-				<string name="value" />
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
@@ -31,5 +31,5 @@
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>
-	><?php echo $fieldConfig['value']; ?></textarea><?php
+	><?php echo $fieldValue; ?></textarea><?php
 ?></div>

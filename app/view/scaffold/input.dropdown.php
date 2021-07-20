@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="name" />
-				<string name="value" />
 				<structure name="options">
 					<string name="~optionValue~" value="~optionText~" optional="yes" />
 					<structure name="~optGroup~" optional="yes">
@@ -58,5 +58,5 @@
 	?></select>
 </div><?php
 if ( !empty($fieldConfig['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldConfig['value']); ?>" /><?php
+	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 endif;

@@ -6,10 +6,10 @@
 	</description>
 	<io>
 		<in>
+			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="wysiwyg" />
 				<string name="name" />
-				<string name="value" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
 				<string name="class" optional="yes" />
@@ -31,16 +31,16 @@ if ( empty($fieldConfig['readonly']) ) :
 		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		style="min-height: 10em; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
-	><?php echo $fieldConfig['value']; ?></textarea><?php
+	><?php echo $fieldValue; ?></textarea><?php
 
 // readonly
 else :
 	// hidden field to submit data
-	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldConfig['value']); ?>" /><?php
+	?><input type="hidden" name="data[<?php echo $fieldConfig['name']; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 	// display html
 	?><div 
 		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		style="overflow: auto; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
-	><?php echo $fieldConfig['value']; ?></div><?php
+	><?php echo $fieldValue; ?></div><?php
 
 endif;

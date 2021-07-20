@@ -34,30 +34,30 @@
 */
 // force using user-defined value (when specified)
 if ( isset($fieldConfig['value']) ) {
-	// ~~~ do nothing ~~~
+	$fieldValue = $fieldConfig['value'];
 
 // checkbox (one-to-many|many-to-many)
 // ===> one-to-many  : get value from own-list
 // ===> many-to-many : get value from shared-list
 } elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('one-to-many','many-to-many')) ) {
-	$fieldConfig['value'] = array();
+	$fieldValue = array();
 	$associateName = str_replace('_id', '', $fieldConfig['name']);
 	$propertyName = ( ( $fieldConfig['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
-	foreach ( $bean->{$propertyName} as $tmp ) $fieldConfig['value'][] = $tmp->id;
+	foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
 
 // other type
 // ===> simple value
 } elseif ( isset($bean->{$fieldConfig['name']}) ) {
-	$fieldConfig['value'] = $bean->{$fieldConfig['name']};
+	$fieldValue = $bean->{$fieldConfig['name']};
 
 // no value
 // ===> apply default value
 } elseif ( isset($fieldConfig['default']) ) {
-	$fieldConfig['value'] = $fieldConfig['default'];
+	$fieldValue = $fieldConfig['default'];
 
 // empty value
 } else {
-	$fieldConfig['value'] = '';
+	$fieldValue = '';
 }
 
 
@@ -67,17 +67,17 @@ if ( isset($fieldConfig['value']) ) {
 if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('radio','checkbox','one-to-many','many-to-many')) and !isset($fieldConfig['options']) ) {
 	$fieldConfig['options'] = array();
 	if ( $fieldConfig['format'] == 'radio' ) {
-		$fieldConfig['options'][$fieldConfig['value']] = $fieldConfig['value'];
+		$fieldConfig['options'][$fieldValue] = $fieldValue;
 	} else {
-		foreach ( $fieldConfig['value'] as $val ) $fieldConfig['options'][$val] = $val;
+		foreach ( $fieldValue as $val ) $fieldConfig['options'][$val] = $val;
 	}
 }
 
 
 // fix checkbox value (when necessary)
 // ===> turn pipe-delimited list into array
-if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldConfig['value']) ) {
-	$fieldConfig['value'] = explode('|', $fieldConfig['value']);
+if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
+	$fieldValue = explode('|', $fieldValue);
 }
 
 

@@ -6,10 +6,10 @@
 				<string name="ajaxUpload" />
 				<string name="ajaxUploadProgress" />
 			</structure>
+			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="name" />
 				<string name="format" comments="file|image" />
-				<string name="value" />
 				<string name="placeholder" />
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
@@ -36,8 +36,8 @@ $uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig[
 		if ( empty($fieldConfig['readonly']) ) :
 			?><div class="input-group-prepend">
 				<button type="button" class="text-white input-group-text btn-upload">Choose</button>
-				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($fieldConfig['value']) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
-				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $fieldConfig['value']; ?>"><i class="fa fa-undo small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($fieldValue) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
+				<button type="button" class="text-white input-group-text btn-undo d-none" data-original-image="<?php echo $fieldValue; ?>"><i class="fa fa-undo small px-1"></i></button>
 			</div><?php
 		endif;
 		// file path
@@ -45,7 +45,7 @@ $uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig[
 			type="text"
 			class="form-control"
 			name="data[<?php echo $fieldConfig['name']; ?>]"
-			value="<?php echo $fieldConfig['value']; ?>"
+			value="<?php echo $fieldValue; ?>"
 			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
 			readonly
 			<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
@@ -67,15 +67,15 @@ $uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldConfig[
 	// preview image
 	if ( $fieldConfig['format'] == 'image' ) :
 		?><a
-			href="<?php echo $fieldConfig['value']; ?>"
-			title="<?php echo basename($fieldConfig['value']); ?>"
-			class="<?php if ( empty($fieldConfig['value']) ) echo 'd-none'; ?>"
+			href="<?php echo $fieldValue; ?>"
+			title="<?php echo basename($fieldValue); ?>"
+			class="<?php if ( empty($fieldValue) ) echo 'd-none'; ?>"
 			style="<?php if (!empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 			target="_blank"
 			data-fancybox
 		><img
-			alt="<?php echo basename($fieldConfig['value']); ?>"
-			src="<?php echo $fieldConfig['value']; ?>"
+			alt="<?php echo basename($fieldValue); ?>"
+			src="<?php echo $fieldValue; ?>"
 			class="img-thumbnail mt-1"
 		/></a><?php
 	endif;

@@ -2,9 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="icon" optional="yes" />
-				<string name="value" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
 			</structure>
@@ -22,5 +22,5 @@
 		?><i class="fa-fw <?php echo $fieldConfig['icon']; ?>"></i><?php
 	endif;
 	// content
-	if ( !empty($fieldConfig['value']) ) echo $fieldConfig['value'];
+	if ( !empty($fieldValue) ) echo $fieldValue;
 ?></div>

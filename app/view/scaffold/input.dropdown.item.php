@@ -4,14 +4,12 @@
 		<in>
 			<string name="$optValue" />
 			<string name="$optText" />
-			<structure name="$fieldConfig">
-				<string name="value" />
-			</structure>
+			<string name="$fieldValue" />
 		</in>
 		<out />
 	</io>
 </fusedoc>
 */ ?><option
 	value="<?php echo $optValue; ?>"
-	<?php if ( $fieldConfig['value'] == $optValue ) echo 'selected'; ?>
+	<?php if ( $fieldValue == $optValue ) echo 'selected'; ?>
 ><?php echo $optText; ?></option>
