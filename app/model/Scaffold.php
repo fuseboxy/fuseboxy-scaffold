@@ -797,18 +797,17 @@ class Scaffold {
 		if ( strlen($fieldRow) != strlen(ltrim($fieldRow, '#')) ) {
 			$size = 'h'.( strlen($fieldRow) - strlen(ltrim($fieldRow, '#')) );
 			$text = trim(ltrim($fieldRow, '#'));
-			return $getType ? 'heading' : '<div class="'.$size.'">'.$text.'</div>';
+			return $getType ? 'heading' : "<div class='{$size}'>{$text}</div>";
 		// direct output
 		} elseif ( strlen($fieldRow) and $fieldRow[0] === '~' ) {
 			$output = trim(substr($fieldRow, 1));
-			return $getType ? 'output' : ( strlen($output) ? ('<div>'.$output.'</div>') : '' );
+			return $getType ? 'output' : ( strlen($output) ? "<div>{$output}</div>" : '' );
 		// line
 		} elseif ( trim($fieldRow, '=-') === '' ) {
 			return $getType ? 'line' : '<hr />';
 		}
-		// unknown
-		if ( $getType ) self::$error = 'Unknown field row type';
-		return $getType ? false : $fieldRow;
+		// fields (render nothing)
+		return $getType ? 'fields' : '';
 	}
 
 
