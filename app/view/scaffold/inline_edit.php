@@ -40,6 +40,7 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 	<table class="table table-hover table-sm mb-0">
 		<tr><?php
 			foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
+				$fieldNameList = explode('|', $fieldNameList);
 				?><td class="col-<?php echo implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>;"><?php
 					foreach ( $fieldNameList as $i => $fieldName ) :
 						?><div class="col-<?php echo $fieldName; ?> form-group mb-1"><?php
