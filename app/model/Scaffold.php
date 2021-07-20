@@ -795,12 +795,12 @@ class Scaffold {
 		$fieldRow = trim($fieldRow);
 		// heading
 		if ( strlen($fieldRow) != strlen(ltrim($fieldRow, '#')) ) {
-			$size = 'h'.( strlen($fieldNameList) - strlen(ltrim($fieldNameList, '#')) );
-			$text = trim(ltrim($fieldNameList, '#'));
+			$size = 'h'.( strlen($fieldRow) - strlen(ltrim($fieldRow, '#')) );
+			$text = trim(ltrim($fieldRow, '#'));
 			return $getType ? 'heading' : '<div class="'.$size.'">'.$text.'</div>';
 		// direct output
 		} elseif ( strlen($fieldRow) and $fieldRow[0] === '~' ) {
-			$output = trim(substr($fieldNameList, 1));
+			$output = trim(substr($fieldRow, 1));
 			return $getType ? 'output' : ( strlen($output) ? ('<div>'.$output.'</div>') : '' );
 		// line
 		} elseif ( trim($fieldRow, '=-') === '' ) {
