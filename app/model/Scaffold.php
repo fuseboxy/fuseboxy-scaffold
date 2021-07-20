@@ -1210,7 +1210,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function setDefaultAndFixParam() {
+	public static function initConfig() {
 		// obtain all columns of specific table
 		// ===> allow proceed further if table not exists (simply treated as no column)
 		$tableColumns = ORM::columns(self::$config['beanType']);
