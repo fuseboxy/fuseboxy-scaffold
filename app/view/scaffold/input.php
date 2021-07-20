@@ -32,7 +32,7 @@
 	</io>
 </fusedoc>
 */
-?><div class="scaffold-input form-group"><?php
+?><div class="scaffold-input form-group mb-1"><?php
 
 	// force using user-defined value (when specified)
 	if ( isset($fieldConfig['value']) ) {

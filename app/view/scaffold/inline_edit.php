@@ -43,7 +43,7 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 				$fieldNameList = explode('|', $fieldNameList);
 				?><td class="col-<?php echo implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>;"><?php
 					foreach ( $fieldNameList as $i => $fieldName ) :
-						?><div class="col-<?php echo $fieldName; ?> form-group mb-1"><?php
+						?><div class="scaffold-col col-<?php echo $fieldName; ?>"><?php
 							if ( isset($scaffold['fieldConfig'][$fieldName]) ) :
 								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
 								include F::appPath('view/scaffold/input.php');
