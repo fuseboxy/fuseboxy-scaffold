@@ -5,8 +5,8 @@
 			<structure name="$scaffold">
 				<string name="beanType" />
 				<string name="editMode" comments="inline|modal" />
-				<array name="listField" comments="key is pipe-delimited column list; value is column width">
-					<string name="~column-list~" comments="column width" />
+				<array name="listField">
+					<string name="~fieldNameList~" value="~columnWidth~" />
 				</array>
 				<structure name="fieldConfig">
 					<structure name="~column~">
@@ -39,19 +39,17 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 >
 	<table class="table table-hover table-sm mb-0">
 		<tr><?php
-			foreach ( $scaffold['listField'] as $key => $val ) :
-				$cols = explode('|', is_numeric($key) ? $val : $key);
-				$colWidth = is_numeric($key) ? '' : $val;
-				?><td class="col-<?php echo implode('-', $cols); ?>" width="<?php echo $colWidth; ?>;"><?php
-					foreach ( $cols as $i => $col ) :
-						?><div class="col-<?php echo $col; ?> form-group mb-1"><?php
-							if ( isset($scaffold['fieldConfig'][$col]) ) :
-								$fieldConfig = $scaffold['fieldConfig'][$col];
-								$fieldConfig['name'] = $col;
+			foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
+				?><td class="col-<?php echo implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>;"><?php
+					foreach ( $fieldNameList as $i => $fieldName ) :
+						?><div class="col-<?php echo $fieldName; ?> form-group mb-1"><?php
+							if ( isset($scaffold['fieldConfig'][$fieldName]) ) :
+								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
+								$fieldConfig['name'] = $fieldName;
 								include F::appPath('view/scaffold/input.php');
 							else :
 								?><div class="form-control" readonly>
-									<em class="small text-muted text-nowrap">Field [<?php echo $col; ?>] is undefined</em>
+									<em class="small text-muted text-nowrap">Field [<?php echo $fieldName; ?>] is undefined</em>
 								</div><?php
 							endif;
 						?></div><?php
