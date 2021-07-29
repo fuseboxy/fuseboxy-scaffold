@@ -1252,7 +1252,6 @@ class Scaffold {
 		// param default : field config (placeholder)
 		// param default : field config (filetype)
 		// param default : field config (filesize)
-		// param default : field config (icon)
 		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			// label : derived from field name
 			if ( !isset($cfg['label']) or $cfg['label'] === true ) {

@@ -8,9 +8,8 @@ Component to generate user interface and business logic for CRUD operation.
 
 ## Third-party Components
 The global layout module includes CDN of following JS and CSS libraries to provide a faster development environment:
-* jQuery
-* Bootstrap
-* Font Awesome
+* jQuery (1.9 or above)
+* Bootstrap (5.x)
 
 Please be noted that the Fuseboxy framework core does **NOT** depend on any one of these.
 
@@ -29,7 +28,7 @@ Therefore, developer could feel free to keep/remove any of these at `app/view/gl
 
 3. Load **javascript library** at global layout
 
-
+--
 
 1. Enable **output_buffering** of PHP settings:
 	* e.g. `output_buffering = 4096`

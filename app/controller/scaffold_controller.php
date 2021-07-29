@@ -33,6 +33,9 @@
 				<structure name="fieldConfig" optional="yes" comments="options of each input field in edit form; also define sequence of field in modal edit form">
 					<string name="+" comments="when no key specified, value is column name" />
 					<structure name="~column~" comments="when key was specified, key is column name and value is field options">
+						<string name="label" optional="yes" comments="display name at table/form header">
+						<string name="placeholder" optional="yes" default="display name in field" />
+						<string name="inline-label" optional="yes" default="display name at beginning of field" />
 						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg|url" default="text" />
 						<structure name="options" optional="yes" comments="show dropdown when specified">
 							<string name="~optionValue~" value="~optionText~" optional="yes" />

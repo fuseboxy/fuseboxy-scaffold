@@ -6,7 +6,6 @@
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="date|time|datetime" />
-				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
 				<string name="placeholder" optional="yes" />
