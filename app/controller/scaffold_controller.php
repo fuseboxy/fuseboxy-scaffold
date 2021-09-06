@@ -68,7 +68,6 @@
 					<string name="row" optional="yes" />
 					<string name="edit" optional="yes" />
 					<string name="inline_edit" optional="yes" />
-					<string name="modal" optional="yes" />
 				</structure>
 				<!-- advanced settings for pagination -->
 				<boolean name="pagination" optional="yes" comments="simply set true to enable pagination with default settings" />
@@ -146,9 +145,6 @@ switch ( $fusebox->action ) :
 		// display list
 		ob_start();
 		include $scaffold['scriptPath']['list'];
-		if ( $scaffold['editMode'] == 'modal' ) {
-			include $scaffold['scriptPath']['modal'];
-		}
 		$layout['content'] = ob_get_clean();
 		// pagination
 		if ( !empty($scaffold['pagination']) ) {
