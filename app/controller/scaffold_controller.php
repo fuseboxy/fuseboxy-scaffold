@@ -14,7 +14,7 @@
 				<boolean name="allowDelete" optional="yes" default="false" />
 				<boolean name="allowSort" optional="yes" default="true" />
 				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
-				<string name="modalSize" optional="yes" comments="sm|md|lg|xl|max" />
+				<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
 				<array_or_string name="listFilter" optional="yes">
 					<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />
 					<array  name="1" optional="yes" comments="sql parameter" oncondition="when {listFilter} is array" />

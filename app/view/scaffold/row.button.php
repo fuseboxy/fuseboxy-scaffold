@@ -13,6 +13,7 @@
 				<boolean name="disabled" />
 			</object>
 			<structure name="$scaffold">
+				<string name="modalSize" />
 				<string name="editMode" comments="inline|modal|inline-modal|basic" />
 			</structure>
 		</in>
@@ -30,7 +31,7 @@ if ( isset($xfa['edit']) and  !( isset($xfa['disable']) and $bean->disabled ) ) 
 		class="btn btn-xs px-1 btn-light scaffold-btn-edit"
 		<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 			data-toggle="ajax-modal"
-			data-target="#<?php echo $scaffold['beanType']; ?>-modal"
+			data-target="#global-modal-<?php echo $scaffold['modalSize']; ?>"
 		<?php elseif ( in_array($scaffold['editMode'], ['inline','inline-modal']) ) : ?>
 			data-toggle="ajax-load"
 			data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>"

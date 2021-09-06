@@ -64,7 +64,7 @@ if ( isset($xfa['new']) ) :
 			class="btn btn-xs px-1 btn-info scaffold-btn-new"
 			<?php if ( $scaffold['editMode'] == 'modal' ) : ?>
 				data-toggle="ajax-modal"
-				data-target="<?php echo "#{$scaffold['beanType']}-modal"; ?>"
+				data-target="#global-modal-<?php echo $scaffold['modalSize']; ?>"
 				data-loading="none"
 			<?php elseif ( in_array($scaffold['editMode'], ['inline','inline-modal']) ) : ?>
 				data-toggle="ajax-load"
