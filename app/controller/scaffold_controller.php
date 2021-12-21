@@ -133,12 +133,15 @@ switch ( $fusebox->action ) :
 			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
 			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
 		}
+		// retain url params when change sorting
 		if ( !empty($scaffold['allowSort']) ) {
-			// retain url params when change sorting
 			$xfa['sort'] = $fusebox->controller;
 			foreach ( $_GET as $key => $val ) {
 				if ( $key != F::config('commandVariable') and $key != 'sortField' and $key != 'sortRule' ) {
-					$xfa['sort'] .= "&{$key}={$val}";
+					// e.g. &search[sid]=999999
+					if ( is_array($val) ) foreach ( $val as $subKey => $subVal ) $xfa['sort'] .= "&{$key}%5B{$subKey}%5D={$subVal}";
+					// e.g. &sid=999999
+					else $xfa['sort'] .= "&{$key}={$val}";
 				}
 			}
 		}
