@@ -1175,6 +1175,7 @@ class Scaffold {
 					<boolean name="allowEdit" default="true" />
 					<boolean name="allowToggle" default="true" />
 					<boolean name="allowDelete" default="false" />
+					<boolean name="stickyHeader" default="false" />
 					<array name="allowSort" default="~allFields~">
 						<string name="~fieldName~" />
 					</array>
@@ -1332,6 +1333,8 @@ class Scaffold {
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
 		// param default : modal size
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
+		// param default : sticky header
+		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
 		// param default : list filter & order
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
 		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) ) {
