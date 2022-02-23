@@ -1328,7 +1328,7 @@ class Scaffold {
 			self::$config['allowSort'] = array();
 		} elseif ( is_string(self::$config['allowSort']) ) {
 			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
-			self::$config['allowSort'] = explode(',', self::$config['allowSort']);
+			self::$config['allowSort'] = array_filter(explode(',', self::$config['allowSort']));
 		}
 		// param default : edit mode
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
