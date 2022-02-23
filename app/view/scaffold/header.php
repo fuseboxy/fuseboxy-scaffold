@@ -6,9 +6,9 @@
 				<string name="beanType" />
 				<string name="editMode" />
 				<boolean name="stickyHeader" />
-				<array name="allowSort">
-					<string name="~fieldName~" />
-				</array>
+				<structure name="allowSort" optional="yes" default="true">
+					<string name="~fieldName~" comments="sort by column or sub-query" />
+				</structure>
 				<array name="listField" comments="key is pipe-delimited column list; value is column width">
 					<string name="~columnList~" comments="column width" />
 				</array>
@@ -48,7 +48,7 @@ $headerID = isset($scaffold['beanType']) ? "{$scaffold['beanType']}-header" : ''
 								$isSortByThisField = ( isset($arguments['sortField']) and $arguments['sortField'] == $col );
 								$isAscendingOrder = ( empty($arguments['sortRule']) or strtolower($arguments['sortRule']) == 'asc' );
 								// prepare link (when necessary)
-								if ( isset($xfa['sort']) and in_array($col, $scaffold['allowSort']) ) :
+								if ( isset($xfa['sort']) and isset($scaffold['allowSort'][$col]) ) :
 									$sortUrl = "{$xfa['sort']}&sortField={$col}";
 									if ( $isSortByThisField and $isAscendingOrder ) $sortUrl .= '&sortRule=desc';
 								endif;
@@ -64,7 +64,7 @@ $headerID = isset($scaffold['beanType']) ? "{$scaffold['beanType']}-header" : ''
 								$wrapperClass[] = $colIndex ? 'small text-muted' : 'text-dark';
 								$headerText = '<span class="'.implode(' ', $wrapperClass).'">'.$headerText.'</span>';
 								// wrap by link (when necessary)
-								if ( isset($xfa['sort']) and in_array($col, $scaffold['allowSort']) ) :
+								if ( isset($xfa['sort']) and isset($scaffold['allowSort'][$col]) ) :
 									$headerText = '<a href="'.F::url($sortUrl).'" class="scaffold-btn-sort '.( $colIndex ? 'text-muted' : 'text-dark' ).'">'.$headerText.'</a>';
 								endif;
 								// separator (when necessary)
