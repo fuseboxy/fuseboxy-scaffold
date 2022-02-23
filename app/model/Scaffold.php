@@ -1148,7 +1148,7 @@ class Scaffold {
 				<structure name="$config" scope="self">
 					<string name="editMode" />
 					<boolean name="allowSort" optional="yes" />
-					<list name="allowSort" optional="yes" delim="|" />
+					<list name="allowSort" optional="yes" delim="|," />
 					<array name="fieldConfig" />
 						<string name="+" value="~fieldName~" />
 					</array>
@@ -1327,7 +1327,8 @@ class Scaffold {
 		} elseif ( self::$config['allowSort'] === false ) {
 			self::$config['allowSort'] = array();
 		} elseif ( is_string(self::$config['allowSort']) ) {
-			self::$config['allowSort'] = explode('|', self::$config['allowSort']);
+			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
+			self::$config['allowSort'] = explode(',', self::$config['allowSort']);
 		}
 		// param default : edit mode
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
