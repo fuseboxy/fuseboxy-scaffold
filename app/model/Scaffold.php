@@ -1149,6 +1149,9 @@ class Scaffold {
 					<string name="editMode" />
 					<boolean name="allowSort" optional="yes" />
 					<list name="allowSort" optional="yes" delim="|," />
+					<array name="allowSort" optional="yes">
+						<string name="+" value="~fieldName~" />
+					</array>
 					<array name="fieldConfig" />
 						<string name="+" value="~fieldName~" />
 					</array>
@@ -1176,9 +1179,9 @@ class Scaffold {
 					<boolean name="allowToggle" default="true" />
 					<boolean name="allowDelete" default="false" />
 					<boolean name="stickyHeader" default="false" />
-					<array name="allowSort" default="~allFields~">
-						<string name="~fieldName~" />
-					</array>
+					<structure name="allowSort" default="~allFields~">
+						<string name="~fieldName~" value="~fieldNameOrSubQuery~" />
+					</structure>
 					<string name="editMode" default="inline" />
 					<string name="modalSize" deafult="lg" />
 					<string name="listFilter" default="1 = 1" />
@@ -1330,6 +1333,15 @@ class Scaffold {
 			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
 			self::$config['allowSort'] = array_filter(explode(',', self::$config['allowSort']));
 		}
+		// param fix : allowSort
+		// ===> use [fieldName] as key
+		// ===> with [fieldName] or [subQuery] as value
+		$arr = self::$config['allowSort'];
+		self::$config['allowSort'] = array();
+		foreach ( $arr as $key => $val ) {
+			if ( is_numeric($key) ) self::$config['allowSort'][$val] = "`{$val}`";
+			else self::$config['allowSort'][$key] = $val;
+		}
 		// param default : edit mode
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
 		// param default : modal size
@@ -1338,9 +1350,10 @@ class Scaffold {
 		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
 		// param default : list filter & order
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
-		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) ) {
-			// use sort-field specified and options (when necessary)
+		// order by [sortField] in URL (when specified)
+		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) and isset(self::$config['allowSort'][$_GET['sortField']]) ) {
 			self::$config['listOrder'] = 'ORDER BY ';
+			// order by [options] sequence (when necessary)
 			if ( !empty(self::$config['fieldConfig'][$_GET['sortField']]['options']) ) {
 				self::$config['listOrder'] .= "CASE `{$_GET['sortField']}` ";
 				foreach ( self::$config['fieldConfig'][$_GET['sortField']]['options'] as $optValue => $optText ) {
@@ -1352,10 +1365,11 @@ class Scaffold {
 				if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
 				self::$config['listOrder'] .= ', ';
 			}
-			self::$config['listOrder'] .= "`{$_GET['sortField']}` ";
+			// sort by column/sub-query
+			self::$config['listOrder'] .= self::$config['allowSort'][$_GET['sortField']].' ';
 			if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
+		// otherwise, use default [listOrder] in config
 		} elseif ( !isset(self::$config['listOrder']) ) {
-			// otherwise, use specify a default list order (when necessary)
 			self::$config['listOrder'] = 'ORDER BY ';
 			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
 			self::$config['listOrder'] .= 'id ';

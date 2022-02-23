@@ -12,7 +12,9 @@
 				<boolean name="allowEdit" optional="yes" default="true" />
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
-				<boolean name="allowSort" optional="yes" default="true" />
+				<boolean_or_structure name="allowSort" optional="yes" default="true">
+					<string name="~column~" comments="sort by column or sub-query" />
+				</boolean_or_structure>
 				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
 				<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
 				<boolean name="stickyHeader" optional="yes" default="false" />
