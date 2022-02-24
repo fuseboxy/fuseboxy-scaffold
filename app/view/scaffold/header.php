@@ -31,7 +31,7 @@
 </fusedoc>
 */
 $headerID = isset($scaffold['beanType']) ? "{$scaffold['beanType']}-header" : '';
-?><div id="<?php echo $headerID; ?>" class="scaffold-header small <?php if ( !empty($scaffold['stickyHeader']) ) echo 'sticky'; ?>">
+?><div id="<?php echo $headerID; ?>" class="scaffold-header small <?php if ( !empty($scaffold['stickyHeader']) ) echo 'sticky position-relative'; ?>" style="z-index: 10;">
 	<table class="table table-sm table-borderless border-bottom mb-0 bg-white">
 		<thead>
 			<tr><?php
