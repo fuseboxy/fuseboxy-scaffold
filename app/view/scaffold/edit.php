@@ -46,12 +46,12 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 	<?php if ( $scaffold['editMode'] == 'modal' and !empty($bean->id) ) : ?>
 		data-toggle="ajax-submit"
 		data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $recordID; ?>"
-		data-callback="function(){ $('#<?php echo $scaffold['beanType']; ?>-modal').modal('hide'); }"
+		data-callback="function(){ $('#global-modal-<?php echo $scaffold['modalSize']; ?>').modal('hide'); }"
 	<?php elseif ( $scaffold['editMode'] == 'modal' ) : ?>
 		data-toggle="ajax-submit"
 		data-mode="after"
 		data-target="#<?php echo $scaffold['beanType']; ?>-header"
-		data-callback="function(){ $('#<?php echo $scaffold['beanType']; ?>-modal').modal('hide'); }"
+		data-callback="function(){ $('#global-modal-<?php echo $scaffold['modalSize']; ?>').modal('hide'); }"
 	<?php elseif ( $scaffold['editMode'] == 'inline-modal' ) : ?>
 		data-toggle="ajax-submit"
 		data-target="#<?php echo $scaffold['beanType']; ?>-edit-<?php echo $recordID; ?>"
