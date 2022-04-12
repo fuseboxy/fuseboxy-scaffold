@@ -244,7 +244,7 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $toggleBean === false);
 		// back to list
 		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}", F::ajaxRequest());
-		F::redirect($fusebox->controller, !F::ajaxRequest());
+		F::redirect($fusebox->controller);
 		break;
 
 
