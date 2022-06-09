@@ -246,7 +246,7 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $toggleBean === false);
 		// back to list
 		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}", F::ajaxRequest());
-		F::redirect($fusebox->controller, !F::ajaxRequest());
+		F::redirect($fusebox->controller);
 		break;
 
 
@@ -259,8 +259,8 @@ switch ( $fusebox->action ) :
 		$id = Scaffold::saveBean($arguments['data']);
 		F::error(Scaffold::error(), $id === false);
 		// finish
-		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest());
-		F::redirect($fusebox->controller, !F::ajaxRequest());
+		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest() and empty($arguments['noRedirect']));
+		F::redirect($fusebox->controller, empty($arguments['noRedirect']));
 		break;
 
 
