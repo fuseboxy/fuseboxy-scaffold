@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" optional="yes" default="text" />
@@ -26,7 +27,7 @@
 	?><input
 		type="<?php echo empty($fieldConfig['format']) ? 'text' : $fieldConfig['format']; ?>"
 		class="form-control scaffold-input-<?php echo empty($fieldConfig['format']) ? 'text' : $fieldConfig['format']; ?> <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
-		name="data[<?php echo $fieldName; ?>]"
+		name="<?php echo $dataFieldName; ?>"
 		value="<?php echo htmlspecialchars($fieldValue); ?>"
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>

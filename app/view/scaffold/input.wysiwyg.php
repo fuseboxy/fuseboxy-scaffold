@@ -7,6 +7,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="wysiwyg" />
@@ -27,7 +28,7 @@
 // editable
 if ( empty($fieldConfig['readonly']) ) :
 	?><textarea
-		name="data[<?php echo $fieldName; ?>]"
+		name="<?php echo $dataFieldName; ?>"
 		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		style="min-height: 10em; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
@@ -36,7 +37,7 @@ if ( empty($fieldConfig['readonly']) ) :
 // readonly
 else :
 	// hidden field to submit data
-	?><input type="hidden" name="data[<?php echo $fieldName; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
+	?><input type="hidden" name="<?php echo $dataFieldName; ?>" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 	// display html
 	?><div 
 		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"

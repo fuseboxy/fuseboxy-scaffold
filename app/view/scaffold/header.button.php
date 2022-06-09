@@ -17,7 +17,6 @@
 	</io>
 </fusedoc>
 */
-
 // quick button
 if ( isset($xfa['quick']) ) :
 	?><div class="btn-group"><?php

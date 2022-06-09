@@ -7,11 +7,7 @@
 				<string name="inline-label" optional="yes" />
 			</structure>
 		</in>
-		<out>
-			<structure name="$data" scope="form">
-				<string name="~fieldName~" />
-			</structure>
-		</out>
+		<out />
 	</io>
 </fusedoc>
 */

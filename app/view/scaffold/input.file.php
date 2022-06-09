@@ -8,6 +8,7 @@
 				<string name="ajaxUploadProgress" />
 			</structure>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="file|image" />
@@ -23,14 +24,14 @@
 	</io>
 </fusedoc>
 */
-$uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.$fieldName.'-'.Util::uuid();
+$uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_replace('.', '-', $fieldName).'-'.Util::uuid();
 ?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 
-	<?php if ( isset($xfa['ajaxUpload']) ) : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$fieldName}"); ?>"<?php endif; ?> 
+	<?php if ( isset($xfa['ajaxUpload']) )         : ?>data-upload-url="<?php echo F::url("{$xfa['ajaxUpload']}&uploaderID={$uniqid}&fieldName={$fieldName}"); ?>"<?php endif; ?> 
 	<?php if ( isset($xfa['ajaxUploadProgress']) ) : ?>data-progress-url="<?php echo F::url($xfa['ajaxUploadProgress']); ?>"<?php endif; ?> 
-	<?php if ( isset($fieldConfig['filetype']) ) : ?>data-file-type="<?php echo $fieldConfig['filetype']; ?>"<?php endif; ?> 
-	<?php if ( isset($fieldConfig['filesize']) ) : ?>data-file-size="<?php echo $fieldConfig['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($fieldConfig['filesize']); ?>"<?php endif; ?>
+	<?php if ( isset($fieldConfig['filetype']) )   : ?>data-file-type="<?php echo $fieldConfig['filetype']; ?>"<?php endif; ?> 
+	<?php if ( isset($fieldConfig['filesize']) )   : ?>data-file-size="<?php echo $fieldConfig['filesize']; ?>" data-file-size-numeric="<?php echo Scaffold::fileSizeNumeric($fieldConfig['filesize']); ?>"<?php endif; ?>
 >
 	<div class="input-group input-group-sm"><?php
 		// buttons
@@ -45,7 +46,7 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.$fieldNa
 		?><input
 			type="text"
 			class="form-control"
-			name="data[<?php echo $fieldName; ?>]"
+			name="<?php echo $dataFieldName; ?>"
 			value="<?php echo $fieldValue; ?>"
 			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
 			readonly

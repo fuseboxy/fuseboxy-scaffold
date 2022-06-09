@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="icon" optional="yes" />
@@ -26,7 +27,7 @@
 	// field
 	?><textarea
 		class="form-control <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
-		name="data[<?php echo $fieldName; ?>]"
+		name="<?php echo $dataFieldName; ?>"
 		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>

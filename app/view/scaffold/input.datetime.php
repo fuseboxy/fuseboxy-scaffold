@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="date|time|datetime" />
@@ -25,7 +26,7 @@
 	include F::appPath('view/scaffold/input.icon.php');
 	?><input
 		type="text"
-		name="data[<?php echo $fieldName; ?>]"
+		name="<?php echo $dataFieldName; ?>"
 		value="<?php echo htmlspecialchars($fieldValue); ?>"
 		class="form-control br-0 scaffold-input-<?php echo $fieldConfig['format']; ?> <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		autocomplete="off"

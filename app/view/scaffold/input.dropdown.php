@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<structure name="options">
@@ -29,7 +30,7 @@
 	include F::appPath('view/scaffold/input.icon.php');
 	?><select
 		class="custom-select <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
-		name="data[<?php echo $fieldName; ?>]"
+		name="<?php echo $dataFieldName; ?>"
 		<?php if ( !empty($fieldConfig['readonly']) ) echo 'disabled'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
@@ -58,5 +59,5 @@
 	?></select>
 </div><?php
 if ( !empty($fieldConfig['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $fieldName; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
+	?><input type="hidden" name="<?php echo $dataFieldName; ?>" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 endif;

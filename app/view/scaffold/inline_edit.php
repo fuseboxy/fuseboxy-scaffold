@@ -41,9 +41,9 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 		<tr><?php
 			foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
 				$fieldNameList = explode('|', $fieldNameList);
-				?><td class="col-<?php echo implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>;"><?php
+				?><td class="col-<?php echo implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>;"><?php
 					foreach ( $fieldNameList as $i => $fieldName ) :
-						?><div class="scaffold-col col-<?php echo $fieldName; ?>"><?php
+						?><div class="scaffold-col col-<?php echo str_replace('.', '-', $fieldName); ?>"><?php
 							if ( isset($scaffold['fieldConfig'][$fieldName]) ) :
 								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
 								include F::appPath('view/scaffold/input.php');

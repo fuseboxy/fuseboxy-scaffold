@@ -28,10 +28,13 @@
 			</structure>
 			<object name="$bean" comments="for field value" />
 		</in>
-		<out />
+		<out>
+			<string name="$dataFieldName" comments="for individual {input.xxx.php}" example="fieldName {student.name} becomes {data[student][name]}" />
+		</out>
 	</io>
 </fusedoc>
 */
+$dataFieldName = 'data['.str_replace('.', '][', $fieldName).']';
 ?><div class="scaffold-input form-group mb-1"><?php
 
 	// force using user-defined value (when specified)

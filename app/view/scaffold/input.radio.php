@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
 			<structure name="$fieldConfig">
 				<array name="options">
@@ -42,5 +43,5 @@ foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 	endif;
 endforeach;
 if ( !empty($fieldConfig['readonly']) ) :
-	?><input type="hidden" name="data[<?php echo $fieldName; ?>]" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
+	?><input type="hidden" name="<?php echo $dataFieldName; ?>" value="<?php echo htmlspecialchars($fieldValue); ?>" /><?php
 endif;

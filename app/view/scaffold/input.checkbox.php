@@ -3,6 +3,7 @@
 	<io>
 		<in>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" />
 			<array name="$fieldValue">
 				<string name="+" />
 			</array>
@@ -32,7 +33,7 @@
 */
 // empty hidden field
 // ===> avoid nothing submitted when no checkbox selected
-?><input type="hidden" name="data[<?php echo $fieldName; ?>][]" value="" /><?php
+?><input type="hidden" name="<?php echo $dataFieldName; ?>[]" value="" /><?php
 // display
 $optIndex = 0;
 foreach ( $fieldConfig['options'] as $optValue => $optText ) :
@@ -51,6 +52,6 @@ foreach ( $fieldConfig['options'] as $optValue => $optText ) :
 endforeach;
 if ( !empty($fieldConfig['readonly']) ) :
 	foreach ( $fieldValue as $val ) :
-		?><input type="hidden" name="data[<?php echo $fieldName; ?>][]" value="<?php echo htmlspecialchars($val); ?>" /><?php
+		?><input type="hidden" name="<?php echo $dataFieldName; ?>[]" value="<?php echo htmlspecialchars($val); ?>" /><?php
 	endforeach;
 endif;

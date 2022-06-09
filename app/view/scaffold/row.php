@@ -44,7 +44,7 @@ endif;
 				foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
 					$fieldNameList = explode('|', $fieldNameList);
 					// display : field group
-					?><td class="<?php echo 'col-'.implode('-', $fieldNameList); ?>" width="<?php echo $columnWidth; ?>"><?php
+					?><td class="<?php echo 'col-'.implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>"><?php
 						// go through each field
 						foreach ( $fieldNameList as $fieldIndex => $fieldName ) :
 							if ( !empty($fieldName) ) :
@@ -60,7 +60,7 @@ endif;
 								$isFile       = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'file' );
 								$isURL        = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'url' );
 								// display : each field
-								$fieldClass = array('col-'.$fieldName);
+								$fieldClass = array('col-'.str_replace('.', '-', $fieldName));
 								if ( $fieldIndex > 0 ) $fieldClass[] = 'small text-muted';
 								?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
 									// output : show custom content
