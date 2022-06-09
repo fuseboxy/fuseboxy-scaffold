@@ -2,8 +2,8 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$scaffold">
-				<string name="beanType" />
 				<string name="editMode" />
 				<array name="listField">
 					<string name="~fieldNameList~" value="~columnWidth~" />
@@ -36,7 +36,7 @@ if ( !function_exists('scaffold_options_flatten') ) :
 		return $result; 
 	}
 endif;
-?><div id="<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>" class="<?php echo $scaffold['beanType']; ?>-row scaffold-row small">
+?><div id="<?php echo F::command('controller'); ?>-row-<?php echo $bean->id; ?>" class="<?php echo F::command('controller'); ?>-row scaffold-row small">
 	<table class="table table-hover table-sm mb-0">
 		<tbody>
 			<tr <?php if ( !empty($bean->disabled) ) : ?>class="table-active op-50"<?php endif; ?>><?php

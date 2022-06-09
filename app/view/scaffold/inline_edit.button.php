@@ -2,12 +2,10 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$xfa">
 				<string name="submit" optional="yes" />
 				<string name="cancel" optional="yes" />
-			</structure>
-			<structure name="$scaffold">
-				<string name="beanType" />
 			</structure>
 			<string name="$recordID" />
 		</in>
@@ -30,6 +28,6 @@ if ( isset($xfa['cancel']) ) :
 		href="<?php echo F::url($xfa['cancel']); ?>"
 		class="btn btn-xs px-1 btn-link text-dark scaffold-btn-cancel"
 		data-toggle="ajax-load"
-		data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+		data-target="#<?php echo F::command('controller'); ?>-inline-edit-<?php echo $recordID; ?>"
    >Cancel</a> <?php
 endif;

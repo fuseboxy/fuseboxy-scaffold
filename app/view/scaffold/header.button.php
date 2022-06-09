@@ -2,12 +2,12 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$xfa">
 				<string name="new" optional="yes" />
 				<string name="quick" optional="yes" />
 			</structure>
 			<structure name="$scaffold">
-				<string name="beanType" />
 				<string name="editMode" comments="inline|modal|inline-modal|basic" />
 			</structure>
 		</in>
@@ -28,7 +28,7 @@ if ( isset($xfa['quick']) ) :
 			data-toggle="ajax-load"
 			data-loading="none"
 			data-mode="after"
-			data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+			data-target="#<?php echo F::command('controller'); ?>-header"
 		><i class="fa fa-plus"></i><span class="ml-1">Quick</span></a><?php
 		// dropdown button
 		?><button 
@@ -47,7 +47,7 @@ if ( isset($xfa['quick']) ) :
 					data-toggle="ajax-load"
 					data-loading="none"
 					data-mode="after"
-					data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+					data-target="#<?php echo F::command('controller'); ?>-header"
 				><?php echo $i; ?></a></li><?php
 			endfor;
 		?></ul>
@@ -69,7 +69,7 @@ if ( isset($xfa['new']) ) :
 			<?php elseif ( in_array($scaffold['editMode'], ['inline','inline-modal']) ) : ?>
 				data-toggle="ajax-load"
 				data-mode="after"
-				data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+				data-target="#<?php echo F::command('controller'); ?>-header"
 				data-loading="none"
 			<?php endif; ?>
 		><i class="fa fa-plus"></i><span class="<?php echo ( $scaffold['editMode'] == 'inline' ) ? 'ml-1' : 'mx-1'; ?>">New</span></a><?php
@@ -91,7 +91,7 @@ if ( isset($xfa['new']) ) :
 						class="dropdown-item"
 						data-toggle="ajax-load"
 						data-mode="after"
-						data-target="<?php echo "#{$scaffold['beanType']}-header"; ?>"
+						data-target="#<?php echo F::command('controller'); ?>-header"
 						data-loading="none"
 					><?php echo $i; ?></a></li><?php
 				endfor;

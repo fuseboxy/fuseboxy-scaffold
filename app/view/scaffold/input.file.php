@@ -2,6 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$xfa">
 				<string name="ajaxUpload" />
 				<string name="ajaxUploadProgress" />
@@ -22,7 +23,7 @@
 	</io>
 </fusedoc>
 */
-$uniqid = "{$scaffold['beanType']}-input-{$fieldConfig['format']}-{$fieldName}-".Util::uuid();
+$uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.$fieldName.'-'.Util::uuid();
 ?><div 
 	id="<?php echo $uniqid; ?>"
 	class="scaffold-input-file" 

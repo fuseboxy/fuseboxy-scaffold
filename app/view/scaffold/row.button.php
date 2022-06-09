@@ -2,6 +2,7 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$xfa">
 				<string name="edit" optional="yes" />
 				<string name="enable" optional="yes" />
@@ -34,7 +35,7 @@ if ( isset($xfa['edit']) and  !( isset($xfa['disable']) and $bean->disabled ) ) 
 			data-target="#global-modal-<?php echo $scaffold['modalSize']; ?>"
 		<?php elseif ( in_array($scaffold['editMode'], ['inline','inline-modal']) ) : ?>
 			data-toggle="ajax-load"
-			data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>"
+			data-target="#<?php echo F::command('controller'); ?>-row-<?php echo $bean->id; ?>"
 		<?php endif; ?>
 	><i class="fa fa-pen"></i> Edit</a> <?php
 endif;
@@ -45,7 +46,7 @@ if ( isset($xfa['enable']) and $bean->disabled ) :
 		href="<?php echo F::url("{$xfa['enable']}&id={$bean->id}"); ?>"
 		class="btn btn-xs btn-success scaffold-btn-enable"
 		data-toggle="ajax-load"
-		data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>"
+		data-target="#<?php echo F::command('controller'); ?>-row-<?php echo $bean->id; ?>"
 	><i class="fa fa-undo"></i> Enable</a> <?php
 endif;
 
@@ -55,7 +56,7 @@ if ( isset($xfa['disable']) and !$bean->disabled ) :
 		href="<?php echo F::url("{$xfa['disable']}&id={$bean->id}"); ?>"
 		class="btn btn-xs btn-warning text-white scaffold-btn-disable"
 		data-toggle="ajax-load"
-		data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>"
+		data-target="#<?php echo F::command('controller'); ?>-row-<?php echo $bean->id; ?>"
 	><i class="far fa-trash-alt"></i> Disable</a> <?php
 endif;
 
@@ -66,6 +67,6 @@ if ( isset($xfa['delete']) ) :
 		class="btn btn-xs btn-danger scaffold-btn-delete"
 		data-toggle="ajax-load"
 		data-confirm="You cannot undo this.  Are you sure to delete?"
-		data-target="#<?php echo $scaffold['beanType']; ?>-row-<?php echo $bean->id; ?>"
+		data-target="#<?php echo F::command('controller'); ?>-row-<?php echo $bean->id; ?>"
 	><i class="fa fa-exclamation-triangle"></i> Delete</a> <?php
 endif;

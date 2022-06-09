@@ -2,8 +2,8 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$scaffold">
-				<string name="beanType" />
 				<structure name="scriptPath">
 					<string name="header" />
 					<string name="row" />
@@ -14,7 +14,7 @@
 	</io>
 </fusedoc>
 */ ?>
-<div id="<?php echo $scaffold['beanType']; ?>-list" class="scaffold-list"><?php
+<div id="<?php echo F::command('controller'); ?>-list" class="scaffold-list"><?php
 	include $scaffold['scriptPath']['header'];
 	foreach ($beanList as $bean) include $scaffold['scriptPath']['row'];
 ?></div>

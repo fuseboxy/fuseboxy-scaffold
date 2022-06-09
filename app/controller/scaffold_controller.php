@@ -158,7 +158,8 @@ switch ( $fusebox->action ) :
 		}
 		// breadcrumb
 		if ( !isset($arguments['breadcrumb']) ) {
-			$arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']));
+			$controllerDisplayName = ucwords(str_replace(['-','_'], ' ', F::command('controller')));
+			$arguments['breadcrumb'] = array($controllerDisplayName);
 		}
 		// layout
 		if ( $scaffold['layoutPath'] === false ) {
@@ -226,7 +227,8 @@ switch ( $fusebox->action ) :
 			echo $layout['content'];
 		} else {
 			// breadcrumb
-			if ( !isset($arguments['breadcrumb']) ) $arguments['breadcrumb'] = array(ucfirst($scaffold['beanType']), F::is('*.edit') ? 'Edit' : 'New');
+			$controllerDisplayName = ucwords(str_replace(['-','_'], ' ', F::command('controller')));
+			if ( !isset($arguments['breadcrumb']) ) $arguments['breadcrumb'] = array($controllerDisplayName, F::is('*.edit') ? 'Edit' : 'New');
 			// layout
 			include $scaffold['layoutPath'];
 		}

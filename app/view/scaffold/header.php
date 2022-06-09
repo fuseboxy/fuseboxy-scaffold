@@ -2,8 +2,8 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$scaffold">
-				<string name="beanType" />
 				<string name="editMode" />
 				<boolean name="stickyHeader" />
 				<structure name="allowSort" optional="yes" default="true">
@@ -30,7 +30,7 @@
 	</io>
 </fusedoc>
 */
-$headerID = isset($scaffold['beanType']) ? "{$scaffold['beanType']}-header" : '';
+$headerID = F::command('controller').'-header';
 ?><div id="<?php echo $headerID; ?>" class="scaffold-header small <?php if ( !empty($scaffold['stickyHeader']) ) echo 'sticky'; ?>">
 	<table class="table table-sm table-borderless border-bottom mb-0 bg-white">
 		<thead>

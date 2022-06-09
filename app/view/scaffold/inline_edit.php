@@ -2,8 +2,8 @@
 <fusedoc>
 	<io>
 		<in>
+			<string name="controller" scope="$fusebox" />
 			<structure name="$scaffold">
-				<string name="beanType" />
 				<string name="editMode" comments="inline|modal" />
 				<array name="listField">
 					<string name="~fieldNameList~" value="~columnWidth~" />
@@ -28,13 +28,13 @@
 */
 $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 ?><form
-	id="<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
-	class="<?php echo $scaffold['beanType']; ?>-inline-edit scaffold-inline-edit form-horizontal"
+	id="<?php echo F::command('controller'); ?>-inline-edit-<?php echo $recordID; ?>"
+	class="<?php echo F::command('controller'); ?>-inline-edit scaffold-inline-edit form-horizontal"
 	<?php if ( isset($xfa['submit']) ) : ?>
 		method="post"
 		action="<?php echo F::url($xfa['submit']); ?>"
 		data-toggle="ajax-submit"
-		data-target="#<?php echo $scaffold['beanType']; ?>-inline-edit-<?php echo $recordID; ?>"
+		data-target="#<?php echo F::command('controller'); ?>-inline-edit-<?php echo $recordID; ?>"
 	<?php endif; ?>
 >
 	<table class="table table-hover table-sm mb-0">
