@@ -2,34 +2,21 @@
 <fusedoc>
 	<io>
 		<in>
-			<structure name="$xfa">
-				<string name="ajaxUpload" comments="for [format=file] field" />
-				<string name="ajaxUploadProgress" comments="for [format=file] field" />
-			</structure>
-			<string name="$fieldName" />
-			<string name="$dataFieldName" comments="for individual {input.xxx.php}" example="fieldName {student.name} becomes {data[student][name]}" />
+			<object name="$bean"/>
+			<string name="$fieldName"/>
+			<string name="$dataFieldName" />
+			<mixed name="$fieldValue" />
 			<structure name="$fieldConfig">
-				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|date|time|datetime|one-to-many|many-to-many|wysiwyg" default="text" />
-				<string name="icon" optional="yes" />
-				<string name="value" optional="yes" />
-				<string name="default" optional="yes" />
-				<array name="options" comments="show dropdown when no {format} specified; it can also serve {format=radio|checkbox}">
-					<string name="~key is option-value~" comments="value is option-text" />
-				</array>
-				<boolean name="required" />
-				<boolean name="readonly" comments="output does not pass value; readonly does" />
-				<string name="placeholder" />
-				<string name="class" optional="yes" />
-				<string name="style" optional="yes" />
+				<string name="format" />
 				<string name="pre-help" comments="help text show before input field" />
 				<string name="help" comments="help text show after input field" />
-				<!-- for [format=file|image] only -->
-				<string name="filesize" optional="yes" comments="max file size in bytes" example="10MB|2000KB" />
-				<list name="filetype" optional="yes" delim="," example="gif,jpg,jpeg,png" />
 			</structure>
-			<object name="$bean" comments="for field value" />
 		</in>
-		<out />
+		<out>
+			<structure name="data" scope="form" optional="yes">
+				<mixed name="~fieldName~" />
+			</structure>
+		</out>
 	</io>
 </fusedoc>
 */ ?>
