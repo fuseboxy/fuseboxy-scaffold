@@ -1225,7 +1225,7 @@ class Scaffold {
 		$dataFieldName = self::fieldName2dataFieldName($fieldName);
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
 		// exit point : ajax upload
-		if ( in_array($fieldConfig['format'], ['file','image']) ) {
+		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
 			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
 			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
 		}
