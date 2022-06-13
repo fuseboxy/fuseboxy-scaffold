@@ -179,6 +179,61 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			obtain field config of specific field
+		</description>
+		<io>
+			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<structure name="~fieldName~" optional="yes" />
+				</structure>
+				<!-- parameter -->
+				<string name="$fieldName" />
+			</in>
+			<out>
+				<structure name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function fieldConfig($fieldName) {
+		// validation
+		if ( empty(self::$config['fieldConfig'][$fieldName]) ) {
+			self::$error = "Field config for [{$fieldName}] not found";
+			return false;
+		}
+		// done!
+		return self::$config['fieldConfig'][$fieldName];
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert field name to [name] attribute for <input>
+		</description>
+		<io>
+			<in>
+				<string name="$fieldName" example="student_name|student.name" />
+			</in>
+			<out>
+				<structure name="~return~" example="data[student_name]|data[student][name]" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function fieldName2dataFieldName($fieldName) {
+		return 'data['.str_replace('.', '][', $fieldName).']';
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			convert human-readable file-size string to number
 		</description>
 		<io>
@@ -425,8 +480,30 @@ class Scaffold {
 
 
 
-	// get list of files in specific directory at FTP server
-	// ===> append directory with the folder specified in connection string (if any)
+	/**
+	<fusedoc>
+		<description>
+			get list of files in specific directory at FTP server
+			===> append directory with the folder specified in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<string name="$dir" />
+				<string name="$connString" optional="yes" />
+			</in>
+			<out>
+				<array name="~return~">
+					<structure name="+">
+						<string name="path" />
+						<string name="name" />
+						<string name="ext" />
+						<datetime name="mtime" />
+					</structure>
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getFileList__FTP($dir, $connString=null) {
 		$result = array();
 		// connect to server
@@ -462,7 +539,28 @@ class Scaffold {
 
 
 
-	// get list of files in specific directory at local server
+	/**
+	<fusedoc>
+		<description>
+			get list of files in specific directory at local server
+		</description>
+		<io>
+			<in>
+				<string name="$dir" />
+			</in>
+			<out>
+				<array name="~return~">
+					<structure name="+">
+						<string name="path" />
+						<string name="name" />
+						<string name="ext" />
+						<datetime name="mtime" />
+					</structure>
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getFileList__LocalServer($dir) {
 		$result = array();
 		// go through each file in directory
@@ -481,8 +579,30 @@ class Scaffold {
 
 
 
-	// get list of files in specific directory at S3 bucket
-	// ===> append directory with the folder specified in connection string (if any)
+	/**
+	<fusedoc>
+		<description>
+			get list of files in specific directory at S3 bucket
+			===> append directory with the folder specified in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<string name="$dir" />
+				<string name="$connString" optional="yes" />
+			</in>
+			<out>
+				<array name="~return~">
+					<structure name="+">
+						<string name="path" />
+						<string name="name" />
+						<string name="ext" />
+						<datetime name="mtime" />
+					</structure>
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function getFileList__S3($dir, $connString=null) {
 		$result = array();
 		// get S3 client
@@ -511,6 +631,32 @@ class Scaffold {
 			}
 		}
 		// done!
+		return $result;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			access nested-array value (e.g. data[student][name]) by period-delimited-list (e.g. student.name)
+		</description>
+		<io>
+			<in>
+				<list name="$nestedKey" delim="." />
+				<array name="$nestedArray" />
+			</in>
+			<out>
+				<mixed name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function nestedArrayGet($nestedKey, $nestedArray) {
+		$nestedKey = explode('.', $nestedKey);
+		$result = $nestedArray;
+		foreach ( $nestedKey as $key ) $result = $result->{$key} ?? $result[$key] ?? null;
 		return $result;
 	}
 
@@ -979,10 +1125,49 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			render specific field
+		</description>
+		<io>
+			<in>
+				<string name="$fieldName" />
+				<structure name="$fieldConfig" />
+				<structure name="$formData" />
+			</in>
+			<out>
+				<string name="~return~" comments="output" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function renderField($fieldName, $fieldConfig, $formData) {
+		// simply display nothing (when empty field name)
+		if ( empty($fieldName) ) return '';
+		// essential variables
+		$scaffold = self::$config;
+		$dataFieldName = self::fieldName2dataFieldName($fieldName);
+		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
+		// determine value to show in field
+		// ===> precedence: defined-value > submitted-value > default-value > empty
+		$fieldValue = $fieldConfig['value'] ?? self::nestedArrayGet($fieldName, $formData) ?? $fieldConfig['default'] ?? '';
+		// exit point : ajax upload
+		if ( in_array($fieldConfig['format'], ['file','image']) ) {
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
+			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
+		}
+		// done!
+		ob_start();
+		include F::appPath('view/webform/input.php');
+		return ob_get_clean();
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			render edit form according to [modalField & fieldConfig] scaffold config
 			===> for [editMode=modal|inline-modal|basic]
-
-				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
 		</description>
 		<io>
 			<in>
