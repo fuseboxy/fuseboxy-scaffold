@@ -208,6 +208,8 @@ switch ( $fusebox->action ) :
 	case 'new':
 	case 'quick':
 		F::error('Forbidden (allowNew=false)', !$scaffold['allowNew'] and !F::is('*.edit'));
+		// default number of form
+		if ( empty($arguments['count']) ) $arguments['count'] = 1;
 		// get empty record (when necessary)
 		if ( !isset($bean) ) $bean = Scaffold::getBean();
 		F::error(Scaffold::error(), $bean === false);
@@ -217,8 +219,8 @@ switch ( $fusebox->action ) :
 		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
 		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
+		// ===> use [count] to display multiple forms
 		ob_start();
-		if ( empty($arguments['count']) ) $arguments['count'] = 1;
 		$formType = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'inline_edit' : 'edit';
 		for ( $__rowIndex=0; $__rowIndex<$arguments['count']; $__rowIndex++ ) include $scaffold['scriptPath'][$formType];
 		$layout['content'] = ob_get_clean();
