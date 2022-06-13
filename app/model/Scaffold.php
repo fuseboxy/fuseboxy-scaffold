@@ -1156,6 +1156,8 @@ class Scaffold {
 		$scaffold = array('modalField' => $fieldLayout, 'fieldConfig' => $fieldConfigAll);
 		// exit point
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
 		// display
 		ob_start();
 		include F::appPath('view/scaffold/edit.php');
