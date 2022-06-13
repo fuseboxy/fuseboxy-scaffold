@@ -27,6 +27,7 @@
 			</structure>
 			<structure name="$options">
 				<string name="editMode" comments="modal|inline-modal|basic" />
+				<number name="labelColumn" />
 			</structure>
 		</in>
 		<out />
@@ -98,23 +99,27 @@ $formID = F::command('controller').'-edit-'.$recordID;
 			else :
 				$fieldNameList = explode('|', $fieldNameList);
 				$fieldWidthList = explode('|', $fieldWidthList);
-				?><div class="form-row">
-					<label class="col-2 col-form-label col-form-label-sm text-right"><?php
-						foreach ( $fieldNameList as $i => $fieldNameSubList ) :
-							$fieldNameSubList = explode(',', $fieldNameSubList);
-							foreach ( $fieldNameSubList as $fieldName ) :
-								if ( !empty($fieldName) ) :
-									$headerText = $fieldConfigAll[$fieldName]['label'];
-									if ( $i == 0 ) :
-										?><span><?php echo $headerText; ?></span><?php
-									elseif ( !empty($headerText) ) :
-										?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
-									endif;
-								endif; // if-notEmpty
-							endforeach; // foreach-fieldNameSubList
-						endforeach; // foreach-fieldNameList
-					?></label>
-					<div class="col-10">
+				?><div class="form-row"><?php
+					// label column
+					if ( !empty($options['labelWidth']) ) :
+						?><label class="col-<?php echo $options['labelWidth']; ?> col-form-label col-form-label-sm text-right"><?php
+							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
+								$fieldNameSubList = explode(',', $fieldNameSubList);
+								foreach ( $fieldNameSubList as $fieldName ) :
+									if ( !empty($fieldName) ) :
+										$headerText = $fieldConfigAll[$fieldName]['label'];
+										if ( $i == 0 ) :
+											?><span><?php echo $headerText; ?></span><?php
+										elseif ( !empty($headerText) ) :
+											?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
+										endif;
+									endif; // if-notEmpty
+								endforeach; // foreach-fieldNameSubList
+							endforeach; // foreach-fieldNameList
+						?></label><?php
+					endif;
+					// field column
+					?><div class="col">
 						<div class="row"><?php
 							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
 								$fieldWidth = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';

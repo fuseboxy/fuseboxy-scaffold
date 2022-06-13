@@ -1141,6 +1141,7 @@ class Scaffold {
 				<object name="$bean" />
 				<structure name="$options" optional="yes">
 					<string name="editMode" default="modal" comments="modal|inline-modal|basic" />
+					<number name="labelWidth" default="2" comments="column width" />
 				</structure>
 			</in>
 			<out>
@@ -1152,6 +1153,7 @@ class Scaffold {
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
 		// default options
 		$options['editMode'] = $options['editMode'] ?? 'modal';
+		$options['labelWidth'] = $options['labelWidth'] ?? 2;
 		// essential
 		$scaffold = array('modalField' => $fieldLayout, 'fieldConfig' => $fieldConfigAll);
 		// exit point
