@@ -36,17 +36,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function createFolder($newFolder) {
-		switch ( self::parseConnectionString(null, 'protocol') ) {
-			case 's3':
-				return self::createFolder__S3($newFolder);
-				break;
-			case 'ftp':
-			case 'ftps':
-				return self::createFolder__FTP($newFolder);
-				break;
-			default:
-				return self::createFolder__LocalServer($newFolder);
-		}
+		$protocol = self::parseConnectionString(null, 'protocol');
+		if ( $protocol === false ) return false;
+		// done!
+		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::createFolder__FTP($newFolder);
+		if ( $protocol == 's3' ) return self::createFolder__S3($newFolder);
+		return self::createFolder__LocalServer($newFolder);
 	}
 
 
@@ -419,17 +414,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getFileList($dir) {
-		switch ( self::parseConnectionString(null, 'protocol') ) {
-			case 's3':
-				return self::getFileList__S3($dir);
-				break;
-			case 'ftp':
-			case 'ftps':
-				return self::getFileList__FTP($dir);
-				break;
-			default:
-				return self::getFileList__LocalServer($dir);
-		}
+		$protocol = self::parseConnectionString(null, 'protocol');
+		if ( $protocol === false ) return false;
+		// done!
+		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::getFileList__FTP($dir);
+		if ( $protocol == 's3' ) return self::getFileList__S3($dir);
+		return self::getFileList__LocalServer($dir);
 	}
 
 
@@ -531,6 +521,7 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			parse upload directory config as connection string (when necessary)
+			===> s3://xxxxxxxxxx0
 		</description>
 		<io>
 			<in>
@@ -540,19 +531,19 @@ class Scaffold {
 			<out>
 				<structure name="~return~" optional="yes" oncondition="when success (key not specified)">
 					<!-- S3 -->
-					<string name="protocol" />
+					<string name="protocol" value="s3" />
 					<string name="accessKeyID" optional="yes" oncondition="s3" />
 					<string name="secretAccessKey" optional="yes" oncondition="s3" />
 					<string name="bucket" optional="yes" oncondition="s3" />
 					<string name="folder" />
 					<!-- FTP/FTPS -->
-					<string name="protocol" />
+					<string name="protocol" value="ftp|ftps" />
 					<string name="username" optional="yes" oncondition="ftp|ftps" />
 					<string name="password" optional="yes" oncondition="ftp|ftps" />
 					<string name="hostname" optional="yes" oncondition="ftp|ftps" />
 					<string name="folder" />
 					<!-- Local Server -->
-					<string name="protocol" />
+					<string name="protocol" value="local" />
 					<string name="folder" />
 				</structure>
 				<string name="~return~" optional="yes" oncondition="when success (key specified)" />
@@ -596,7 +587,6 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			parse FTP connection string
-			===> {ftp|ftps}://{username}:{password}@{hostname}/{folder}
 		</description>
 		<io>
 			<in>
@@ -604,7 +594,7 @@ class Scaffold {
 			</in>
 			<out>
 				<structure name="~return~" optional="yes" oncondition="when success">
-					<string name="protocol" />
+					<string name="protocol" value="ftp|ftps" />
 					<string name="username" />
 					<string name="password" />
 					<string name="hostname" />
@@ -695,7 +685,7 @@ class Scaffold {
 			</in>
 			<out>
 				<structure name="~return~" optional="yes" oncondition="when success">
-					<string name="protocol" />
+					<string name="protocol" value="s3" />
 					<string name="accessKeyID" />
 					<string name="secretAccessKey" />
 					<string name="bucket" />
@@ -846,26 +836,51 @@ class Scaffold {
 
 
 
-	// rename file at server according to protocol
+	/**
+	<fusedoc>
+		<description>
+			rename file at server according to protocol
+		</description>
+		<io>
+			<in>
+				<path name="$source" />
+				<path name="$destination" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function renameFile($source, $destination) {
-		switch ( self::parseConnectionString(null, 'protocol') ) {
-			case 's3':
-				return self::renameFile__S3($source, $destination);
-				break;
-			case 'ftp':
-			case 'ftps':
-				return self::renameFile__FTP($source, $destination);
-				break;
-			default:
-				return self::renameFile__LocalServer($source, $destination);
-		}
+		$protocol = self::parseConnectionString(null, 'protocol');
+		if ( $protocol === false ) return false;
+		// done!
+		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::renameFile__FTP($source, $destination);
+		if ( $protocol == 's3' ) return self::renameFile__S3($source, $destination);
+		return self::renameFile__LocalServer($source, $destination);
 	}
 
 
 
 
-	// rename file at FTP server
-	// ===> append source and destination with folder in connection string (if any)
+	/**
+	<fusedoc>
+		<description>
+			rename file at FTP server
+			===> append source and destination with folder in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<path name="$source" />
+				<path name="$destination" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function renameFile__FTP($source, $destination, $connString=null) {
 		$result = array();
 		// connect to server
@@ -915,8 +930,23 @@ class Scaffold {
 
 
 
-	// rename file at S3 bucket
-	// ===> append source and destination with folder in connection string (if any)
+	/**
+	<fusedoc>
+		<description>
+			rename file at S3 bucket
+			===> append source and destination with folder in connection string (if any)
+		</description>
+		<io>
+			<in>
+				<path name="$source" />
+				<path name="$destination" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function renameFile__S3($source, $destination, $connString=null) {
 		// connect to server
 		$s3 = self::getConnection__S3($connString);
@@ -1496,6 +1526,8 @@ class Scaffold {
 	*/
 	// 
 	public static function startUpload(&$handler, $uploadDir, $resize=null) {
+		$protocol = self::parseConnectionString(null, 'protocol');
+		if ( $protocol === false ) return false;
 		// skip when unit-test
 		if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
 			return $handler->getNewFileName();
@@ -1511,20 +1543,10 @@ class Scaffold {
 			$resizeResult = self::resizeImage($uploadResult['filePath'], $resize);
 			if ( $resizeResult === false ) return false;
 		}
-		// take action according to protocol
-		switch ( self::parseConnectionString(null, 'protocol') ) {
-			case 's3':
-				$result = self::startUpload__S3($uploadResult, $uploadDir);
-				break;
-			case 'ftp':
-			case 'ftps':
-				$result = self::startUpload__FTP($uploadResult, $uploadDir);
-				break;
-			default:
-				$result = self::startUpload__LocalServer($uploadResult, $uploadDir);
-		}
 		// done!
-		return $result;
+		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::startUpload__FTP($uploadResult, $uploadDir);
+		if ( $protocol == 's3' ) return self::startUpload__S3($uploadResult, $uploadDir);
+		return self::startUpload__LocalServer($uploadResult, $uploadDir);
 	}
 
 
