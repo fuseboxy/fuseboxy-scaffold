@@ -1125,47 +1125,6 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
-			render specific field
-		</description>
-		<io>
-			<in>
-				<string name="$fieldName" />
-				<structure name="$fieldConfig" />
-				<structure name="$formData" />
-			</in>
-			<out>
-				<string name="~return~" comments="output" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function renderField($fieldName, $fieldConfig, $formData) {
-		// simply display nothing (when empty field name)
-		if ( empty($fieldName) ) return '';
-		// essential variables
-		$scaffold = self::$config;
-		$dataFieldName = self::fieldName2dataFieldName($fieldName);
-		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
-		// determine value to show in field
-		// ===> precedence: defined-value > submitted-value > default-value > empty
-		$fieldValue = $fieldConfig['value'] ?? self::nestedArrayGet($fieldName, $formData) ?? $fieldConfig['default'] ?? '';
-		// exit point : ajax upload
-		if ( in_array($fieldConfig['format'], ['file','image']) ) {
-			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
-			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
-		}
-		// done!
-		ob_start();
-		include F::appPath('view/webform/input.php');
-		return ob_get_clean();
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			render edit form according to [modalField & fieldConfig] scaffold config
 			===> for [editMode=modal|inline-modal|basic]
 		</description>
@@ -1215,6 +1174,73 @@ class Scaffold {
 	*/
 	public static function renderInlineForm($fieldLayout, $fieldConfig, $options=[]) {
 
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			render specific field
+		</description>
+		<io>
+			<in>
+				<string name="$fieldName" />
+				<structure name="$fieldConfig" />
+				<object name="$beanData" />
+			</in>
+			<out>
+				<string name="~return~" comments="output" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function renderInput($fieldName, $fieldConfig, $beanData) {
+		// simply display nothing (when empty field name)
+		if ( empty($fieldName) ) return '';
+		// essential variables
+		$scaffold = self::$config;
+		$dataFieldName = self::fieldName2dataFieldName($fieldName);
+		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
+		// exit point : ajax upload
+		if ( in_array($fieldConfig['format'], ['file','image']) ) {
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
+			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
+		}
+		// determine value to show in field
+		// ===> precedence: defined-value > one-to-many|many-to-many > bean-value > default-value > empty
+		if ( isset($fieldConfig['value']) ) {
+			$fieldValue = $fieldConfig['value'];
+		// checkbox (one-to-many|many-to-many)
+		// ===> one-to-many  : get value from own-list
+		// ===> many-to-many : get value from shared-list
+		} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['one-to-many','many-to-many']) ) {
+			$fieldValue = array();
+			$associateName = str_replace('_id', '', $fieldName);
+			$propertyName = ( ( $fieldConfig['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
+			foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
+		// bean-value > default-value > empty
+		} else {
+			$fieldValue = self::nestedArrayGet($fieldName, $beanData) ?? $fieldConfig['default'] ?? '';
+		}
+		// fix options (when necessary)
+		// ===> when options was not specified
+		// ===> use field value as options
+		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['radio','checkbox','one-to-many','many-to-many']) and !isset($fieldConfig['options']) ) {
+			$fieldConfig['options'] = array();
+			if ( $fieldConfig['format'] == 'radio' ) $fieldConfig['options'][$fieldValue] = $fieldValue;
+			else foreach ( $fieldValue as $val ) $fieldConfig['options'][$val] = $val;
+		}
+		// fix checkbox value (when necessary)
+		// ===> turn pipe-delimited list into array
+		if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
+			$fieldValue = explode('|', $fieldValue);
+		}
+		// done!
+		ob_start();
+		include F::appPath('view/scaffold/input.php');
+		return ob_get_clean();
 	}
 
 

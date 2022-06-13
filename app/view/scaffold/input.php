@@ -7,6 +7,7 @@
 				<string name="ajaxUploadProgress" comments="for [format=file] field" />
 			</structure>
 			<string name="$fieldName" />
+			<string name="$dataFieldName" comments="for individual {input.xxx.php}" example="fieldName {student.name} becomes {data[student][name]}" />
 			<structure name="$fieldConfig">
 				<string name="format" comments="text|hidden|output|textarea|radio|checkbox|file|date|time|datetime|one-to-many|many-to-many|wysiwyg" default="text" />
 				<string name="icon" optional="yes" />
@@ -28,69 +29,16 @@
 			</structure>
 			<object name="$bean" comments="for field value" />
 		</in>
-		<out>
-			<string name="$dataFieldName" comments="for individual {input.xxx.php}" example="fieldName {student.name} becomes {data[student][name]}" />
-		</out>
+		<out />
 	</io>
 </fusedoc>
-*/
-$dataFieldName = 'data['.str_replace('.', '][', $fieldName).']';
-?><div class="scaffold-input form-group mb-1"><?php
-
-	// force using user-defined value (when specified)
-	if ( isset($fieldConfig['value']) ) {
-		$fieldValue = $fieldConfig['value'];
-
-	// checkbox (one-to-many|many-to-many)
-	// ===> one-to-many  : get value from own-list
-	// ===> many-to-many : get value from shared-list
-	} elseif ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('one-to-many','many-to-many')) ) {
-		$fieldValue = array();
-		$associateName = str_replace('_id', '', $fieldName);
-		$propertyName = ( ( $fieldConfig['format'] == 'one-to-many' ) ? 'own' : 'shared' ) . ucfirst($associateName);
-		foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
-
-	// other type
-	// ===> simple value
-	} elseif ( isset($bean->{$fieldName}) ) {
-		$fieldValue = $bean->{$fieldName};
-
-	// no value
-	// ===> apply default value
-	} elseif ( isset($fieldConfig['default']) ) {
-		$fieldValue = $fieldConfig['default'];
-
-	// empty value
-	} else {
-		$fieldValue = '';
-	}
-
-
-	// fix options (when necessary)
-	// ===> when options was not specified
-	// ===> use field value as options
-	if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], array('radio','checkbox','one-to-many','many-to-many')) and !isset($fieldConfig['options']) ) {
-		$fieldConfig['options'] = array();
-		if ( $fieldConfig['format'] == 'radio' ) {
-			$fieldConfig['options'][$fieldValue] = $fieldValue;
-		} else {
-			foreach ( $fieldValue as $val ) $fieldConfig['options'][$val] = $val;
-		}
-	}
-
-
-	// fix checkbox value (when necessary)
-	// ===> turn pipe-delimited list into array
-	if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
-		$fieldValue = explode('|', $fieldValue);
-	}
-
+*/ ?>
+<div class="scaffold-input form-group mb-1"><?php
 
 	// display : pre-help
 	if ( !empty($fieldConfig['pre-help']) ) {
 		include F::appPath('view/scaffold/input.pre_help.php');
 	}
-
 
 	// display : output
 	if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' ) {
@@ -120,7 +68,6 @@ $dataFieldName = 'data['.str_replace('.', '][', $fieldName).']';
 	} else {
 		include F::appPath('view/scaffold/input.default.php');
 	}
-
 
 	// display : help
 	if ( !empty($fieldConfig['help']) ) {
