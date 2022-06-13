@@ -101,8 +101,8 @@ $formID = F::command('controller').'-edit-'.$recordID;
 				$fieldWidthList = explode('|', $fieldWidthList);
 				?><div class="form-row"><?php
 					// label column
-					if ( !empty($options['labelWidth']) ) :
-						?><label class="col-<?php echo $options['labelWidth']; ?> col-form-label col-form-label-sm text-right"><?php
+					if ( !empty($options['labelColumn']) ) :
+						?><label class="col-<?php echo $options['labelColumn']; ?> col-form-label col-form-label-sm text-right"><?php
 							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
 								$fieldNameSubList = explode(',', $fieldNameSubList);
 								foreach ( $fieldNameSubList as $fieldName ) :
