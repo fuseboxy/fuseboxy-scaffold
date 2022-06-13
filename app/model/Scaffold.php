@@ -949,6 +949,65 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			render edit form according to [modalField & fieldConfig] scaffold config
+			===> for [editMode=modal|inline-modal|basic]
+
+				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
+		</description>
+		<io>
+			<in>
+				<array name="$fieldLayout">
+					<list name="~columnNameList~" value="~columnWidthList~" optional="yes" delim="|" />
+					<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+					<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+				</array>
+				<structure name="$fieldConfig" />
+				<structure name="$options" optional="yes">
+					<string name="formStyle" default="modal" comments="modal|basic" />
+				</structure>
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function renderForm($fieldLayout, $fieldConfig, $options=[]) {
+
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			render edit form according to [listField & fieldConfig] of scaffold config
+		</description>
+		<io>
+			<in>
+				<array name="$fieldLayout">
+					<list name="~columnNameList~" value="~columnWidthList~" delim="|" />
+				</array>
+				<structure name="$fieldConfig" />
+				<structure name="$options" optional="yes" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function renderInlineForm($fieldLayout, $fieldConfig, $options=[]) {
+
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			resize image (BMP,GIF,JPG,PNG) to specific width & height
 		</description>
 		<io>
