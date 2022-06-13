@@ -121,10 +121,7 @@ $formID = F::command('controller').'-edit-'.$recordID;
 								?><div class="scaffold-col <?php echo $fieldWidth; ?>"><?php
 									$fieldNameSubList = explode(',', $fieldNameSubList);
 									foreach ( $fieldNameSubList as $fieldName ) :
-										if ( !empty($fieldName) ) :
-											$fieldConfig = $fieldConfigAll[$fieldName] + array('name' => $fieldName);
-											include F::appPath('view/scaffold/input.php');
-										endif; // if-notEmpty
+										if ( !empty($fieldName) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
 									endforeach; // foreach-fieldNameSubList
 								?></div><?php
 							endforeach; // foreach-fieldNameList

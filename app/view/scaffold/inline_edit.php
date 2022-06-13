@@ -41,14 +41,8 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 				?><td class="col-<?php echo implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>;"><?php
 					foreach ( $fieldNameList as $i => $fieldName ) :
 						?><div class="scaffold-col col-<?php echo str_replace('.', '-', $fieldName); ?>"><?php
-							if ( isset($fieldConfigAll[$fieldName]) ) :
-								$fieldConfig = $fieldConfigAll[$fieldName];
-								include F::appPath('view/scaffold/input.php');
-							else :
-								?><div class="form-control" readonly>
-									<em class="small text-muted text-nowrap">Field [<?php echo $fieldName; ?>] is undefined</em>
-								</div><?php
-							endif;
+							if ( isset($fieldConfigAll[$fieldName]) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
+							else echo '<div class="form-control">'.F::alertOutput([ 'type' => 'warning small', 'message' => "Field [{$fieldName}] is undefined" ]).'</div>';
 						?></div><?php
 					endforeach;
 				?></td><?php
