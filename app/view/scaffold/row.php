@@ -69,20 +69,20 @@ endif;
 									// image : show thumbnail
 									elseif ( $isImage and !empty($bean->{$fieldName}) ) :
 										?><a
+											href="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
 											title="<?php echo basename($bean->{$fieldName}); ?>"
-											href="<?php echo $bean->{$fieldName}; ?>"
 											target="_blank"
 											data-fancybox
 										><img
+											src="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
 											alt="<?php echo basename($bean->{$fieldName}); ?>"
-											src="<?php echo $bean->{$fieldName}; ?>"
 											class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
 											style="max-width: 100%; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 										/></a><?php
 									// file : show link
 									elseif ( $isFile and !empty($bean->{$fieldName}) ) :
 										?><a
-											href="<?php echo $bean->{$fieldName}; ?>"
+											href="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
 											style="word-break: break-all;"
 											target="_blank"
 										><?php echo basename($bean->{$fieldName}); ?></a><?php

@@ -69,15 +69,15 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 	// preview image
 	if ( $fieldConfig['format'] == 'image' ) :
 		?><a
-			href="<?php echo $fieldValue; ?>"
+			href="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
 			title="<?php echo basename($fieldValue); ?>"
 			class="<?php if ( empty($fieldValue) ) echo 'd-none'; ?>"
 			style="<?php if (!empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 			target="_blank"
 			data-fancybox
 		><img
+			src="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
 			alt="<?php echo basename($fieldValue); ?>"
-			src="<?php echo $fieldValue; ?>"
 			class="img-thumbnail mt-1"
 		/></a><?php
 	endif;
