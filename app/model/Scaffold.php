@@ -657,8 +657,8 @@ class Scaffold {
 		$nestedKey = explode('.', $nestedKey);
 		$result = $nestedArray;
 		foreach ( $nestedKey as $key ) {
-			if ( isset($result->{$key}) ) $result = $result->{$key};
-			elseif ( isset($result[$key]) ) $result = $result[$key];
+			if ( is_object($result) and isset($result->{$key}) ) $result = $result->{$key};
+			elseif ( is_array($result) and isset($result[$key]) ) $result = $result[$key];
 			else $result = null;
 		}
 		return $result;
