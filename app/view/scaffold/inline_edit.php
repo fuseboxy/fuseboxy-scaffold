@@ -3,22 +3,19 @@
 	<io>
 		<in>
 			<string name="controller" scope="$fusebox" />
-			<structure name="$scaffold">
-				<string name="editMode" comments="inline|modal" />
-				<array name="listField">
-					<string name="~fieldNameList~" value="~columnWidth~" />
-				</array>
-				<structure name="fieldConfig">
-					<structure name="~column~">
-						<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
-						<array name="options" comments="show dropdown when specified">
-							<string name="~key is option-value~" comments="value is option-text" />
-						</array>
-						<boolean name="readonly" comments="output does not pass value; readonly does" />
-						<string name="placeholder" default="column display name" />
-						<string name="help" />
-						<boolean name="required" />
-					</structure>
+			<array name="$fieldLayout">
+				<string name="~fieldNameList~" value="~columnWidth~" />
+			</array>
+			<structure name="$fieldConfigAll">
+				<structure name="~column~">
+					<string name="format" comments="normal|output|textarea|checkbox|radio" default="normal" />
+					<array name="options" comments="show dropdown when specified">
+						<string name="~key is option-value~" comments="value is option-text" />
+					</array>
+					<boolean name="readonly" comments="output does not pass value; readonly does" />
+					<string name="placeholder" default="column display name" />
+					<string name="help" />
+					<boolean name="required" />
 				</structure>
 			</structure>
 		</in>
@@ -39,13 +36,13 @@ $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
 >
 	<table class="table table-hover table-sm mb-0">
 		<tr><?php
-			foreach ( $scaffold['listField'] as $fieldNameList => $columnWidth ) :
+			foreach ( $fieldLayout as $fieldNameList => $columnWidth ) :
 				$fieldNameList = explode('|', $fieldNameList);
 				?><td class="col-<?php echo implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>;"><?php
 					foreach ( $fieldNameList as $i => $fieldName ) :
 						?><div class="scaffold-col col-<?php echo str_replace('.', '-', $fieldName); ?>"><?php
-							if ( isset($scaffold['fieldConfig'][$fieldName]) ) :
-								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
+							if ( isset($fieldConfigAll[$fieldName]) ) :
+								$fieldConfig = $fieldConfigAll[$fieldName];
 								include F::appPath('view/scaffold/input.php');
 							else :
 								?><div class="form-control" readonly>

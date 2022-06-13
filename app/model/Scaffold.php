@@ -1135,9 +1135,12 @@ class Scaffold {
 					<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
 					<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 				</array>
-				<structure name="$fieldConfig" />
+				<structure name="$fieldConfigAll">
+					<structure name="~fieldName~" />
+				</structure>
+				<object name="$bean" />
 				<structure name="$options" optional="yes">
-					<string name="formStyle" default="modal" comments="modal|basic" />
+					<string name="editMode" default="modal" comments="modal|inline-modal|basic" />
 				</structure>
 			</in>
 			<out>
@@ -1146,8 +1149,17 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderForm($fieldLayout, $fieldConfig, $options=[]) {
-
+	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+		// default options
+		$options['editMode'] = $options['editMode'] ?? 'modal';
+		// essential
+		$scaffold = array('modalField' => $fieldLayout, 'fieldConfig' => $fieldConfigAll);
+		// exit point
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
+		// display
+		ob_start();
+		include F::appPath('view/scaffold/edit.php');
+		return ob_get_clean();
 	}
 
 
@@ -1163,7 +1175,10 @@ class Scaffold {
 				<array name="$fieldLayout">
 					<list name="~columnNameList~" value="~columnWidthList~" delim="|" />
 				</array>
-				<structure name="$fieldConfig" />
+				<structure name="$fieldConfigAll">
+					<structure name="~fieldName~" />
+				</structure>
+				<object name="$bean" />
 				<structure name="$options" optional="yes" />
 			</in>
 			<out>
@@ -1172,8 +1187,15 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderInlineForm($fieldLayout, $fieldConfig, $options=[]) {
-
+	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+		// exit point
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
+		// display
+		ob_start();
+		include F::appPath('view/scaffold/inline_edit.php');
+		return ob_get_clean();
 	}
 
 
@@ -1188,7 +1210,7 @@ class Scaffold {
 			<in>
 				<string name="$fieldName" />
 				<structure name="$fieldConfig" />
-				<object name="$beanData" />
+				<object name="$bean" />
 			</in>
 			<out>
 				<string name="~return~" comments="output" />
@@ -1196,11 +1218,10 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderInput($fieldName, $fieldConfig, $beanData) {
+	public static function renderInput($fieldName, $fieldConfig, $bean) {
 		// simply display nothing (when empty field name)
 		if ( empty($fieldName) ) return '';
-		// essential variables
-		$scaffold = self::$config;
+		// essential variable
 		$dataFieldName = self::fieldName2dataFieldName($fieldName);
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
 		// exit point : ajax upload
@@ -1222,7 +1243,7 @@ class Scaffold {
 			foreach ( $bean->{$propertyName} as $tmp ) $fieldValue[] = $tmp->id;
 		// bean-value > default-value > empty
 		} else {
-			$fieldValue = self::nestedArrayGet($fieldName, $beanData) ?? $fieldConfig['default'] ?? '';
+			$fieldValue = self::nestedArrayGet($fieldName, $bean) ?? $fieldConfig['default'] ?? '';
 		}
 		// fix options (when necessary)
 		// ===> when options was not specified

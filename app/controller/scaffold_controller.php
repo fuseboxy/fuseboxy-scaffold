@@ -220,10 +220,13 @@ switch ( $fusebox->action ) :
 		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		// ===> use [count] to display multiple forms
-		ob_start();
-		$formType = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'inline_edit' : 'edit';
-		for ( $__rowIndex=0; $__rowIndex<$arguments['count']; $__rowIndex++ ) include $scaffold['scriptPath'][$formType];
-		$layout['content'] = ob_get_clean();
+		$layout['content'] = '';
+		for ( $i=0; $i<$arguments['count']; $i++ ) {
+			$method = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'renderInlineForm' : 'renderForm';
+			$layout['content'] .= Scaffold::$method($scaffold['listField'], $scaffold['fieldConfig'], $bean, [
+				'editMode' => $scaffold['editMode'],
+			]);
+		}
 		// show with layout (when necessary)
 		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {
 			echo $layout['content'];
