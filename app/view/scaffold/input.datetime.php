@@ -37,7 +37,7 @@
 	 /><?php
 	// calendar or clock
 	?><div class="input-group-append">
-		<span class="input-group-text bg-white px-2 bl-0">
+		<span class="input-group-text px-2 bl-0 <?php if ( empty($fieldConfig['readonly']) ) echo 'bg-white'; ?>">
 			<i class="<?php echo ( $fieldConfig['format'] == 'time') ? 'far fa-clock' : 'far fa-calendar-alt'; ?> op-30"></i>
 		</span>
 	</div>
