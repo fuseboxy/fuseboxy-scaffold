@@ -1253,10 +1253,12 @@ class Scaffold {
 		// fix param : modal field (heading & line & output)
 		// ===> append space to make sure it is unique
 		// ===> avoid being overridden after convert to key
-		$i = 0;
-		foreach ( $modalField as $fieldKey => $fieldRow ) {
-			if ( self::parseFieldRow($fieldRow, true) != 'fields' ) $modalField[$fieldKey] = $fieldRow.str_repeat(' ', $i);
-			$i++;
+		foreach ( $modalField as $key => $val ) {
+			// only consider numeric key field
+			// ===> which means the config is before fixed
+			if ( is_numeric($key) and self::parseFieldRow($val, true) != 'fields' ) {
+				$modalField[$key] = $fieldRow.str_repeat(' ', $key);
+			}
 		}
 		// fix param : modal field (key)
 		// ===> convert numeric key to field name
