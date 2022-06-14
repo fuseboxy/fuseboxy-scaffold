@@ -30,7 +30,9 @@
 				<number name="labelColumn" />
 			</structure>
 		</in>
-		<out />
+		<out>
+			<string name="$recordID" comments="pass to {edit.header} and {edit.footer}" />
+		</out>
 	</io>
 </fusedoc>
 */
@@ -58,124 +60,20 @@ $formID = F::command('controller').'-edit-'.$recordID;
 		data-target="#<?php echo F::command('controller'); ?>-edit-<?php echo $recordID; ?>"
 	<?php endif; ?>
 ><?php
-	// title
+	// header : title
 	if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
-		?><header class="scaffold-edit-header modal-header"><?php
-			?><h5 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h5><?php
-			// close button @ modal
-			if ( $options['editMode'] == 'modal' ) :
-				?><button 
-					type="button"
-					class="close scaffold-btn-close"
-					data-dismiss="modal"
-					aria-label="Close"
-				><span aria-hidden="true">&times;</span></button><?php
-			// canel button @ inline-modal
-			elseif ( $options['editMode'] == 'inline-modal' and isset($xfa['cancel']) ) :
-				?><a 
-					href="<?php echo F::url($xfa['cancel']); ?>"
-					class="close scaffold-btn-cancel"
-					data-toggle="ajax-load"
-					data-target="#<?php echo F::command('controller'); ?>-edit-<?php echo $recordID; ?>"
-				><span aria-hidden="true">&times;</span></a><?php
-				?><?php
-			endif;
-		?></header><!--/.modal-header--><?php
+		?><header class="modal-header"><?php
+			include F::appPath('view/scaffold/edit.header.php');
+		?></header><?php
 	endif;
-	// body
-	?><div class="scaffold-edit-body modal-body"><?php
-		// message (if any)
-		if ( isset($arguments['flash']) ) :
-			?><div class="alert alert-<?php echo isset($arguments['flash']['type']) ? $arguments['flash']['type'] : 'warning'; ?>"><?php
-				echo isset($arguments['flash']['message']) ? $arguments['flash']['message'] : $arguments['flash'];
-			?></div><?php
-		endif;
-		// form fields
-		foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
-			// heading & line & output
-			if ( Scaffold::parseFieldRow($fieldNameList, true) != 'fields' ) :
-				echo Scaffold::parseFieldRow($fieldNameList);
-			// field list
-			else :
-				$fieldNameList = explode('|', $fieldNameList);
-				$fieldWidthList = explode('|', $fieldWidthList);
-				?><div class="form-row"><?php
-					// label column
-					if ( !empty($options['labelColumn']) ) :
-						?><label class="col-<?php echo $options['labelColumn']; ?> col-form-label col-form-label-sm text-right"><?php
-							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
-								$fieldNameSubList = explode(',', $fieldNameSubList);
-								foreach ( $fieldNameSubList as $fieldName ) :
-									if ( !empty($fieldName) ) :
-										$headerText = $fieldConfigAll[$fieldName]['label'];
-										if ( $i == 0 ) :
-											?><span><?php echo $headerText; ?></span><?php
-										elseif ( !empty($headerText) ) :
-											?><small class="text-muted"> / <?php echo $headerText; ?></small><?php
-										endif;
-									endif; // if-notEmpty
-								endforeach; // foreach-fieldNameSubList
-							endforeach; // foreach-fieldNameList
-						?></label><?php
-					endif;
-					// field column
-					?><div class="col">
-						<div class="row"><?php
-							foreach ( $fieldNameList as $i => $fieldNameSubList ) :
-								$fieldWidth = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
-								?><div class="scaffold-col <?php echo $fieldWidth; ?>"><?php
-									$fieldNameSubList = explode(',', $fieldNameSubList);
-									foreach ( $fieldNameSubList as $fieldName ) :
-										if ( !empty($fieldName) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
-									endforeach; // foreach-fieldNameSubList
-								?></div><?php
-							endforeach; // foreach-fieldNameList
-						?></div><!--/.row-->
-					</div><!--/.col-->
-				</div><!--/.form-group--><?php
-			endif;
-		endforeach;
-	?></div><!--/.modal-body--><?php
-	// button @ modal
-	if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
-		?><footer class="scaffold-edit-footer modal-footer"><?php
-			// close button @ modal
-			if ( $options['editMode'] == 'modal' ) :
-				?><button 
-					type="button"
-					class="btn btn-link text-dark scaffold-btn-close"
-					data-dismiss="modal"
-				>Close</button><?php
-			// canel button @ inline-modal
-			elseif ( $options['editMode'] == 'inline-modal' and isset($xfa['cancel']) ) :
-				?><a 
-					href="<?php echo F::url($xfa['cancel']); ?>"
-					class="btn btn-link text-dark scaffold-btn-cancel"
-					data-toggle="ajax-load"
-					data-target="#<?php echo F::command('controller'); ?>-edit-<?php echo $recordID; ?>"
-				>Cancel</a><?php
-			endif;
-			// submit button
-			if ( isset($xfa['submit']) ) :
-				?><button 
-					type="submit" 
-					class="btn btn-primary scaffold-btn-save ml-1"
-				>Save changes</button><?php
-			endif;
-		?></footer><!--/.modal-footer--><?php
-	// button @ basic
-	elseif ( $options['editMode'] == 'basic' ) :
-		?><footer class="scaffold-edit-footer col-10 offset-2"><?php
-			if ( isset($xfa['submit']) ) :
-				?><button 
-					type="submit"
-					class="btn btn-primary scaffold-btn-save mr-1"
-				>Save changes</button><?php
-			endif;
-			?><a 
-				href="javascript:history.back();" 
-				class="btn btn-link text-dark scaffold-btn-cancel"
-			>Cancel</a>
-		</footer><?php
-	endif;
-?></form>
+	// body : fields
+	?><div class="modal-body"><?php
+		if ( isset($arguments['flash']) ) F::alert($arguments['flash']);
+		include F::appPath('view/scaffold/edit.body.php');
+	?></div><?php
+	// footer : buttons
+	$footerClass = in_array($options['editMode'], ['modal','inline-modal']) ? 'modal-footer' : 'col-10 offset-2';
+	?><footer class="<?php echo $footerClass; ?>"><?php
+		include F::appPath('view/scaffold/edit.footer.php');
+	?></footer>
+</form>
