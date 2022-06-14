@@ -1046,7 +1046,7 @@ class Scaffold {
 		if ( !empty($options['enforceHasID']) ) {
 			$hasID = false;
 			foreach ( $listField as $fieldNameList => $val ) if ( in_array('id', explode('|', $fieldNameList)) ) $hasID = true;
-			if ( !$hasID ) $listField = array('id' => '') + $listField;
+			if ( !$hasID ) $listField = array('id' => 60) + $listField;
 		}
 		// done!
 		return $listField;
