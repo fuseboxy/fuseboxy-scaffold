@@ -700,7 +700,6 @@ class Scaffold {
 						<string name="~columnList~" value="~columnWidth~" />
 					</structure>
 					<structure name="modalField">
-						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
 						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
 						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
 						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
@@ -709,6 +708,11 @@ class Scaffold {
 					<structure name="scriptPath">
 						<string name="edit|header|inline_edit|list|row|modal" value="~filePath~" />
 					</structure>
+					<structure_or_boolean name="pagination" default="false">
+						<number name="recordCount" />
+						<number name="recordPerPage" />
+						<number name="pageVisible" />
+					</structure_or_boolean>
 				</structure>
 				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
 				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
@@ -727,44 +731,24 @@ class Scaffold {
 		if ( self::initConfig__defaultPermission() === false ) return false;
 		// allow sort : fix
 		if ( self::initConfig__fixAllowSort() === false ) return false;
-
-
-
-
-
-		// param default : edit mode
-		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
-		// param default : modal size
+		// edit mode : fix & default
+		if ( self::initConfig__fixEditMode() === false ) return false;
+		// modal size : default
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
-		// param default : sticky header
+		// sticky header : default
 		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
-
-
 		// list filter : fix & default
 		if ( self::initConfig__fixListFilter() === false ) return false;
 		// list order : fix & default
 		if ( self::initConfig__fixListOrder() === false ) return false;
 		// script path : fix & default
 		if ( self::initConfig__fixScriptPath() === false ) return false;
-
-
-
-
-		// param default : write log
+		// write log : default
 		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
-		// param default : pagination
-		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
-		if ( !empty(self::$config['pagination']) ) {
-			if ( !is_array(self::$config['pagination']) ) self::$config['pagination'] = array();
-			self::$config['pagination']['recordCount']   = self::getBeanCount();
-			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
-			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
-		}
-		// param fix : edit mode
-		// ===> enforce normal edit form when not ajax
-		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) {
-			self::$config['editMode'] = 'basic';
-		}
+		// pagination : fix & default
+		if ( self::initConfig__fixPagination() === false ) return false;
+
+
 		// param fix : list order
 		// ===> add limit and offset to statement
 		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
@@ -864,6 +848,37 @@ class Scaffold {
 			if ( is_numeric($key) ) self::$config['allowSort'][$val] = "`{$val}`";
 			else self::$config['allowSort'][$key] = $val;
 		}
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			fix [editMode] settings
+		</description>
+		<io>
+			<in />
+			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<string name="editMode" default="inline" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initConfig__fixEditMode() {
+		// param default : edit mode
+		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
+		// param fix : edit mode
+		// ===> enforce normal edit form when not ajax
+		if ( F::is('*.edit,*.new') and !F::ajaxRequest() ) self::$config['editMode'] = 'basic';
 		// done!
 		return true;
 	}
@@ -1236,14 +1251,38 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<boolean name="pagination" optional="yes" />
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<structure_or_boolean name="pagination" default="false">
+						<number name="recordCount" />
+						<number name="recordPerPage" />
+						<number name="pageVisible" />
+					</structure_or_boolean>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixPagination() {
-
+		// default no pagination
+		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
+		// fix format
+		if ( !empty(self::$config['pagination']) ) {
+			self::$config['pagination'] = is_array(self::$config['pagination']) ? self::$config['pagination'] : array();
+			self::$config['pagination']['recordCount']   = self::getBeanCount();
+			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
+			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
+		}
+		// done!
+		return true;
 	}
 
 
