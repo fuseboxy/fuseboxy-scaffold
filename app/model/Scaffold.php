@@ -711,28 +711,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig() {
-		// field config : default & fix
+		// field config : fix & default
 		if ( self::initConfig__fixFieldConfig() === false ) return false;
-		// param default : modal field
-		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : modal field (heading & line & output)
-		// ===> append space to make sure it is unique
-		// ===> avoid being overridden after convert to key
-		foreach ( self::$config['modalField'] as $i => $fieldRow ) {
-			if ( self::parseFieldRow($fieldRow, true) != 'fields' ) {
-				self::$config['modalField'][$i] = $fieldRow.str_repeat(' ', $i);
-			}
-		}
-		// fix param : modal field (key)
-		// ===> convert numeric key to field name
-		$arr = self::$config['modalField'];
-		self::$config['modalField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
-		// fix param : modal field (id)
-		// ===> compulsory
-		$hasID = false;
-		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
-		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
+		// modal field : fix & default
+		if ( self::initConfig__fixModalField() === false ) return false;
+
+
 		// param default : list field
 		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
 		// fix param : list field (key)
@@ -1051,14 +1035,54 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<structure name="fieldConfig">
+						<structure name="~fieldName~" />
+					</structure>
+					<structure name="modalField" optional="yes" />
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- modified config -->
+				<structure name="$config" scope="self">
+					<structure name="modalField">
+						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
+						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
+						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+						<string name="~output~" optional="yes" example="~<br />" comments="output content/html directly" />
+					</structure>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixModalField() {
-
+		// param default : modal field
+		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
+		// fix param : modal field (heading & line & output)
+		// ===> append space to make sure it is unique
+		// ===> avoid being overridden after convert to key
+		foreach ( self::$config['modalField'] as $i => $fieldRow ) {
+			if ( self::parseFieldRow($fieldRow, true) != 'fields' ) {
+				self::$config['modalField'][$i] = $fieldRow.str_repeat(' ', $i);
+			}
+		}
+		// fix param : modal field (key)
+		// ===> convert numeric key to field name
+		$arr = self::$config['modalField'];
+		self::$config['modalField'] = array();
+		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		// fix param : modal field (id)
+		// ===> compulsory
+		$hasID = false;
+		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
+		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
+		// done!
+		return true;
 	}
 
 
