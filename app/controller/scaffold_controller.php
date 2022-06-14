@@ -51,6 +51,7 @@
 						<string name="inline-label" optional="yes" default="display name at beginning of field" />
 						<boolean name="required" optional="yes" />
 						<boolean name="readonly" optional="yes" comments="output does not pass value; readonly does" />
+						<boolean name="disabled" optional="yes" comments="show field but no value passed" />
 						<string name="value" optional="yes" comments="force filling with this value even if field has value" />
 						<string name="default" optional="yes" comments="filling with this value if field has no value" />
 						<string name="class" optional="yes" />

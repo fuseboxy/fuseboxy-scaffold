@@ -13,6 +13,7 @@
 				<string name="format" comments="wysiwyg" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
 			</structure>
@@ -32,6 +33,7 @@ if ( empty($fieldConfig['readonly']) ) :
 		class="scaffold-input-wysiwyg form-control form-control-sm <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		style="min-height: 10em; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 	><?php echo $fieldValue; ?></textarea><?php
 
 // readonly

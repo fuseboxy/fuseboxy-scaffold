@@ -17,6 +17,7 @@
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
 			</structure>

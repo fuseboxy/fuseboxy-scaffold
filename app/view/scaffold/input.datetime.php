@@ -9,6 +9,7 @@
 				<string name="format" comments="date|time|datetime" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="placeholder" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
@@ -32,12 +33,13 @@
 		autocomplete="off"
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>
-		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
+		<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 	 /><?php
 	// calendar or clock
 	?><div class="input-group-append">
-		<span class="input-group-text px-2 bl-0 <?php if ( empty($fieldConfig['readonly']) ) echo 'bg-white'; ?>">
+		<span class="input-group-text px-2 bl-0 <?php if ( empty($fieldConfig['readonly']) and empty($fieldConfig['disabled']) ) echo 'bg-white'; ?>">
 			<i class="<?php echo ( $fieldConfig['format'] == 'time') ? 'far fa-clock' : 'far fa-calendar-alt'; ?> op-30"></i>
 		</span>
 	</div>

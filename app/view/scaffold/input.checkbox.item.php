@@ -19,6 +19,7 @@
 				<string name="icon" optional="yes" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
 			</structure>
@@ -37,7 +38,7 @@ $checkboxID = Util::uuid();
 		value="<?php echo htmlspecialchars($optValue); ?>"
 		<?php if ( in_array($optValue, $fieldValue) ) echo 'checked'; ?>
 		<?php if ( !empty($fieldConfig['required']) and $optIndex == 0 ) echo 'required'; ?>
-		<?php if ( !empty($fieldConfig['readonly']) ) echo 'disabled'; ?>
+		<?php if ( !empty($fieldConfig['readonly']) or !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 	 />
 	<label 
 		for="<?php echo $checkboxID; ?>" 

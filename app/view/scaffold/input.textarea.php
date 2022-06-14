@@ -10,6 +10,7 @@
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
 				<string name="placeholder" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
 			</structure>
@@ -28,8 +29,9 @@
 	?><textarea
 		class="form-control <?php if ( !empty($fieldConfig['class']) ) echo $fieldConfig['class']; ?>"
 		name="<?php echo $dataFieldName; ?>"
-		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
+		<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>
 	><?php echo $fieldValue; ?></textarea><?php

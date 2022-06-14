@@ -9,6 +9,7 @@
 				<string name="format" optional="yes" default="text" />
 				<boolean name="required" optional="yes" />
 				<boolean name="readonly" optional="yes" />
+				<boolean name="disabled" optional="yes" />
 				<string name="placeholder" optional="yes" />
 				<string name="class" optional="yes" />
 				<string name="style" optional="yes" />
@@ -31,7 +32,8 @@
 		value="<?php echo htmlspecialchars($fieldValue); ?>"
 		<?php if ( !empty($fieldConfig['style']) ) : ?>style="<?php echo $fieldConfig['style']; ?>"<?php endif; ?>
 		<?php if ( !empty($fieldConfig['placeholder']) ) : ?>placeholder="<?php echo $fieldConfig['placeholder']; ?>"<?php endif; ?>
-		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
 		<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+		<?php if ( !empty($fieldConfig['readonly']) ) echo 'readonly'; ?>
+		<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 	 />
  </div>

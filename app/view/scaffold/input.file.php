@@ -15,6 +15,7 @@
 				<string name="placeholder" />
 				<boolean name="required" />
 				<boolean name="readonly" comments="output does not pass value; readonly does" />
+				<boolean name="disabled" optional="yes" />
 				<string name="style" comments="apply to preview image" />
 				<string name="filesize" optional="yes" comments="max file size in bytes; add numeric value for client size checking" />
 				<list name="filetype" optional="yes" delim="," comments="comma-delimited list of allowed file types (e.g. filetype=gif,jpg,png)" />
@@ -35,7 +36,7 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 >
 	<div class="input-group input-group-sm"><?php
 		// buttons
-		if ( empty($fieldConfig['readonly']) ) :
+		if ( empty($fieldConfig['readonly']) and empty($fieldConfig['disabled']) ) :
 			?><div class="input-group-prepend">
 				<button type="button" class="text-white input-group-text btn-upload">Choose</button>
 				<button type="button" class="text-white input-group-text btn-remove <?php if ( empty($fieldValue) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
@@ -51,6 +52,7 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
 			readonly
 			<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
+			<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
 		 />
 	</div><!--/.input-group--><?php
 	// (client-side) error message
