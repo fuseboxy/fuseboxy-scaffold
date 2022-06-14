@@ -1257,7 +1257,7 @@ class Scaffold {
 			// only consider numeric key field
 			// ===> which means the config is before fixed
 			if ( is_numeric($key) and self::parseFieldRow($val, true) != 'fields' ) {
-				$modalField[$key] = $fieldRow.str_repeat(' ', $key);
+				$modalField[$key] = $val.str_repeat(' ', $key);
 			}
 		}
 		// fix param : modal field (key)
