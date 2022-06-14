@@ -740,45 +740,8 @@ class Scaffold {
 
 
 
-		// order by [sortField] in URL (when specified)
-		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) and isset(self::$config['allowSort'][$_GET['sortField']]) ) {
-			self::$config['listOrder'] = 'ORDER BY ';
-			// order by [options] sequence (when necessary)
-			if ( !empty(self::$config['fieldConfig'][$_GET['sortField']]['options']) ) {
-				self::$config['listOrder'] .= "CASE `{$_GET['sortField']}` ";
-				foreach ( self::$config['fieldConfig'][$_GET['sortField']]['options'] as $optValue => $optText ) {
-					$optValue = str_replace("'", "''", $optValue);
-					$optText  = str_replace("'", "''", $optText);
-					self::$config['listOrder'] .= "WHEN '{$optValue}' THEN '{$optText}' ";
-				}
-				self::$config['listOrder'] .= 'END ';
-				if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
-				self::$config['listOrder'] .= ', ';
-			}
-			// sort by column/sub-query
-			self::$config['listOrder'] .= self::$config['allowSort'][$_GET['sortField']].' ';
-			if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
-		// otherwise, use default [listOrder] in config
-		} elseif ( !isset(self::$config['listOrder']) ) {
-			self::$config['listOrder'] = 'ORDER BY ';
-			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
-			self::$config['listOrder'] .= 'id ';
-		}
-
-
-
-		// param default : sort field (when necessary)
-		// ===> extract from list order
-		if ( !isset($_GET['sortField']) ) {
-			$tmp = trim(str_replace('ORDER BY ', '', self::$config['listOrder']));
-			$tmp = explode(',', $tmp);  // turn {column-direction} list into array
-			$tmp = $tmp[0];  // extract first {column-direction}
-			$tmp = explode(' ', $tmp);
-			$_GET['sortField'] = $tmp[0];  // extract {column}
-			if ( isset($tmp[1]) ) $_GET['sortRule'] = $tmp[1];
-		}
-
-
+		// list order : fix & default
+		if ( self::initConfig__fixListOrder() === false ) return false;
 		// script path : fix & default
 		if ( self::initConfig__fixScriptPath() === false ) return false;
 
@@ -1095,14 +1058,63 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<structure name="$config" scope="self">
+					<structure name="allowSort" />
+					<string name="listOrder" />
+					<string name="sortField" scope="$_GET" optional="yes" />
+					<string name="sortRule" scope="$_GET" optional="yes" />
+				</structure>
 			</in>
 			<out>
+				<!-- return -->
+				<boolean name="~return~" />
+				<!-- modified -->
+				<structure name="$config" scope="self">
+					<string name="listOrder" default="ORDER BY (seq,) id" />
+				</structure>
+				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
+				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixListOrder() {
-
+		// order by [sortField] in URL (when specified)
+		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) and isset(self::$config['allowSort'][$_GET['sortField']]) ) {
+			self::$config['listOrder'] = 'ORDER BY ';
+			// order by [options] sequence (when necessary)
+			if ( !empty(self::$config['fieldConfig'][$_GET['sortField']]['options']) ) {
+				self::$config['listOrder'] .= "CASE `{$_GET['sortField']}` ";
+				foreach ( self::$config['fieldConfig'][$_GET['sortField']]['options'] as $optValue => $optText ) {
+					$optValue = str_replace("'", "''", $optValue);
+					$optText  = str_replace("'", "''", $optText);
+					self::$config['listOrder'] .= "WHEN '{$optValue}' THEN '{$optText}' ";
+				}
+				self::$config['listOrder'] .= 'END ';
+				if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
+				self::$config['listOrder'] .= ', ';
+			}
+			// sort by column/sub-query
+			self::$config['listOrder'] .= self::$config['allowSort'][$_GET['sortField']].' ';
+			if ( isset($_GET['sortRule']) ) self::$config['listOrder'] .= $_GET['sortRule'];
+		// otherwise, use default [listOrder] in config
+		} elseif ( !isset(self::$config['listOrder']) ) {
+			self::$config['listOrder'] = 'ORDER BY ';
+			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
+			self::$config['listOrder'] .= 'id ';
+		}
+		// param default : sort field (when necessary)
+		// ===> extract from list order
+		if ( !isset($_GET['sortField']) ) {
+			$tmp = trim(str_replace('ORDER BY ', '', self::$config['listOrder']));
+			$tmp = explode(',', $tmp);  // turn {column-direction} list into array
+			$tmp = $tmp[0];  // extract first {column-direction}
+			$tmp = explode(' ', $tmp);
+			$_GET['sortField'] = $tmp[0];  // extract {column}
+			if ( isset($tmp[1]) ) $_GET['sortRule'] = $tmp[1];
+		}
+		// done!
+		return true;
 	}
 
 
