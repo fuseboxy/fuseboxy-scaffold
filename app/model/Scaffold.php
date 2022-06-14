@@ -644,25 +644,7 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
-				<structure name="$config" scope="self">
-					<string name="editMode" />
-					<boolean name="allowSort" optional="yes" />
-					<list name="allowSort" optional="yes" delim="|," />
-					<array name="allowSort" optional="yes">
-						<string name="+" value="~fieldName~" />
-					</array>
-					<array name="fieldConfig" />
-						<string name="+" value="~fieldName~" />
-					</array>
-					<string name="listOrder" />
-					<structure name="pagination" optional="yes">
-						<number name="recordCount" />
-						<number name="recordPerPage" />
-						<number name="pageVisible" />
-					</structure>
-					<number name="page" scope="$_GET" optional="yes" />
-					<boolean name="showAll" scope="$_GET" optional="yes" />
-				</structure>
+				<structure name="$config" scope="self" />
 			</in>
 			<out>
 				<!-- return -->
@@ -747,15 +729,8 @@ class Scaffold {
 		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
 		// pagination : fix & default
 		if ( self::initConfig__fixPagination() === false ) return false;
-
-
-		// param fix : list order
-		// ===> add limit and offset to statement
-		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
-			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
-			$limit = self::$config['pagination']['recordPerPage'];
-			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
-		}
+		// list order : add limit and offset to statement (when pagination)
+		if ( self::initConfig__fixListOrderWhenPagination() === false ) return false;
 		// done!
 		return true;
 	}
@@ -1122,12 +1097,14 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
 				<structure name="$config" scope="self">
 					<structure name="allowSort" />
 					<string name="listOrder" />
-					<string name="sortField" scope="$_GET" optional="yes" />
-					<string name="sortRule" scope="$_GET" optional="yes" />
 				</structure>
+				<!-- url variable -->
+				<string name="sortField" scope="$_GET" optional="yes" />
+				<string name="sortRule" scope="$_GET" optional="yes" />
 			</in>
 			<out>
 				<!-- return -->
@@ -1176,6 +1153,46 @@ class Scaffold {
 			$tmp = explode(' ', $tmp);
 			$_GET['sortField'] = $tmp[0];  // extract {column}
 			if ( isset($tmp[1]) ) $_GET['sortRule'] = $tmp[1];
+		}
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			adjust [listOrder] statement when pagination
+			// ===> add limit and offset to statement
+		</description>
+		<io>
+			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<string name="listOrder" />
+				</structure>
+				<!-- url variable -->
+				<boolean name="showAll" scope="$_GET" optional="yes" />
+			</in>
+			<out>
+				<!-- return value -->
+				<boolean name="~return~' />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<string name="listOrder" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initConfig__fixListOrderWhenPagination() {
+		// param fix : list order
+		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
+			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
+			$limit = self::$config['pagination']['recordPerPage'];
+			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
 		}
 		// done!
 		return true;
