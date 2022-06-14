@@ -322,11 +322,10 @@ class Scaffold {
 			<in>
 				<structure name="$config" scope="self">
 					<string name="beanType" />
-					<array name="listFilter" optional="yes">
-						<string name="0" comments="statement" />
-						<array  name="1" comments="parameters" />
-					</array>
-					<string name="listFilter" optional="yes" />
+					<structure name="listFilter">
+						<string name="sql" />
+						<array name="param" />
+					</structure>
 				</structure>
 			</in>
 			<out>
@@ -336,11 +335,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanCount() {
-		if ( is_array(self::$config['listFilter']) ) {
-			return ORM::count(self::$config['beanType'], self::$config['listFilter'][0], self::$config['listFilter'][1]);
-		} else {
-			return ORM::count(self::$config['beanType'], self::$config['listFilter']);
+		$result = ORM::count(self::$config['beanType'], self::$config['listFilter']['sql'], self::$config['listFilter']['param']);
+		if ( $result === false ) {
+			self::$error = ORM::error();
+			return false;
 		}
+		return $result;
 	}
 
 
@@ -355,11 +355,10 @@ class Scaffold {
 			<in>
 				<structure name="$config" scope="self">
 					<string name="beanType" />
-					<array name="listFilter" optional="yes">
-						<string name="0" comments="statement" />
-						<array name="1" comments="parameters" />
-					</array>
-					<string name="listFilter" optional="yes" />
+					<structure name="listFilter">
+						<string name="sql" />
+						<array name="param" />
+					</structure>
 					<string name="listOrder" />
 				</structure>
 			</in>
@@ -372,11 +371,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function getBeanList() {
-		if ( is_array(self::$config['listFilter']) ) {
-			return ORM::get(self::$config['beanType'], self::$config['listFilter'][0].' '.self::$config['listOrder'], self::$config['listFilter'][1]);
-		} else {
-			return ORM::get(self::$config['beanType'], self::$config['listFilter'].' '.self::$config['listOrder']);
+		$result = ORM::get(self::$config['beanType'], self::$config['listFilter']['sql'].' '.self::$config['listOrder'], self::$config['listFilter']['param']);
+		if ( $result === false ) {
+			self::$error = ORM::error();
+			return false;
 		}
+		return $result;
 	}
 
 
@@ -680,7 +680,10 @@ class Scaffold {
 					<boolean name="stickyHeader" default="false" />
 					<string name="editMode" default="inline" />
 					<string name="modalSize" deafult="lg" />
-					<string name="listFilter" default="1 = 1" />
+					<structure name="listFilter">
+						<string name="sql" default=" 1 = 1 " />
+						<array name="param" default="~emptyArray~" />
+					</structure>
 					<string name="listOrder" default="ORDER BY (seq,) id" />
 					<structure name="fieldConfig">
 						<structure name="id">
@@ -1040,9 +1043,9 @@ class Scaffold {
 				<!-- config -->
 				<structure name="$config" scope="self">
 					<string name="listFilter" optional="yes" />
-					<structure name="listFilter">
-						<string name="sql" />
-						<array name="param" />
+					<array name="listFilter" optional="yes">
+						<string name="0" value="~sql~" />
+						<array name="1" value="~param~" />
 					</structure>
 				</structure>
 			</in>
@@ -1051,24 +1054,45 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
-					<array name="listFilter" optional="yes">
-						<string name="0" comments="statement" default=" 1 = 1 " />
-						<array name="1" comments="parameters" default="~emptyArray~" />
-					</array>
-					<string name="listFilter" optional="yes" />
+					<structure name="listFilter">
+						<string name="sql" />
+						<array name="param" />
+					</structure>
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixListFilter() {
-		// set default (when necessary)
+		// default sql statement (when necessary)
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
-		// convert to structure
-		if ( is_string(self::$config['listFilter']) ) self::$config['listFilter'] = array(self::$config['listFilter'], []);
-		// fix statement
-		$firstWord = strtoupper(explode(' ', trim(self::$config['listFilter'][0]))[0]);
-		if ( $firstWord == 'AND' ) self::$config['listFilter'][0] = ' 1 = 1 '.self::$config['listFilter'][0];
+		// convert string to structure (when necessary)
+		if ( is_string(self::$config['listFilter']) ) {
+			self::$config['listFilter'] = array('sql' => self::$config['listFilter']);
+		}
+		// convert array to structure (when necessary)
+		if ( is_array(self::$config['listFilter']) and isset(self::$config['listFilter'][0]) ) {
+			self::$config['listFilter']['sql'] = self::$config['listFilter'][0];
+			unset(self::$config['listFilter'][0]);
+		}
+		if ( is_array(self::$config['listFilter']) and isset(self::$config['listFilter'][1]) ) {
+			self::$config['listFilter']['param'] = self::$config['listFilter'][1];
+			unset(self::$config['listFilter'][1]);
+		}
+		// default empty param (when necessary)
+		if ( !isset(self::$config['listFilter']['param']) ) self::$config['listFilter']['param'] = array();
+		// validation
+		if ( !is_string(self::$config['listFilter']['sql']) ) {
+			self::$error = 'SQL statement of [listFilter] is not string';
+			return false;
+		}
+		// fix sql statement (when necessary)
+		$firstWord = strtoupper(explode(' ', trim(self::$config['listFilter']['sql']))[0]);
+		if ( $firstWord == 'AND' ) self::$config['listFilter']['sql'] = ' 1 = 1 '.self::$config['listFilter']['sql'];
+		// fix string param (when necessary)
+		if ( is_string(self::$config['listFilter']['param']) or is_numeric(self::$config['listFilter']['param']) ) {
+			self::$config['listFilter']['param'] = array(self::$config['listFilter']['param']);
+		}
 		// done!
 		return true;
 	}
