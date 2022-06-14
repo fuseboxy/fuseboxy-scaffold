@@ -746,11 +746,11 @@ class Scaffold {
 		if ( self::$config['fieldConfig'] === false ) return false;
 		// modal field : fix & default
 		self::$config['modalField'] = self::$config['modalField'] ?? array_keys(self::$config['fieldConfig']);
-		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField']);
+		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['modalField'] === false ) return false;
 		// list field : fix & default
 		self::$config['listField'] = self::$config['listField'] ?? array_keys(self::$config['fieldConfig']);
-		self::$config['listField'] = self::initConfig__fixListField(self::$config['listField']);
+		self::$config['listField'] = self::initConfig__fixListField(self::$config['listField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['listField'] === false ) return false;
 		// allow-xxx : default
 		if ( self::initConfig__defaultPermission() === false ) return false;
