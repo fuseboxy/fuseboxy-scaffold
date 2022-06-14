@@ -706,9 +706,13 @@ class Scaffold {
 		// field config : fix & default
 		if ( self::initConfig__fixFieldConfig() === false ) return false;
 		// modal field : fix & default
-		if ( self::initConfig__fixModalField() === false ) return false;
+		self::$config['modalField'] = self::$config['modalField'] ?? array_keys(self::$config['fieldConfig']);
+		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField']);
+		if ( self::$config['modalField'] === false ) return false;
 		// list field : fix & default
-		if ( self::initConfig__fixListField() === false ) return false;
+		self::$config['listField'] = self::$config['listField'] ?? array_keys(self::$config['fieldConfig']);
+		self::$config['listField'] = self::initConfig__fixListField(self::$config['listField']);
+		if ( self::$config['listField'] === false ) return false;
 		// allow-xxx : default
 		if ( self::initConfig__defaultPermission() === false ) return false;
 		// allow sort : fix
@@ -718,7 +722,7 @@ class Scaffold {
 		// modal size : default
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// sticky header : default
-		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
+		self::$config['stickyHeader'] = self::$config['stickyHeader'] ?? false;
 		// list filter : fix & default
 		if ( self::initConfig__fixListFilter() === false ) return false;
 		// list order : fix & default
@@ -726,7 +730,7 @@ class Scaffold {
 		// script path : fix & default
 		if ( self::initConfig__fixScriptPath() === false ) return false;
 		// write log : default
-		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
+		self::$config['writeLog'] = self::$config['writeLog'] ?? false;
 		// pagination : fix & default
 		if ( self::initConfig__fixPagination() === false ) return false;
 		// list order : add limit and offset to statement (when pagination)
@@ -985,39 +989,33 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			fix [listField] settings
+			===> taking parameters instead of refer to scaffold config
+			===> to make [renderInlineForm] re-useable without forcing to specify whole scaffold config
 		</description>
 		<io>
 			<in>
-				<!-- config -->
-				<structure name="$config" scope="self">
-					<structure name="listField">
-						<string name="+" value="~fieldNameList~" optional="yes" />
-					</structure>
+				<structure name="$listField">
+					<string name="+" value="~fieldNameList~" />
 				</structure>
 			</in>
 			<out>
-				<!-- return value -->
-				<boolean name="~return~" />
-				<!-- fixed config -->
-				<structure name="$config" scope="self">
-					<structure name="listField" default="~fieldConfig|tableColumns~">
-						<string name="~fieldNameList~" value="~columnWidth~" />
-					</structure>
+				<structure name="~return~">
+					<string name="~fieldNameList~" value="~columnWidth~" />
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function initConfig__fixListField() {
-		// param default : list field
-		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
+	public static function initConfig__fixListField($listField) {
+		$result = array();
 		// fix param : list field (key)
 		// ===> convert numeric key to field name
-		$arr = self::$config['listField'];
-		self::$config['listField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		foreach ( $listField as $key => $val ) {
+			if ( is_numeric($key) ) $result[$val] = '';
+			else $result[$key] = $val;
+		}
 		// done!
-		return true;
+		return $result;
 	}
 
 
@@ -1205,57 +1203,50 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			fix [modalField] settings
+			===> taking parameters instead of refer to scaffold config
+			===> to make [renderForm] re-useable without forcing to specify whole scaffold config
 		</description>
 		<io>
 			<in>
-				<!-- config -->
-				<structure name="$config" scope="self">
-					<structure name="fieldConfig">
-						<structure name="~fieldName~" />
-					</structure>
-					<structure name="modalField" optional="yes" />
-				</structure>
+				<array name="$modalField">
+					<string name="+" />
+				</array>
 			</in>
 			<out>
-				<!-- return value -->
-				<boolean name="~return~" />
-				<!-- fixed config -->
-				<structure name="$config" scope="self">
-					<structure name="modalField">
-						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
-						<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
-						<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
-						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
-						<string name="~output~" optional="yes" example="~<br />" comments="output content/html directly" />
-					</structure>
+				<structure name="~return~">
+					<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
+					<list name="~columnList~" value="~columnWidthList~" optional="yes" delim="|" comments="when key was specified, key is column list and value is column width list" />
+					<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
+					<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
+					<string name="~output~" optional="yes" example="~<br />" comments="output content/html directly" />
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function initConfig__fixModalField() {
-		// param default : modal field
-		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
+	public static function initConfig__fixModalField($modalField) {
+		$result = array();
 		// fix param : modal field (heading & line & output)
 		// ===> append space to make sure it is unique
 		// ===> avoid being overridden after convert to key
-		foreach ( self::$config['modalField'] as $i => $fieldRow ) {
+		foreach ( $modalField as $i => $fieldRow ) {
 			if ( self::parseFieldRow($fieldRow, true) != 'fields' ) {
-				self::$config['modalField'][$i] = $fieldRow.str_repeat(' ', $i);
+				$modalField[$i] = $fieldRow.str_repeat(' ', $i);
 			}
 		}
 		// fix param : modal field (key)
 		// ===> convert numeric key to field name
-		$arr = self::$config['modalField'];
-		self::$config['modalField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['modalField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		foreach ( $modalField as $key => $val ) {
+			if ( is_numeric($key) ) $result[$val] = '';
+			else $result[$key] = $val;
+		}
 		// fix param : modal field (id)
 		// ===> compulsory
 		$hasID = false;
-		foreach ( self::$config['modalField'] as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
-		if ( !$hasID ) self::$config['modalField'] = array('id' => '') + self::$config['modalField'];
+		foreach ( $result as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
+		if ( !$hasID ) $result = array('id' => '') + $result;
 		// done!
-		return true;
+		return $result;
 	}
 
 
