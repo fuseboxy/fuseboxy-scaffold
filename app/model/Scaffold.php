@@ -640,6 +640,41 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			obtain all columns of specific table
+			===> allow proceed further if table not exists (simply treated as no column)
+		</description>
+		<io>
+			<in>
+				<string name="$beanType" />
+			</in>
+			<out>
+				<array name="~return~">
+					<string name="+" value="~fieldName~" />
+				</array>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function getTableColumns($beanType) {
+		$result = ORM::columns($beanType);
+		// check any database error
+		if ( $result === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
+			self::$error = ORM::error();
+			return false;
+ 		// simply treat as no column (when table not exists)
+		} elseif ( empty($result) ) {
+			$result = array();
+		}
+		// done!
+		return $result;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			assign default and fix value of parameters
 		</description>
 		<io>
@@ -703,8 +738,12 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig() {
+		$tableColumns = self::getTableColumns(self::$config['beanType']);
+		if ( $tableColumns === false ) return false;
 		// field config : fix & default
-		if ( self::initConfig__fixFieldConfig() === false ) return false;
+		self::$config['fieldConfig'] = self::$config['fieldConfig'] ?? array();
+		self::$config['fieldConfig'] = self::initConfig__fixFieldConfig(self::$config['fieldConfig'], $tableColumns);
+		if ( self::$config['fieldConfig'] === false ) return false;
 		// modal field : fix & default
 		self::$config['modalField'] = self::$config['modalField'] ?? array_keys(self::$config['fieldConfig']);
 		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField']);
@@ -869,117 +908,102 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			fix [fieldConfig] settings
+			===> taking parameters instead of refer to scaffold config
+			===> to make [renderInlineForm & renderForm] re-useable without forcing to specify whole scaffold config
 		</description>
 		<io>
 			<in>
-				<!-- config -->
-				<structure name="$config" scope="self">
-					<structure name="fieldConfig" />
-						<string name="+" value="~fieldName~" optional="yes" />
-					</structure>
+				<structure name="$fieldConfig" />
+					<string name="+" value="~fieldName~" optional="yes" />
 				</structure>
-				<!-- table columns -->
-				<structure name="$tableColumns" comments="from {ORM::columns} method">
-					<string name="~columnName~" value="~columnType~" example="varchar(255)" />
 				</structure>
+				<array name="$tableColumns" optional="yes">
+					<string name="+" value="~fieldName~" />
+				</array>
 			</in>
 			<out>
-				<!-- return value -->
-				<boolean name="~return~" />
-				<!-- fixed config -->
-				<structure name="$config" scope="self">
-					<structure name="fieldConfig">
-						<structure name="id">
-							<boolean name="readonly" value="true" comments="force {ID} field exists; force readonly" />
-						</structure>
-						<structure name="~fieldName~">
-							<string name="label" comments="derived from field name when not specified or true" />
-							<string name="placeholder" comments="derived from field name when true" />
-							<string name="inline-label" comments="derived from field name when true" />
-							<list name="filetype" comments="for [format=image] field" />
-						</structure>
+				<structure name="~return~">
+					<structure name="id">
+						<boolean name="readonly" value="true" comments="force {ID} field exists; force readonly" />
+					</structure>
+					<structure name="~fieldName~">
+						<string name="label" comments="derived from field name when not specified or true" />
+						<string name="placeholder" comments="derived from field name when true" />
+						<string name="inline-label" comments="derived from field name when true" />
+						<list name="filetype" comments="for [format=image] field" />
 					</structure>
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
-	public static function initConfig__fixFieldConfig() {
-		// obtain all columns of specific table
-		// ===> allow proceed further if table not exists (simply treated as no column)
-		$tableColumns = ORM::columns(self::$config['beanType']);
-		if ( $tableColumns === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
-		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
+	public static function initConfig__fixFieldConfig($fieldConfig, $tableColumns=[]) {
 		// param default : field config
 		// ===> merge table columns to field config
-		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
-		foreach ( self::$config['fieldConfig'] as $key => $val ) {
-			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
-				self::$config['fieldConfig'][$key] = array();
+		// ===> make sure to include all fields of the table
+		foreach ( $fieldConfig as $key => $val ) {
+			if ( isset($tableColumns[$key]) and !isset($fieldConfig[$key]) ) {
+				$fieldConfig[$key] = array();
 			}
 		}
 		// fix param : field config
 		// ===> convert numeric key to field name
-		$arr = self::$config['fieldConfig'];
-		self::$config['fieldConfig'] = array();
-		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
+		$arr = $fieldConfig;
+		$fieldConfig = array();
+		foreach ( $arr as $key => $val ) $fieldConfig += is_numeric($key) ? array($val=>[]) : array($key=>$val);
 		// fix param : field config (id)
 		// ===> compulsory
 		// ===> must be readonly
-		if ( !isset(self::$config['fieldConfig']['id']) ) self::$config['fieldConfig']['id'] = array();
-		self::$config['fieldConfig']['id']['readonly'] = true;
+		if ( !isset($fieldConfig['id']) ) $fieldConfig['id'] = array();
+		$fieldConfig['id']['readonly'] = true;
 		// fix param : field config (seq)
 		// ===> optional
 		// ===> must be number
-		if ( isset(self::$config['fieldConfig']['seq']) ) self::$config['fieldConfig']['seq']['format'] = 'number';
+		if ( isset($fieldConfig['seq']) ) $fieldConfig['seq']['format'] = 'number';
 		// param default : field config (disabled)
 		// ===> optional
 		// ===> default as boolean dropdown (when not specified)
-		if ( isset(self::$config['fieldConfig']['disabled']) and empty(self::$config['fieldConfig']['disabled']) ) {
-			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
+		if ( isset($fieldConfig['disabled']) and empty($fieldConfig['disabled']) ) {
+			$fieldConfig['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
 		}
 		// param default : field config (label)
 		// param default : field config (placeholder)
 		// param default : field config (filetype)
 		// param default : field config (filesize)
-		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
+		foreach ( $fieldConfig as $fieldName => $cfg ) {
 			// label : derived from field name
 			if ( !isset($cfg['label']) or $cfg['label'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['label'] = implode(' ', array_map(function($word){
+				$fieldConfig[$fieldName]['label'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $fieldName)));
 			}
 			// placeholder : derived from field name
 			if ( isset($cfg['placeholder']) and $cfg['placeholder'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['placeholder'] = implode(' ', array_map(function($word){
+				$fieldConfig[$fieldName]['placeholder'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $fieldName)));
 			}
 			// inline-label : derived from field name
 			if ( isset($cfg['inline-label']) and $cfg['inline-label'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['inline-label'] = implode(' ', array_map(function($word){
+				$fieldConfig[$fieldName]['inline-label'] = implode(' ', array_map(function($word){
 					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
 				}, explode('_', $fieldName)));
 			}
 			// filetype : image
 			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'image' ) {
-				self::$config['fieldConfig'][$fieldName]['filetype'] = 'gif,jpg,jpeg,png';
+				$fieldConfig[$fieldName]['filetype'] = 'gif,jpg,jpeg,png';
 			}
 			// filetype : file
 			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'file' ) {
-				self::$config['fieldConfig'][$fieldName]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
+				$fieldConfig[$fieldName]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
 			}
 			// filesize
 			if ( empty($cfg['filesize']) and isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
-				self::$config['fieldConfig'][$fieldName]['filesize'] = '10MB';
+				$fieldConfig[$fieldName]['filesize'] = '10MB';
 			}
 		}
 		// done!
-		return true;
+		return $fieldConfig;
 	}
 
 
@@ -1007,15 +1031,16 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig__fixListField($listField) {
-		$result = array();
 		// fix param : list field (key)
 		// ===> convert numeric key to field name
-		foreach ( $listField as $key => $val ) {
-			if ( is_numeric($key) ) $result[$val] = '';
-			else $result[$key] = $val;
+		$arr = $listField;
+		$listField = array();
+		foreach ( $arr as $key => $val ) {
+			if ( is_numeric($key) ) $listField[$val] = '';
+			else $listField[$key] = $val;
 		}
 		// done!
-		return $result;
+		return $listField;
 	}
 
 
@@ -1225,7 +1250,6 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig__fixModalField($modalField) {
-		$result = array();
 		// fix param : modal field (heading & line & output)
 		// ===> append space to make sure it is unique
 		// ===> avoid being overridden after convert to key
@@ -1236,17 +1260,19 @@ class Scaffold {
 		}
 		// fix param : modal field (key)
 		// ===> convert numeric key to field name
-		foreach ( $modalField as $key => $val ) {
-			if ( is_numeric($key) ) $result[$val] = '';
-			else $result[$key] = $val;
+		$arr = $modalField;
+		$modalField = array();
+		foreach ( $arr as $key => $val ) {
+			if ( is_numeric($key) ) $modalField[$val] = '';
+			else $modalField[$key] = $val;
 		}
 		// fix param : modal field (id)
 		// ===> compulsory
 		$hasID = false;
-		foreach ( $result as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
-		if ( !$hasID ) $result = array('id' => '') + $result;
+		foreach ( $modalField as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
+		if ( !$hasID ) $modalField = array('id' => '') + $modalField;
 		// done!
-		return $result;
+		return $modalField;
 	}
 
 
