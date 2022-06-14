@@ -60,8 +60,10 @@ foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
 			?><div class="col">
 				<div class="row"><?php
 					foreach ( $fieldNameList as $i => $fieldNameSubList ) :
-						$fieldWidth = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
-						?><div class="scaffold-col <?php echo $fieldWidth; ?>"><?php
+						$columnClass   = array('scaffold-col');
+						$columnClass[] = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
+						$columnClass[] = 'col-'.str_replace('.', '-', $fieldNameSubList));
+						?><div class="<?php echo $columnClass; ?>"><?php
 							$fieldNameSubList = explode(',', $fieldNameSubList);
 							foreach ( $fieldNameSubList as $fieldName ) :
 								if ( !empty($fieldName) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
