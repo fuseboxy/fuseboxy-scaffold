@@ -909,7 +909,7 @@ class Scaffold {
 		<description>
 			fix [fieldConfig] settings
 			===> taking parameters instead of refer to scaffold config
-			===> to make [renderXXX] re-useable without forcing to specify whole scaffold config
+			===> reuse [renderXXX] more easily (without having to specify whole scaffold config)
 		</description>
 		<io>
 			<in>
@@ -1014,7 +1014,7 @@ class Scaffold {
 		<description>
 			fix [listField] settings
 			===> taking parameters instead of refer to scaffold config
-			===> to make [renderInlineForm] re-useable without forcing to specify whole scaffold config
+			===> reuse [renderXXX] more easily (without having to specify whole scaffold config)
 		</description>
 		<io>
 			<in>
@@ -1229,7 +1229,7 @@ class Scaffold {
 		<description>
 			fix [modalField] settings
 			===> taking parameters instead of refer to scaffold config
-			===> to make [renderForm] re-useable without forcing to specify whole scaffold config
+			===> reuse [renderXXX] more easily (without having to specify whole scaffold config)
 		</description>
 		<io>
 			<in>
@@ -1872,22 +1872,50 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
-		$fieldLayout = self::initConfig__fixModalField($fieldLayout);
-		if ( $fieldLayout === false ) return false;
-		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
-		if ( $fieldConfigAll === false ) return false;
-		// default options
+		// default option
 		$options['editMode'] = $options['editMode'] ?? 'modal';
-		$options['labelColumn'] = $options['labelColumn'] ?? 2;
-		// essential
-		$scaffold = array('modalField' => $fieldLayout, 'fieldConfig' => $fieldConfigAll);
 		// exit point
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
 		// display
 		ob_start();
+		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
 		include F::appPath('view/scaffold/edit.php');
+		return ob_get_clean();
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			only render form fields in body (no <form> wrapper)
+		</description>
+		<io>
+			<in>
+				<array name="$fieldLayout" />
+				<structure name="$fieldConfigAll" />
+				<object name="$bean" />
+				<structure name="$options" />
+			</in>
+			<out>
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options) {
+		$fieldLayout = self::initConfig__fixModalField($fieldLayout);
+		if ( $fieldLayout === false ) return false;
+		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
+		if ( $fieldConfigAll === false ) return false;
+		// default option
+		$options['labelColumn'] = $options['labelColumn'] ?? 2;
+		// display
+		ob_start();
+		include F::appPath('view/scaffold/edit.body.php');
 		return ob_get_clean();
 	}
 

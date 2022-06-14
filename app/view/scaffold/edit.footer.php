@@ -9,7 +9,6 @@
 			</structure>
 			<structure name="$options">
 				<string name="editMode" comments="modal|inline-modal|basic" />
-				<number name="labelColumn" />
 			</structure>
 			<string name="$recordID" />
 		</in>
