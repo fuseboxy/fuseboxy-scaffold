@@ -674,10 +674,10 @@ class Scaffold {
 					<boolean name="allowEdit" default="true" />
 					<boolean name="allowToggle" default="true" />
 					<boolean name="allowDelete" default="false" />
-					<boolean name="stickyHeader" default="false" />
 					<structure name="allowSort" default="~allFields~">
 						<string name="~fieldName~" value="~fieldNameOrSubQuery~" />
 					</structure>
+					<boolean name="stickyHeader" default="false" />
 					<string name="editMode" default="inline" />
 					<string name="modalSize" deafult="lg" />
 					<string name="listFilter" default="1 = 1" />
@@ -703,6 +703,9 @@ class Scaffold {
 						<string name="~heading~" optional="yes" example="## General" comments="number of pound-signs means H1,H2,H3..." />
 						<string name="~output~" optional="yes" example="~<br />" comments="output content/html directly" />
 					</structure>
+					<structure name="scriptPath">
+						<string name="edit|header|inline_edit|list|row|modal" value="~filePath~" />
+					</structure>
 				</structure>
 				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
 				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
@@ -711,15 +714,15 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig() {
-		// field-config : fix & default
+		// field config : fix & default
 		if ( self::initConfig__fixFieldConfig() === false ) return false;
-		// modal-field : fix & default
+		// modal field : fix & default
 		if ( self::initConfig__fixModalField() === false ) return false;
-		// list-field : fix & default
+		// list field : fix & default
 		if ( self::initConfig__fixListField() === false ) return false;
 		// allow-xxx : default
 		if ( self::initConfig__defaultPermission() === false ) return false;
-		// allow-sort : fix
+		// allow sort : fix
 		if ( self::initConfig__fixAllowSort() === false ) return false;
 
 
@@ -734,6 +737,9 @@ class Scaffold {
 		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
 		// param default : list filter & order
 		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
+
+
+
 		// order by [sortField] in URL (when specified)
 		if ( !empty(self::$config['allowSort']) and isset($_GET['sortField']) and isset(self::$config['allowSort'][$_GET['sortField']]) ) {
 			self::$config['listOrder'] = 'ORDER BY ';
@@ -758,6 +764,9 @@ class Scaffold {
 			if ( isset(self::$config['_columns_']['seq']) ) self::$config['listOrder'] .= 'IFNULL(seq, 9999), ';
 			self::$config['listOrder'] .= 'id ';
 		}
+
+
+
 		// param default : sort field (when necessary)
 		// ===> extract from list order
 		if ( !isset($_GET['sortField']) ) {
@@ -768,11 +777,14 @@ class Scaffold {
 			$_GET['sortField'] = $tmp[0];  // extract {column}
 			if ( isset($tmp[1]) ) $_GET['sortRule'] = $tmp[1];
 		}
-		// param default : script path
-		foreach ( ['edit','header','inline_edit','list','row','modal'] as $item ) {
-			if ( !isset(self::$config['scriptPath']) ) self::$config['scriptPath'] = array();
-			if ( !isset(self::$config['scriptPath'][$item]) ) self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
-		}
+
+
+		// script path : fix & default
+		if ( self::initConfig__fixScriptPath() === false ) return false;
+
+
+
+
 		// param default : write log
 		if ( !isset(self::$config['writeLog']) ) self::$config['writeLog'] = false;
 		// param default : pagination
@@ -810,6 +822,9 @@ class Scaffold {
 		<io>
 			<in />
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
 				<structure name="$config" scope="self">
 					<boolean name="allowNew"    default="true" />
 					<boolean name="allowQuick"  default="~allowNew~" />
@@ -832,7 +847,6 @@ class Scaffold {
 		// done!
 		return true;
 	}
-
 
 
 
@@ -1180,15 +1194,27 @@ class Scaffold {
 			fix [scriptPath] settings
 		</description>
 		<io>
-			<in>
-			</in>
+			<in />
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<structure name="scriptPath">
+						<string name="edit|header|inline_edit|list|row|modal" value="~filePath~" />
+					</structure>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixScriptPath() {
-
+		foreach ( ['edit','header','inline_edit','list','row','modal'] as $item ) {
+			if ( !isset(self::$config['scriptPath']) ) self::$config['scriptPath'] = array();
+			if ( !isset(self::$config['scriptPath'][$item]) ) self::$config['scriptPath'][$item] = F::appPath("view/scaffold/{$item}.php");
+		}
+		// done!
+		return true;
 	}
 
 
