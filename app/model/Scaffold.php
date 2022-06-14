@@ -725,15 +725,7 @@ class Scaffold {
 
 
 
-		// param fix : allowSort
-		// ===> use [fieldName] as key
-		// ===> with [fieldName] or [subQuery] as value
-		$arr = self::$config['allowSort'];
-		self::$config['allowSort'] = array();
-		foreach ( $arr as $key => $val ) {
-			if ( is_numeric($key) ) self::$config['allowSort'][$val] = "`{$val}`";
-			else self::$config['allowSort'][$key] = $val;
-		}
+
 		// param default : edit mode
 		if ( empty(self::$config['editMode']) ) self::$config['editMode'] = 'inline';
 		// param default : modal size
@@ -883,6 +875,15 @@ class Scaffold {
 		} elseif ( is_string(self::$config['allowSort']) ) {
 			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
 			self::$config['allowSort'] = array_filter(explode(',', self::$config['allowSort']));
+		}
+		// param fix : allowSort
+		// ===> use [fieldName] as key
+		// ===> with [fieldName] or [subQuery] as value
+		$arr = self::$config['allowSort'];
+		self::$config['allowSort'] = array();
+		foreach ( $arr as $key => $val ) {
+			if ( is_numeric($key) ) self::$config['allowSort'][$val] = "`{$val}`";
+			else self::$config['allowSort'][$key] = $val;
 		}
 		// done!
 		return true;
