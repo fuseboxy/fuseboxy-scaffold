@@ -663,9 +663,6 @@ class Scaffold {
 					<number name="page" scope="$_GET" optional="yes" />
 					<boolean name="showAll" scope="$_GET" optional="yes" />
 				</structure>
-				<structure name="$tableColumns" comments="from {ORM::columns} method">
-					<string name="~columnName~" value="~columnType~" example="varchar(255)" />
-				</structure>
 			</in>
 			<out>
 				<!-- return -->
@@ -714,79 +711,8 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig() {
-		// obtain all columns of specific table
-		// ===> allow proceed further if table not exists (simply treated as no column)
-		$tableColumns = ORM::columns(self::$config['beanType']);
-		if ( $tableColumns === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
-			self::$error = ORM::error();
-			return false;
-		}
-		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
-		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
-		// param default : field config
-		// ===> merge table columns to field config
-		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
-		foreach ( self::$config['fieldConfig'] as $key => $val ) {
-			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
-				self::$config['fieldConfig'][$key] = array();
-			}
-		}
-		// fix param : field config
-		// ===> convert numeric key to field name
-		$arr = self::$config['fieldConfig'];
-		self::$config['fieldConfig'] = array();
-		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
-		// fix param : field config (id)
-		// ===> compulsory
-		// ===> must be readonly
-		if ( !isset(self::$config['fieldConfig']['id']) ) self::$config['fieldConfig']['id'] = array();
-		self::$config['fieldConfig']['id']['readonly'] = true;
-		// fix param : field config (seq)
-		// ===> optional
-		// ===> must be number
-		if ( isset(self::$config['fieldConfig']['seq']) ) self::$config['fieldConfig']['seq']['format'] = 'number';
-		// param default : field config (disabled)
-		// ===> optional
-		// ===> default as boolean dropdown (when not specified)
-		if ( isset(self::$config['fieldConfig']['disabled']) and empty(self::$config['fieldConfig']['disabled']) ) {
-			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
-		}
-		// param default : field config (label)
-		// param default : field config (placeholder)
-		// param default : field config (filetype)
-		// param default : field config (filesize)
-		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
-			// label : derived from field name
-			if ( !isset($cfg['label']) or $cfg['label'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['label'] = implode(' ', array_map(function($word){
-					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $fieldName)));
-			}
-			// placeholder : derived from field name
-			if ( isset($cfg['placeholder']) and $cfg['placeholder'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['placeholder'] = implode(' ', array_map(function($word){
-					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $fieldName)));
-			}
-			// inline-label : derived from field name
-			if ( isset($cfg['inline-label']) and $cfg['inline-label'] === true ) {
-				self::$config['fieldConfig'][$fieldName]['inline-label'] = implode(' ', array_map(function($word){
-					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
-				}, explode('_', $fieldName)));
-			}
-			// filetype : image
-			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'image' ) {
-				self::$config['fieldConfig'][$fieldName]['filetype'] = 'gif,jpg,jpeg,png';
-			}
-			// filetype : file
-			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'file' ) {
-				self::$config['fieldConfig'][$fieldName]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
-			}
-			// filesize
-			if ( empty($cfg['filesize']) and isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
-				self::$config['fieldConfig'][$fieldName]['filesize'] = '10MB';
-			}
-		}
+		// field config : default & fix
+		if ( self::initConfig__fixFieldConfig() === false ) return false;
 		// param default : modal field
 		if ( !isset(self::$config['modalField']) ) self::$config['modalField'] = array_keys(self::$config['fieldConfig']);
 		// fix param : modal field (heading & line & output)
@@ -944,14 +870,115 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<structure name="fieldConfig" />
+						<structure name="~fieldName~" />
+						<string name="+" value="~fieldName~" />
+					</structure>
+				</structure>
+				<!-- table columns -->
+				<structure name="$tableColumns" comments="from {ORM::columns} method">
+					<string name="~columnName~" value="~columnType~" example="varchar(255)" />
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- modified config -->
+				<structure name="$config" scope="self">
+					<structure name="fieldConfig">
+						<structure name="id">
+							<boolean name="readonly" value="true" comments="force {ID} field exists; force readonly" />
+						</structure>
+						<structure name="~fieldName~">
+							<string name="label" comments="derived from field name when not specified or true" />
+							<string name="placeholder" comments="derived from field name when true" />
+							<string name="inline-label" comments="derived from field name when true" />
+							<list name="filetype" comments="for [format=image] field" />
+						</structure>
+					</structure>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixFieldConfig() {
-
+		// obtain all columns of specific table
+		// ===> allow proceed further if table not exists (simply treated as no column)
+		$tableColumns = ORM::columns(self::$config['beanType']);
+		if ( $tableColumns === false and !preg_match('/Base table or view not found/i', ORM::error()) ) {
+			self::$error = ORM::error();
+			return false;
+		}
+		$tableColumns = !empty($tableColumns) ? $tableColumns : array();
+		$tableColumns = array_map(function(){ return array(); }, $tableColumns);
+		// param default : field config
+		// ===> merge table columns to field config
+		if ( !isset(self::$config['fieldConfig']) ) self::$config['fieldConfig'] = array();
+		foreach ( self::$config['fieldConfig'] as $key => $val ) {
+			if ( isset($tableColumns[$key]) and !isset(self::$config['fieldConfig'][$key]) ) {
+				self::$config['fieldConfig'][$key] = array();
+			}
+		}
+		// fix param : field config
+		// ===> convert numeric key to field name
+		$arr = self::$config['fieldConfig'];
+		self::$config['fieldConfig'] = array();
+		foreach ( $arr as $key => $val ) self::$config['fieldConfig'] += is_numeric($key) ? array($val=>[]) : array($key=>$val);
+		// fix param : field config (id)
+		// ===> compulsory
+		// ===> must be readonly
+		if ( !isset(self::$config['fieldConfig']['id']) ) self::$config['fieldConfig']['id'] = array();
+		self::$config['fieldConfig']['id']['readonly'] = true;
+		// fix param : field config (seq)
+		// ===> optional
+		// ===> must be number
+		if ( isset(self::$config['fieldConfig']['seq']) ) self::$config['fieldConfig']['seq']['format'] = 'number';
+		// param default : field config (disabled)
+		// ===> optional
+		// ===> default as boolean dropdown (when not specified)
+		if ( isset(self::$config['fieldConfig']['disabled']) and empty(self::$config['fieldConfig']['disabled']) ) {
+			self::$config['fieldConfig']['disabled'] = array('options' => array('0' => 'Enable', '1' => 'Disable'));
+		}
+		// param default : field config (label)
+		// param default : field config (placeholder)
+		// param default : field config (filetype)
+		// param default : field config (filesize)
+		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
+			// label : derived from field name
+			if ( !isset($cfg['label']) or $cfg['label'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['label'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $fieldName)));
+			}
+			// placeholder : derived from field name
+			if ( isset($cfg['placeholder']) and $cfg['placeholder'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['placeholder'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $fieldName)));
+			}
+			// inline-label : derived from field name
+			if ( isset($cfg['inline-label']) and $cfg['inline-label'] === true ) {
+				self::$config['fieldConfig'][$fieldName]['inline-label'] = implode(' ', array_map(function($word){
+					return in_array($word, array('id','url')) ? strtoupper($word) : ucfirst($word);
+				}, explode('_', $fieldName)));
+			}
+			// filetype : image
+			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'image' ) {
+				self::$config['fieldConfig'][$fieldName]['filetype'] = 'gif,jpg,jpeg,png';
+			}
+			// filetype : file
+			if ( empty($cfg['filetype']) and isset($cfg['format']) and $cfg['format'] == 'file' ) {
+				self::$config['fieldConfig'][$fieldName]['filetype'] = 'jpg,jpeg,png,gif,bmp,txt,doc,docx,pdf,ppt,pptx,xls,xlsx';
+			}
+			// filesize
+			if ( empty($cfg['filesize']) and isset($cfg['format']) and in_array($cfg['format'], ['file','image']) ) {
+				self::$config['fieldConfig'][$fieldName]['filesize'] = '10MB';
+			}
+		}
+		// done!
+		return true;
 	}
 
 
