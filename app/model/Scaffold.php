@@ -909,7 +909,7 @@ class Scaffold {
 		<description>
 			fix [fieldConfig] settings
 			===> taking parameters instead of refer to scaffold config
-			===> to make [renderInlineForm & renderForm] re-useable without forcing to specify whole scaffold config
+			===> to make [renderXXX] re-useable without forcing to specify whole scaffold config
 		</description>
 		<io>
 			<in>
@@ -1872,6 +1872,10 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+		$fieldLayout = self::initConfig__fixModalField($fieldLayout);
+		if ( $fieldLayout === false ) return false;
+		$fieldConfigAll = self::initConfig__fieldFieldConfig($fieldConfigAll);
+		if ( $fieldConfigAll === false ) return false;
 		// default options
 		$options['editMode'] = $options['editMode'] ?? 'modal';
 		$options['labelColumn'] = $options['labelColumn'] ?? 2;
@@ -1913,6 +1917,10 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+		$fieldLayout = self::initConfig__fixListField($fieldLayout);
+		if ( $fieldLayout === false ) return false;
+		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
+		if ( $fieldConfigAll === false ) return false;
 		// exit point
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
