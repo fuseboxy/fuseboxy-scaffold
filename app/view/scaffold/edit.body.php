@@ -27,8 +27,7 @@
 		<out />
 	</io>
 </fusedoc>
-*/ ?>
-<div class="scaffold-edit-body"><?php
+*/
 // form fields
 foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
 	// heading & line & output
@@ -74,4 +73,3 @@ foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
 		</div><!--/.form-group--><?php
 	endif;
 endforeach;
-?></div>

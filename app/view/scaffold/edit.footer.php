@@ -15,8 +15,8 @@
 		<out />
 	</io>
 </fusedoc>
-*/ ?>
-<div class="scaffold-edit-footer"><?php
+*/
+// button @ modal
 if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
 	// close button @ modal
 	if ( $options['editMode'] == 'modal' ) :
@@ -41,6 +41,7 @@ if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
 			class="btn btn-primary scaffold-btn-save ml-1"
 		>Save changes</button><?php
 	endif;
+
 // button @ basic
 elseif ( $options['editMode'] == 'basic' ) :
 	if ( isset($xfa['submit']) ) :
@@ -54,4 +55,3 @@ elseif ( $options['editMode'] == 'basic' ) :
 		class="btn btn-link text-dark scaffold-btn-cancel"
 	>Cancel</a><?php
 endif;
-?></div>
