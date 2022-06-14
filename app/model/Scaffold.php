@@ -711,33 +711,20 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig() {
-		// field config : fix & default
+		// field-config : fix & default
 		if ( self::initConfig__fixFieldConfig() === false ) return false;
-		// modal field : fix & default
+		// modal-field : fix & default
 		if ( self::initConfig__fixModalField() === false ) return false;
-		// list field : fix & default
+		// list-field : fix & default
 		if ( self::initConfig__fixListField() === false ) return false;
+		// allow-xxx : default
+		if ( self::initConfig__defaultPermission() === false ) return false;
+		// allow-sort : fix
+		if ( self::initConfig__fixAllowSort() === false ) return false;
 
 
 
-		// param default : permission
-		if ( !isset(self::$config['allowNew'])    ) self::$config['allowNew']    = true;
-		if ( !isset(self::$config['allowQuick'])  ) self::$config['allowQuick']  = self::$config['allowNew'];
-		if ( !isset(self::$config['allowEdit'])   ) self::$config['allowEdit']   = true;
-		if ( !isset(self::$config['allowSort'])   ) self::$config['allowSort']   = true;
-		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
-		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
-		// param fix : permission (allowSort)
-		// ===> convert boolean to all fields
-		// ===> convert list to array
-		if ( self::$config['allowSort'] === true ) {
-			self::$config['allowSort'] = array_keys(self::$config['fieldConfig']);
-		} elseif ( self::$config['allowSort'] === false ) {
-			self::$config['allowSort'] = array();
-		} elseif ( is_string(self::$config['allowSort']) ) {
-			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
-			self::$config['allowSort'] = array_filter(explode(',', self::$config['allowSort']));
-		}
+
 		// param fix : allowSort
 		// ===> use [fieldName] as key
 		// ===> with [fieldName] or [subQuery] as value
@@ -826,18 +813,79 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
+			set default [allowXXX] settings
+		</description>
+		<io>
+			<in />
+			<out>
+				<structure name="$config" scope="self">
+					<boolean name="allowNew"    default="true" />
+					<boolean name="allowQuick"  default="~allowNew~" />
+					<boolean name="allowEdit"   default="true" />
+					<boolean name="allowSort"   default="true" />
+					<boolean name="allowToggle" default="true" />
+					<boolean name="allowDelete" default="false" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initConfig__defaultPermission() {
+		if ( !isset(self::$config['allowNew'])    ) self::$config['allowNew']    = true;
+		if ( !isset(self::$config['allowQuick'])  ) self::$config['allowQuick']  = self::$config['allowNew'];
+		if ( !isset(self::$config['allowEdit'])   ) self::$config['allowEdit']   = true;
+		if ( !isset(self::$config['allowSort'])   ) self::$config['allowSort']   = true;
+		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
+		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
 			fix [allowSort] settings
 		</description>
 		<io>
 			<in>
+				<structure name="$config" scope="self">
+					<boolean name="allowSort" optional="yes" />
+					<list name="allowSort" optional="yes" delim="|," />
+					<array name="allowSort" optional="yes">
+						<string name="+" value="~fieldName~" />
+					</array>
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<structure name="allowSort" default="~allFields~">
+						<string name="~fieldName~" value="~fieldNameOrSubQuery~" />
+					</structure>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixAllowSort() {
-
+		// param fix : permission (allowSort)
+		// ===> convert boolean to all fields
+		// ===> convert list to array
+		if ( self::$config['allowSort'] === true ) {
+			self::$config['allowSort'] = array_keys(self::$config['fieldConfig']);
+		} elseif ( self::$config['allowSort'] === false ) {
+			self::$config['allowSort'] = array();
+		} elseif ( is_string(self::$config['allowSort']) ) {
+			self::$config['allowSort'] = str_replace('|', ',', self::$config['allowSort']);
+			self::$config['allowSort'] = array_filter(explode(',', self::$config['allowSort']));
+		}
+		// done!
+		return true;
 	}
 
 
