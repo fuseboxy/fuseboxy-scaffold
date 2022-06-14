@@ -715,15 +715,11 @@ class Scaffold {
 		if ( self::initConfig__fixFieldConfig() === false ) return false;
 		// modal field : fix & default
 		if ( self::initConfig__fixModalField() === false ) return false;
+		// list field : fix & default
+		if ( self::initConfig__fixListField() === false ) return false;
 
 
-		// param default : list field
-		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
-		// fix param : list field (key)
-		// ===> convert numeric key to field name
-		$arr = self::$config['listField'];
-		self::$config['listField'] = array();
-		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+
 		// param default : permission
 		if ( !isset(self::$config['allowNew'])    ) self::$config['allowNew']    = true;
 		if ( !isset(self::$config['allowQuick'])  ) self::$config['allowQuick']  = self::$config['allowNew'];
@@ -857,8 +853,7 @@ class Scaffold {
 				<!-- config -->
 				<structure name="$config" scope="self">
 					<structure name="fieldConfig" />
-						<structure name="~fieldName~" />
-						<string name="+" value="~fieldName~" />
+						<string name="+" value="~fieldName~" optional="yes" />
 					</structure>
 				</structure>
 				<!-- table columns -->
@@ -869,7 +864,7 @@ class Scaffold {
 			<out>
 				<!-- return value -->
 				<boolean name="~return~" />
-				<!-- modified config -->
+				<!-- fixed config -->
 				<structure name="$config" scope="self">
 					<structure name="fieldConfig">
 						<structure name="id">
@@ -975,14 +970,36 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<structure name="listField">
+						<string name="+" value="~fieldNameList~" optional="yes" />
+					</structure>
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<structure name="listField" default="~fieldConfig|tableColumns~">
+						<string name="~fieldNameList~" value="~columnWidth~" />
+					</structure>
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixListField() {
-
+		// param default : list field
+		if ( !isset(self::$config['listField']) ) self::$config['listField'] = array_keys(self::$config['fieldConfig']);
+		// fix param : list field (key)
+		// ===> convert numeric key to field name
+		$arr = self::$config['listField'];
+		self::$config['listField'] = array();
+		foreach ( $arr as $key => $val ) self::$config['listField'] += is_numeric($key) ? array($val=>'') : array($key=>$val);
+		// done!
+		return true;
 	}
 
 
@@ -1046,7 +1063,7 @@ class Scaffold {
 			<out>
 				<!-- return value -->
 				<boolean name="~return~" />
-				<!-- modified config -->
+				<!-- fixed config -->
 				<structure name="$config" scope="self">
 					<structure name="modalField">
 						<list name="+" value="~columnList~" optional="yes" delim="|" comments="when no key specified, value is field list" />
