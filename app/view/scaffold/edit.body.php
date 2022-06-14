@@ -63,8 +63,9 @@ foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
 						$columnClass   = array('scaffold-col');
 						$columnClass[] = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
 						$columnClass[] = 'col-'.str_replace('.', '-', $fieldNameSubList);
-						?><div class="<?php echo $columnClass; ?>"><?php
+						?><div class="<?php echo implode(' ', $columnClass); ?>"><?php
 							$fieldNameSubList = explode(',', $fieldNameSubList);
+							// allow multiple fields stacked on same column
 							foreach ( $fieldNameSubList as $fieldName ) :
 								if ( !empty($fieldName) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
 							endforeach; // foreach-fieldNameSubList
