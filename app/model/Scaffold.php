@@ -735,11 +735,10 @@ class Scaffold {
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// param default : sticky header
 		if ( !isset(self::$config['stickyHeader']) ) self::$config['stickyHeader'] = false;
-		// param default : list filter & order
-		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
 
 
-
+		// list filter : fix & default
+		if ( self::initConfig__fixListFilter() === false ) return false;
 		// list order : fix & default
 		if ( self::initConfig__fixListOrder() === false ) return false;
 		// script path : fix & default
@@ -1038,14 +1037,40 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self">
+					<string name="listFilter" optional="yes" />
+					<structure name="listFilter">
+						<string name="sql" />
+						<array name="param" />
+					</structure>
+				</structure>
 			</in>
 			<out>
+				<!-- return value -->
+				<boolean name="~return~" />
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<array name="listFilter" optional="yes">
+						<string name="0" comments="statement" default=" 1 = 1 " />
+						<array name="1" comments="parameters" default="~emptyArray~" />
+					</array>
+					<string name="listFilter" optional="yes" />
+				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixListFilter() {
-
+		// set default (when necessary)
+		if ( empty(self::$config['listFilter']) ) self::$config['listFilter'] = ' 1 = 1 ';
+		// convert to structure
+		if ( is_string(self::$config['listFilter']) ) self::$config['listFilter'] = array(self::$config['listFilter'], []);
+		// fix statement
+		$firstWord = strtoupper(explode(' ', trim(self::$config['listFilter'][0]))[0]);
+		if ( $firstWord == 'AND' ) self::$config['listFilter'][0] = ' 1 = 1 '.self::$config['listFilter'][0];
+		// done!
+		return true;
 	}
 
 
