@@ -1021,6 +1021,9 @@ class Scaffold {
 				<structure name="$listField">
 					<string name="+" value="~fieldNameList~" />
 				</structure>
+				<structure name="$options">
+					<boolean name="enforceHasID" optional="yes" />
+				</structure>
 			</in>
 			<out>
 				<structure name="~return~">
@@ -1030,14 +1033,20 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function initConfig__fixListField($listField) {
+	public static function initConfig__fixListField($listField, $options=[]) {
 		// fix param : list field (key)
 		// ===> convert numeric key to field name
 		$arr = $listField;
 		$listField = array();
-		foreach ( $arr as $key => $val ) {
-			if ( is_numeric($key) ) $listField[$val] = '';
-			else $listField[$key] = $val;
+		foreach ( $arr as $fieldNameList => $columnWidth ) {
+			if ( is_numeric($fieldNameList) ) $listField[$columnWidth] = '';
+			else $listField[$fieldNameList] = $columnWidth;
+		}
+		// fix param : enforce ID field
+		if ( !empty($options['enforceHasID']) ) {
+			$hasID = false;
+			foreach ( $listField as $fieldNameList => $val ) if ( in_array('id', explode('|', $fieldNameList)) ) $hasID = true;
+			if ( !$hasID ) $listField = array('id' => '') + $listField;
 		}
 		// done!
 		return $listField;
@@ -1236,6 +1245,9 @@ class Scaffold {
 				<array name="$modalField">
 					<string name="+" />
 				</array>
+				<structure name="$options">
+					<boolean name="enforceHasID" optional="yes" />
+				</structure>
 			</in>
 			<out>
 				<structure name="~return~">
@@ -1249,7 +1261,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function initConfig__fixModalField($modalField) {
+	public static function initConfig__fixModalField($modalField, $options=[]) {
 		// fix param : modal field (heading & line & output)
 		// ===> append space to make sure it is unique
 		// ===> avoid being overridden after convert to key
@@ -1264,15 +1276,16 @@ class Scaffold {
 		// ===> convert numeric key to field name
 		$arr = $modalField;
 		$modalField = array();
-		foreach ( $arr as $key => $val ) {
-			if ( is_numeric($key) ) $modalField[$val] = '';
-			else $modalField[$key] = $val;
+		foreach ( $arr as $fieldNameList => $fieldWidthList ) {
+			if ( is_numeric($fieldNameList) ) $modalField[$fieldWidthList] = '';
+			else $modalField[$fieldNameList] = $fieldWidthList;
 		}
-		// fix param : modal field (id)
-		// ===> compulsory
-		$hasID = false;
-		foreach ( $modalField as $key => $val ) if ( in_array('id', explode('|', $key)) ) $hasID = true;
-		if ( !$hasID ) $modalField = array('id' => '') + $modalField;
+		// fix param : enforce ID field
+		if ( !empty($options['enforceHasID']) ) {
+			$hasID = false;
+			foreach ( $modalField as $fieldNameList => $fieldWidthList ) if ( in_array('id', explode('|', $fieldNameList)) ) $hasID = true;
+			if ( !$hasID ) $modalField = array('id' => '') + $modalField;
+		}
 		// done!
 		return $modalField;
 	}
