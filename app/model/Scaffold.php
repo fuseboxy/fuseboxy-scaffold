@@ -1874,7 +1874,7 @@ class Scaffold {
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
 		$fieldLayout = self::initConfig__fixModalField($fieldLayout);
 		if ( $fieldLayout === false ) return false;
-		$fieldConfigAll = self::initConfig__fieldFieldConfig($fieldConfigAll);
+		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
 		if ( $fieldConfigAll === false ) return false;
 		// default options
 		$options['editMode'] = $options['editMode'] ?? 'modal';
