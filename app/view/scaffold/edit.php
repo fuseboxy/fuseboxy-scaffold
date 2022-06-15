@@ -8,7 +8,7 @@
 				<string name="cancel" optional="yes" />
 			</structure>
 			<structure name="$options">
-				<string name="editMode" comments="modal|inline-modal|basic" />
+				<string name="formType" comments="modal|inline-modal|basic" />
 				<number name="labelColumn" />
 			</structure>
 			<string name="$formBody" />
@@ -24,27 +24,27 @@ $formID = F::command('controller').'-edit-'.$recordID;
 // display
 ?><form
 	id="<?php echo $formID; ?>"
-	class="scaffold-edit <?php if ( $options['editMode'] == 'inline-modal' ) echo 'card bg-light my-3'; ?>"
+	class="scaffold-edit <?php if ( $options['formType'] == 'inline-modal' ) echo 'card bg-light my-3'; ?>"
 	<?php if ( isset($xfa['submit']) ) : ?>
 		method="post"
 		action="<?php echo F::url($xfa['submit']); ?>"
 	<?php endif; ?>
-	<?php if ( $options['editMode'] == 'modal' and !empty($bean->id) ) : ?>
+	<?php if ( $options['formType'] == 'modal' and !empty($bean->id) ) : ?>
 		data-toggle="ajax-submit"
 		data-target="#<?php echo F::command('controller'); ?>-row-<?php echo $recordID; ?>"
 		data-callback="$('#<?php echo $formID; ?>').closest('.modal').modal('hide');"
-	<?php elseif ( $options['editMode'] == 'modal' ) : ?>
+	<?php elseif ( $options['formType'] == 'modal' ) : ?>
 		data-toggle="ajax-submit"
 		data-mode="after"
 		data-target="#<?php echo F::command('controller'); ?>-header"
 		data-callback="$('#<?php echo $formID; ?>').closest('.modal').modal('hide');"
-	<?php elseif ( $options['editMode'] == 'inline-modal' ) : ?>
+	<?php elseif ( $options['formType'] == 'inline-modal' ) : ?>
 		data-toggle="ajax-submit"
 		data-target="#<?php echo F::command('controller'); ?>-edit-<?php echo $recordID; ?>"
 	<?php endif; ?>
 ><?php
 	// header : title
-	if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
+	if ( in_array($options['formType'], ['modal','inline-modal']) ) :
 		?><header class="modal-header"><?php
 			include F::appPath('view/scaffold/edit.header.php');
 		?></header><?php
@@ -55,7 +55,7 @@ $formID = F::command('controller').'-edit-'.$recordID;
 		echo $formBody;
 	?></div><?php
 	// footer : buttons
-	$footerClass = in_array($options['editMode'], ['modal','inline-modal']) ? 'modal-footer' : 'col-10 offset-2';
+	$footerClass = in_array($options['formType'], ['modal','inline-modal']) ? 'modal-footer' : 'col-10 offset-2';
 	?><footer class="<?php echo $footerClass; ?>"><?php
 		include F::appPath('view/scaffold/edit.footer.php');
 	?></footer>
