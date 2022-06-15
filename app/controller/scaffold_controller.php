@@ -225,7 +225,7 @@ switch ( $fusebox->action ) :
 		for ( $i=0; $i<$arguments['count']; $i++ ) {
 			$method = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'renderInlineForm' : 'renderForm';
 			$fieldLayout = ( $method == 'renderInlineForm' ) ? $scaffold['listField'] : $scaffold['modalField'];
-			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean, array('editMode' => $scaffold['editMode']));
+			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean);
 		}
 		// show with layout (when necessary)
 		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {

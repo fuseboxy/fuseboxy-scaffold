@@ -8,7 +8,7 @@
 				<string name="cancel" optional="yes" />
 			</structure>
 			<structure name="$options">
-				<string name="editMode" comments="modal|inline-modal|basic" />
+				<string name="formType" comments="modal|inline-modal|basic" />
 			</structure>
 			<string name="$recordID" />
 		</in>
@@ -17,16 +17,16 @@
 </fusedoc>
 */
 // button @ modal
-if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
+if ( in_array($options['formType'], ['modal','inline-modal']) ) :
 	// close button @ modal
-	if ( $options['editMode'] == 'modal' ) :
+	if ( $options['formType'] == 'modal' ) :
 		?><button 
 			type="button"
 			class="btn btn-link text-dark scaffold-btn-close"
 			data-dismiss="modal"
 		>Close</button><?php
 	// canel button @ inline-modal
-	elseif ( $options['editMode'] == 'inline-modal' and isset($xfa['cancel']) ) :
+	elseif ( $options['formType'] == 'inline-modal' and isset($xfa['cancel']) ) :
 		?><a 
 			href="<?php echo F::url($xfa['cancel']); ?>"
 			class="btn btn-link text-dark scaffold-btn-cancel"
@@ -43,7 +43,7 @@ if ( in_array($options['editMode'], ['modal','inline-modal']) ) :
 	endif;
 
 // button @ basic
-elseif ( $options['editMode'] == 'basic' ) :
+elseif ( $options['formType'] == 'basic' ) :
 	if ( isset($xfa['submit']) ) :
 		?><button 
 			type="submit"

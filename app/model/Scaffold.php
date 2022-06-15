@@ -1866,6 +1866,15 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self" optional="yes">
+					<string name="editMode" value="modal|inline-modal|basic" comments="for [formType] option" />
+					<boolean name="allowEdit" />
+					<structure name="scriptPath">
+						<string name="inline_edit" />
+					</structure>
+				</structure>
+				<!-- parameters -->
 				<array name="$fieldLayout">
 					<list name="~columnNameList~" value="~columnWidthList~" optional="yes" delim="|" />
 					<string name="~line~" optional="yes" example="---" comments="any number of dash(-) or equal(=)" />
@@ -1876,7 +1885,7 @@ class Scaffold {
 				</structure>
 				<object name="$bean" />
 				<structure name="$options" optional="yes">
-					<string name="editMode" default="modal" comments="modal|inline-modal|basic" />
+					<string name="formType" default="modal" comments="modal|inline-modal|basic" />
 					<number name="labelColumn" default="2" comments="column width" />
 				</structure>
 			</in>
@@ -1888,7 +1897,7 @@ class Scaffold {
 	*/
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
 		// default option
-		$options['editMode'] = $options['editMode'] ?? 'modal';
+		$options['formType'] = $options['formType'] ?? self::$config['editMode'] ?? 'modal';
 		// exit point
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
@@ -1896,7 +1905,7 @@ class Scaffold {
 		// display
 		ob_start();
 		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
-		include F::appPath('view/scaffold/edit.php');
+		include self::$config['scriptPath']['edit'] ?? F::appPath('view/scaffold/edit.php');
 		return ob_get_clean();
 	}
 
@@ -1944,6 +1953,14 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self" optional="yes">
+					<boolean name="allowEdit" />
+					<structure name="scriptPath">
+						<string name="inline_edit" />
+					</structure>
+				</structure>
+				<!-- parameters -->
 				<array name="$fieldLayout">
 					<list name="~columnNameList~" value="~columnWidthList~" delim="|" />
 				</array>
@@ -1951,7 +1968,6 @@ class Scaffold {
 					<structure name="~fieldName~" />
 				</structure>
 				<object name="$bean" />
-				<structure name="$options" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1959,7 +1975,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean) {
 		$fieldLayout = self::initConfig__fixListField($fieldLayout);
 		if ( $fieldLayout === false ) return false;
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
@@ -1970,7 +1986,7 @@ class Scaffold {
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
 		// display
 		ob_start();
-		include F::appPath('view/scaffold/inline_edit.php');
+		include self::$config['scriptPath']['inline_edit'] ?? F::appPath('view/scaffold/inline_edit.php');
 		return ob_get_clean();
 	}
 

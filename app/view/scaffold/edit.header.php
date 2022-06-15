@@ -8,7 +8,7 @@
 				<string name="cancel" optional="yes" />
 			</structure>
 			<structure name="$options">
-				<string name="editMode" comments="modal|inline-modal|basic" />
+				<string name="formType" comments="modal|inline-modal|basic" />
 			</structure>
 			<string name="$recordID" />
 		</in>
@@ -20,7 +20,7 @@
 ?><h5 class="modal-title"><?php echo ucfirst(F::command('action')); ?></h5><?php
 
 // close button @ modal
-if ( $options['editMode'] == 'modal' ) :
+if ( $options['formType'] == 'modal' ) :
 	?><button 
 		type="button"
 		class="close scaffold-btn-close"
@@ -29,7 +29,7 @@ if ( $options['editMode'] == 'modal' ) :
 	><span aria-hidden="true">&times;</span></button><?php
 
 // canel button @ inline-modal
-elseif ( $options['editMode'] == 'inline-modal' and isset($xfa['cancel']) ) :
+elseif ( $options['formType'] == 'inline-modal' and isset($xfa['cancel']) ) :
 	?><a 
 		href="<?php echo F::url($xfa['cancel']); ?>"
 		class="close scaffold-btn-cancel"
