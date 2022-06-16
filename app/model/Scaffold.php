@@ -1921,8 +1921,8 @@ class Scaffold {
 			<in>
 				<array name="$fieldLayout" />
 				<structure name="$fieldConfigAll" />
-				<object name="$bean" />
-				<structure name="$options" />
+				<object name="$bean" optional="yes" />
+				<structure name="$options" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1930,7 +1930,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options) {
+	public static function renderFormBody($fieldLayout, $fieldConfigAll, $bean=[], $options=[]) {
 		$fieldLayout = self::initConfig__fixModalField($fieldLayout);
 		if ( $fieldLayout === false ) return false;
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
