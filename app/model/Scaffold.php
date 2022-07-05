@@ -1888,6 +1888,8 @@ class Scaffold {
 					<string name="formType" default="modal" comments="modal|inline-modal|basic" />
 					<number name="labelColumn" default="2" comments="column width" />
 				</structure>
+				<!-- additional exit points (e.g. when custom button specified) -->
+				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1895,7 +1897,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[], $xfa=[]) {
 		// default option
 		$options['formType'] = $options['formType'] ?? self::$config['editMode'] ?? 'modal';
 		// exit point
@@ -1968,6 +1970,10 @@ class Scaffold {
 					<structure name="~fieldName~" />
 				</structure>
 				<object name="$bean" />
+				<!-- placeholder -->
+				<structure name="$options" optional="yes" />
+				<!-- additional exit points (e.g. when custom button specified) -->
+				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1975,7 +1981,7 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean) {
+	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean, $options=[], $xfa=[]) {
 		$fieldLayout = self::initConfig__fixListField($fieldLayout);
 		if ( $fieldLayout === false ) return false;
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);

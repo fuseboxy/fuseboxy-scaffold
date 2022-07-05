@@ -8,7 +8,7 @@
 				<string name="layoutPath" />
 				<!-- below config are all optional -->
 				<boolean name="allowNew" optional="yes" default="true" />
-                <boolean name="allowQuick" optional="yes" default="true" />
+				<boolean name="allowQuick" optional="yes" default="true" />
 				<boolean name="allowEdit" optional="yes" default="true" />
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
@@ -124,9 +124,9 @@ switch ( $fusebox->action ) :
 		if ( $scaffold['allowNew'] ) {
 			$xfa['new'] = "{$fusebox->controller}.new";
 		}
-        if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
-            $xfa['quick'] = "{$fusebox->controller}.quick";
-        }
+		if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
+			$xfa['quick'] = "{$fusebox->controller}.quick";
+		}
 		if ( $scaffold['allowEdit'] ) {
 			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
 		}
@@ -214,18 +214,13 @@ switch ( $fusebox->action ) :
 		// get empty record (when necessary)
 		if ( !isset($bean) ) $bean = Scaffold::getBean();
 		F::error(Scaffold::error(), $bean === false);
-		// exit point
-		if ( $scaffold['allowEdit'] ) $xfa['submit'] = "{$fusebox->controller}.save";
-		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.empty" : "{$fusebox->controller}.row&id={$bean->id}";
-		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
-		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		// ===> use [count] to display multiple forms
 		$layout['content'] = '';
 		for ( $i=0; $i<$arguments['count']; $i++ ) {
 			$method = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'renderInlineForm' : 'renderForm';
 			$fieldLayout = ( $method == 'renderInlineForm' ) ? $scaffold['listField'] : $scaffold['modalField'];
-			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean);
+			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean, [], $xfa ?? []);
 		}
 		// show with layout (when necessary)
 		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {
