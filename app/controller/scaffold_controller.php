@@ -6,6 +6,7 @@
 				<!-- essential config -->
 				<string name="beanType" />
 				<string name="layoutPath" />
+				<string_or_structure name="retainParam" optional="yes" comments="retain additional parameter (e.g. fuseaction=product.list&category=foo)" format="query-string or associated-array" />
 				<!-- below config are all optional -->
 				<boolean name="allowNew" optional="yes" default="true" />
 				<boolean name="allowQuick" optional="yes" default="true" />

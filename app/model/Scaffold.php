@@ -686,6 +686,7 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- modified -->
 				<structure name="$config" scope="self">
+					<string name="retainParam" optional="yes" default="" format="query-string" />
 					<boolean name="allowNew" default="true" />
 					<boolean name="allowQuick" default="~allowNew~" />
 					<boolean name="allowEdit" default="true" />
