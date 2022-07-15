@@ -1916,6 +1916,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
 					<string name="editMode" value="modal|inline-modal|basic" comments="for [formType] option" />
 					<boolean name="allowEdit" />
 					<structure name="scriptPath">
@@ -1949,9 +1950,9 @@ class Scaffold {
 		// default option
 		$options['formType'] = $options['formType'] ?? self::$config['editMode'] ?? 'modal';
 		// exit point
-		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
-		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
-		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
 		// display
 		ob_start();
 		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
@@ -2005,6 +2006,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
 					<boolean name="allowEdit" />
 					<structure name="scriptPath">
 						<string name="inline_edit" />
@@ -2035,9 +2037,9 @@ class Scaffold {
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
 		if ( $fieldConfigAll === false ) return false;
 		// exit point
-		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
-		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
-		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
 		// display
 		ob_start();
 		include self::$config['scriptPath']['inline_edit'] ?? F::appPath('view/scaffold/inline_edit.php');
@@ -2054,6 +2056,11 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
+				</structure>
+				<!-- parameters -->
 				<string name="$fieldName" />
 				<structure name="$fieldConfig" />
 				<object name="$bean" />
@@ -2072,8 +2079,8 @@ class Scaffold {
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
 		// exit point : ajax upload
 		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
-			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
-			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.self::$config['retainParam'];
+			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress'.self::$config['retainParam'];
 		}
 		// determine value to show in field
 		// ===> precedence: defined-value > one-to-many|many-to-many > bean-value > default-value > empty

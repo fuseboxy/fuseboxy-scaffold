@@ -123,24 +123,24 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $beanList === false);
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
-			$xfa['new'] = "{$fusebox->controller}.new";
+			$xfa['new'] = "{$fusebox->controller}.new".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
-			$xfa['quick'] = "{$fusebox->controller}.quick";
+			$xfa['quick'] = "{$fusebox->controller}.quick".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowDelete'] ) {
-			$xfa['delete'] = "{$fusebox->controller}.delete";
+			$xfa['delete'] = "{$fusebox->controller}.delete".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowToggle'] ) {
-			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
-			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
+			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0".$scaffold['retainParam'];
+			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1".$scaffold['retainParam'];
 		}
 		// retain url params when change sorting
 		if ( !empty($scaffold['allowSort']) ) {
-			$xfa['sort'] = $fusebox->controller;
+			$xfa['sort'] = $fusebox->controller.$scaffold['retainParam'];
 			foreach ( $_GET as $key => $val ) {
 				if ( $key != F::config('commandVariable') and $key != 'sortField' and $key != 'sortRule' ) {
 					// e.g. &search[sid]=999999
@@ -182,14 +182,14 @@ switch ( $fusebox->action ) :
 		// define exit point
 		// ===> refer to index
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowDelete'] ) {
-			$xfa['delete'] = "{$fusebox->controller}.delete";
+			$xfa['delete'] = "{$fusebox->controller}.delete".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowToggle'] ) {
-			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
-			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
+			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0".$scaffold['retainParam'];
+			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1".$scaffold['retainParam'];
 		}
 		// display (when necessary)
 		if ( !empty($bean->id) ) {
