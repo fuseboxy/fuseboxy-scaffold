@@ -741,15 +741,17 @@ class Scaffold {
 	public static function initConfig() {
 		$tableColumns = self::getTableColumns(self::$config['beanType']);
 		if ( $tableColumns === false ) return false;
-		// field config : fix & default
+		// retain param : default & fix
+		if ( self::initConfig__fixRetainParam() === false ) return false;
+		// field config : default & fix
 		self::$config['fieldConfig'] = self::$config['fieldConfig'] ?? array();
 		self::$config['fieldConfig'] = self::initConfig__fixFieldConfig(self::$config['fieldConfig'], $tableColumns);
 		if ( self::$config['fieldConfig'] === false ) return false;
-		// modal field : fix & default
+		// modal field : default & fix
 		self::$config['modalField'] = self::$config['modalField'] ?? array_keys(self::$config['fieldConfig']);
 		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['modalField'] === false ) return false;
-		// list field : fix & default
+		// list field : default & fix
 		self::$config['listField'] = self::$config['listField'] ?? array_keys(self::$config['fieldConfig']);
 		self::$config['listField'] = self::initConfig__fixListField(self::$config['listField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['listField'] === false ) return false;
@@ -757,21 +759,21 @@ class Scaffold {
 		if ( self::initConfig__defaultPermission() === false ) return false;
 		// allow sort : fix
 		if ( self::initConfig__fixAllowSort() === false ) return false;
-		// edit mode : fix & default
+		// edit mode : default & fix
 		if ( self::initConfig__fixEditMode() === false ) return false;
 		// modal size : default
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// sticky header : default
 		self::$config['stickyHeader'] = self::$config['stickyHeader'] ?? false;
-		// list filter : fix & default
+		// list filter : default & fix
 		if ( self::initConfig__fixListFilter() === false ) return false;
-		// list order : fix & default
+		// list order : default & fix
 		if ( self::initConfig__fixListOrder() === false ) return false;
-		// script path : fix & default
+		// script path : default & fix
 		if ( self::initConfig__fixScriptPath() === false ) return false;
 		// write log : default
 		self::$config['writeLog'] = self::$config['writeLog'] ?? false;
-		// pagination : fix & default
+		// pagination : default & fix
 		if ( self::initConfig__fixPagination() === false ) return false;
 		// list order : add limit and offset to statement (when pagination)
 		if ( self::initConfig__fixListOrderWhenPagination() === false ) return false;
@@ -1330,6 +1332,51 @@ class Scaffold {
 			self::$config['pagination']['recordCount']   = self::getBeanCount();
 			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
 			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
+		}
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert retain param into a query string (with &-prefixed)
+			===> easier to implement on xfa
+			===> also check for reserved word
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<structure name="retainParam" optional="yes">
+						<string name="*" />
+					</structure>
+				</structure>
+			</in>
+			<out>
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<string name="retainParam" default="" example="&foo=1&bar=2" />
+				</structure>
+				<!-- return value -->
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initConfig__fixRetainParam() {
+		// determine default value
+		if ( empty(self::$config['retainParam']) ) self::$config['retainParam'] = '';
+		// convert from data to query-string
+		if ( is_array(self::$config['retainParam']) ) self::$config['retainParam'] = http_build_query(self::$config['retainParam']);
+		// prepend [&] to make it easier to implement to xfa
+		if ( !empty(self::$config['retainParam']) ) self::$config['retainParam'] = '&'.self::$config['retainParam'];
+		// check for reserved word
+		if ( strpos(self::$config['retainParam'], '&id=') !== false ) {
+			self::$error = '<strong>id</strong> is a reserved parameter and not allowed in [retainParam]';
+			return false;
 		}
 		// done!
 		return true;
