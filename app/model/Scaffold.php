@@ -2079,8 +2079,8 @@ class Scaffold {
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
 		// exit point : ajax upload
 		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
-			$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.self::$config['retainParam'];
-			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress'.self::$config['retainParam'];
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.( self::$config['retainParam'] ?? '' );
+			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress'.( self::$config['retainParam'] ?? '' );
 		}
 		// determine value to show in field
 		// ===> precedence: defined-value > one-to-many|many-to-many > bean-value > default-value > empty
