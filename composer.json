@@ -1,6 +1,6 @@
 {
 	"name": "fuseboxy/fuseboxy-scaffold",
-	"description": "Fuseboxy Scaffold - No-Code CRUD UI Builder",
+	"description": "Fuseboxy Scaffold - Low-code CRUD UI Builder",
 	"license": "MIT",
 	"type": "fuseboxy-module",
 	"require": { "fuseboxy/fuseboxy-installer": "*" },
