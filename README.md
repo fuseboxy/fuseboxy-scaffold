@@ -31,6 +31,9 @@ Low-code CRUD UI Builder
 	<string name="layoutPath" />
 	<string_or_structure name="retainParam" optional="yes" comments="retain additional parameter (e.g. fuseaction=product.list&category=foo)" format="query-string or associated-array" />
 	<!-- below config are all optional -->
+	<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
+	<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
+	<boolean name="stickyHeader" optional="yes" default="false" />
 	<boolean name="allowNew" optional="yes" default="true" />
 	<boolean name="allowQuick" optional="yes" default="true" />
 	<boolean name="allowEdit" optional="yes" default="true" />
@@ -39,13 +42,11 @@ Low-code CRUD UI Builder
 	<boolean_or_structure name="allowSort" optional="yes" default="true">
 		<string name="~column~" comments="sort by column or sub-query" />
 	</boolean_or_structure>
-	<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
-	<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
-	<boolean name="stickyHeader" optional="yes" default="false" />
-	<array_or_string name="listFilter" optional="yes">
-		<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />
-		<array  name="1" optional="yes" comments="sql parameter" oncondition="when {listFilter} is array" />
-	</array_or_string>
+	<string name="listFilter" optional="yes" comments="sql statement" />
+	<structure name="listFilter" optional="yes">
+		<string name="sql" comments="sql statement" />
+		<array  name="param" comments="parameters" />
+	</structure>
 	<string name="listOrder" optional="yes" default="order by {seq} (if any), then by {id}" />
 	<array name="listField" optional="yes" comments="determine fields to display in listing">
 		<string name="+" comments="when no key specified, value is column list" />
@@ -119,8 +120,6 @@ Miniumum Settings
 ```
 <?php
 
-...
-
 $scaffold = array(
 	'beanType' => 'foo',
 	'layout' => F::appPath('view/global/layout.php'),
@@ -134,6 +133,46 @@ include F::appPath('controller/scaffold_controller.php');
 Full Settings
 
 ```
+<?php
+
+$scaffold = array(
+	'beanType' => 'foo',
+	'layoutPath' => F::appPath('view/foo/layout.php'),
+	'editMode' => 'modal',
+	'modalSize' => 'xl',
+	'stickyHeader' => true,
+	'allowNew' => true,
+	'allowQuick' => true,
+	'allowEdit' => true,
+	'allowToggle' => true,
+	'allowDelete' => Auth::user('SUPER'),
+	'allowSort' => array('alias', 'title'),
+	'listFilter' => array(
+		'sql' => 'disabled = 0 AND type = ? ',
+		'param' => array('FOOBAR'),
+	),
+	'listOrder' => 'ORDER BY type ASC, seq ASC ',
+	'listField' => array(
+	),
+	'modalField' => array(
+	),
+	'fieldConfig' => array(
+	),
+	'scriptPath' => array(
+		'header' => F::appPath('view/foo/header.php'),
+		'row' => F::appPath('view/foo/row.php'),
+		'list' => F::appPath('view/foo/list.php'),
+		'edit' => F::appPath('view/foo/edit.php'),
+		'inline_edit' => F::appPath('view/foo/inline_edit.php'),
+	),
+	'pagination' => array(
+		'recordPerPage' => 100,
+		'pageVisible' => 20,
+	),
+	'writeLog' => class_exists('Log'),
+);
+
+include F::appPath('controller/scaffold_controller.php');
 
 ```
 
