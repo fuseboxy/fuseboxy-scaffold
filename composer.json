@@ -4,5 +4,6 @@
 	"license": "MIT",
 	"type": "fuseboxy-module",
 	"require": { "fuseboxy/fuseboxy-installer": "*" },
+	"repositories": [ { "type": "git", "url": "https://www.bitbucket.org/henrygotmojo/fuseboxy-installer" } ],
 	"autoload": { "files": [ "app/model/Scaffold.php" ] }
 }
