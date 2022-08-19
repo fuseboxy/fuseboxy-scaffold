@@ -112,6 +112,35 @@ Low-code CRUD UI Builder
 --------------------------------------------------
 
 
+## Examples
+
+Miniumum Settings
+
+```
+<?php
+
+...
+
+$scaffold = array(
+	'beanType' => 'foo',
+	'layout' => F::appPath('view/global/layout.php'),
+);
+
+include F::appPath('controller/scaffold_controller.php');
+
+```
+
+
+Full Settings
+
+```
+
+```
+
+
+--------------------------------------------------
+
+
 ## Validation
 
 
