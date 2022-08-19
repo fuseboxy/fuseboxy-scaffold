@@ -2256,7 +2256,7 @@ class Scaffold {
 		// fix submitted multi-selection value
 		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			// remove empty item from submitted checkboxes
-			if ( !empty($cfg['format']) and in_array($cfg['format'], ['checkbox','one-to-many','many-to-many']) ) {
+			if ( !empty($cfg['format']) and in_array($cfg['format'], ['checkbox','one-to-many','many-to-many']) and isset($data[$fieldName]) ) {
 				$data[$fieldName] = array_filter($data[$fieldName], 'strlen');
 			}
 			// extract {one-to-many|many-to-many} from submitted data before saving
@@ -2274,7 +2274,7 @@ class Scaffold {
 				}
 				unset($data[$fieldName]);
 			// turn checkbox into pipe-delimited list
-			} elseif ( !empty($cfg['format']) and $cfg['format'] == 'checkbox' ) {
+			} elseif ( !empty($cfg['format']) and $cfg['format'] == 'checkbox' and isset($data[$fieldName]) ) {
 				$data[$fieldName] = implode('|', $data[$fieldName]);
 			}
 		}
