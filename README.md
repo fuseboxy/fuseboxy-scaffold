@@ -127,6 +127,7 @@ $scaffold = array(
 
 include F::appPath('controller/scaffold_controller.php');
 
+
 ```
 
 
@@ -138,6 +139,7 @@ Full Settings
 $scaffold = array(
 	'beanType' => 'foo',
 	'layoutPath' => F::appPath('view/foo/layout.php'),
+	'retainParam' => "category={$arguments['category']}",
 	'editMode' => 'modal',
 	'modalSize' => 'xl',
 	'stickyHeader' => true,
@@ -148,15 +150,68 @@ $scaffold = array(
 	'allowDelete' => Auth::user('SUPER'),
 	'allowSort' => array('alias', 'title'),
 	'listFilter' => array(
-		'sql' => 'disabled = 0 AND type = ? ',
+		'sql' => 'disabled = 0 AND category = ? ',
 		'param' => array('FOOBAR'),
 	),
-	'listOrder' => 'ORDER BY type ASC, seq ASC ',
+	'listOrder' => 'ORDER BY category ASC, seq ASC ',
 	'listField' => array(
+		'id|parent_id' => 60,
+		'category|bar' => '10%',
+		'title|body' => '20%',
+		'datetime|alt_date|alt_time' => '10%',
+		'url|flyer|photo' => '30%',
+		'created_on|created_by' => '10%',
+		'seq|visible',
 	),
 	'modalField' => array(
+		'id|parent_id',
+		'## Header',
+		'--',
+		'title',
+		'intro',
+		'body',
+		'~<br>',
+		'### Genres',
+		'--',
+		'category|tags' => '4|8',
+		'~<br>',
+		'#### Date & Time',
+		'--',
+		'datetime|alt_date|alt_time',
+		'~<br>',
+		'##### History',
+		'--',
+		'created_on|created_by',
+		'~<br>',
+		'###### Settings',
+		'--',
+		'seq|visible',
+		'~<br>',
+		'--',
+		'###### Permissions',
+		'bar',
+		'~<p><em>direct output on screen</em></p>',
 	),
 	'fieldConfig' => array(
+		'id',
+		'parent_id' => array('label' => false, 'readonly' => true),
+		'category' => array('label' => true, format' => 'dropdown', 'icon' => 'far fa-star', 'default' => $arguments['category'], 'options' => Enum::array('FOO_CATEGORY')),
+		'tags' => array('format' => 'checkbox', 'options' => [ 'linux' => 'Linux', 'apache' => 'Apache', 'mysql' => 'MySQL', 'php' => 'PHP' ]),
+		'title' => array('format' => 'text', 'required' => true, 'placeholder' => true),
+		'intro' => array('format' => 'textarea', 'style' => 'height: 5rem', 'placeholder' => true),
+		'body' => array('format' => 'wsyiwyg', 'help' => 'page content in html'),
+		'datetime' => array('format' => 'datetime'),
+		'alt_date' => array('format' => 'date'),
+		'alt_time' => array('format' => 'time'),
+		'url' => array('format' => 'url', 'icon' => 'fa fa-link'),
+		'photo' => array('format' => 'image', 'filetype' => 'gif,jpg,jpeg,png', 'filesize' => '500KB'),
+		'flyer' => array('format' => 'file', 'filetype' => 'doc,docx,pdf', 'filesize' => '5MB'),
+		'created_on' => array('default' => date('Y-m-d H:i:s')),
+		'created_by' => Auth::user('username'),
+		'seq' => array('format' => 'number'),
+		'visible' => array('format' => 'radio', 'options' => [ 'Y' => 'Yes', 'N' => 'No' ]),
+		// require [foo_bar] table with [foo_id & bar_id] columns
+		'bar' => array('label' => 'Permissions', 'format' => 'many-to-many', 'options' => array_map(fn($item) => $item->name, ORM::all('bar'))),
 	),
 	'scriptPath' => array(
 		'header' => F::appPath('view/foo/header.php'),
@@ -173,6 +228,7 @@ $scaffold = array(
 );
 
 include F::appPath('controller/scaffold_controller.php');
+
 
 ```
 
