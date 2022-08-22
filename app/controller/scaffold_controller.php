@@ -247,8 +247,8 @@ switch ( $fusebox->action ) :
 		$toggleBean = Scaffold::toggleBean($arguments['id'], !$arguments['disabled']);
 		F::error(Scaffold::error(), $toggleBean === false);
 		// back to list
-		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}", F::ajaxRequest());
-		F::redirect($fusebox->controller);
+		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}".$scaffold['retainParam'], F::ajaxRequest());
+		F::redirect($fusebox->controller.$scaffold['retainParam']);
 		break;
 
 
@@ -261,8 +261,8 @@ switch ( $fusebox->action ) :
 		$id = Scaffold::saveBean($arguments['data']);
 		F::error(Scaffold::error(), $id === false);
 		// finish
-		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest() and empty($arguments['noRedirect']));
-		F::redirect($fusebox->controller, empty($arguments['noRedirect']));
+		F::redirect("{$fusebox->controller}.row&id={$id}".$scaffold['retainParam'], F::ajaxRequest() and empty($arguments['noRedirect']));
+		F::redirect($fusebox->controller.$scaffold['retainParam'], empty($arguments['noRedirect']));
 		break;
 
 
@@ -275,7 +275,7 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $deleteBean === false);
 		// return to index page if not ajax
 		// ===> otherwise, simply show nothing (in order to hide row)
-		F::redirect($fusebox->controller, !F::ajaxRequest());
+		F::redirect($fusebox->controller.$scaffold['retainParam'], !F::ajaxRequest());
 		break;
 
 
