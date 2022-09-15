@@ -726,11 +726,11 @@ class Scaffold {
 					<structure name="scriptPath">
 						<string name="edit|header|inline_edit|list|row|modal" value="~filePath~" />
 					</structure>
-					<structure_or_boolean name="pagination" default="false">
+					<structure name="pagination" default="false">
 						<number name="recordCount" />
 						<number name="recordPerPage" />
 						<number name="pageVisible" />
-					</structure_or_boolean>
+					</structure>
 				</structure>
 				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
 				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
@@ -1213,7 +1213,7 @@ class Scaffold {
 			</in>
 			<out>
 				<!-- return value -->
-				<boolean name="~return~' />
+				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
 					<string name="listOrder" />
@@ -1305,7 +1305,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self">
-					<boolean name="pagination" optional="yes" />
+					<number_or_boolean name="pagination" optional="yes" />
 				</structure>
 			</in>
 			<out>
@@ -1313,25 +1313,38 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
-					<structure_or_boolean name="pagination" default="false">
+					<structure name="pagination" default="false">
 						<number name="recordCount" />
 						<number name="recordPerPage" />
 						<number name="pageVisible" />
-					</structure_or_boolean>
+					</structure>
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixPagination() {
-		// default no pagination
-		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
+		// no pagination (by default)
+		if ( empty(self::$config['pagination']) ) {
+			self::$config['pagination'] = false;
 		// fix format
-		if ( !empty(self::$config['pagination']) ) {
-			self::$config['pagination'] = is_array(self::$config['pagination']) ? self::$config['pagination'] : array();
-			self::$config['pagination']['recordCount']   = self::getBeanCount();
-			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
-			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
+		} else {
+			// record-per-page
+			if ( is_numeric(self::$config['pagination']) ) $recordPerPage = self::$config['pagination'];
+			elseif ( !empty(self::$config['pagination']['recordPerPage']) ) $recordPerPage = self::$config['pagination']['recordPerPage'];
+			else $recordPerPage = 20;
+			// page-visible
+			if ( !empty(self::$config['pagination']['pageVisible']) ) $pageVisile = self::$config['pagination']['pageVisible'];
+			else $pageVisible = 10;
+			// record-count
+			$recordCount = self::getBeanCount();
+			if ( $recordCount === false ) return false;
+			// put together
+			self::$config['pagination'] = array(
+				'recordCount'   => $recordCount,
+				'pageVisible'   => $pageVisible,
+				'recordPerPage' => $recordPerPage,
+			);
 		}
 		// done!
 		return true;
