@@ -22,22 +22,15 @@
 </fusedoc>
 */ ?>
 <div class="scaffold-input form-group mb-1"><?php
-
 	// display : pre-help
-	if ( !empty($fieldConfig['pre-help']) ) {
-		include F::appPath('view/scaffold/input.pre_help.php');
-	}
-
-	// display : custom
-	if ( !empty($fieldConfig['format']) and $fieldConfig['format'] == 'custom' ) include $fieldConfig['scriptPath'];
-	// display : specified
-	elseif ( !empty($fieldConfig['format']) ) include F::appPath('view/scaffold/input.'.str_replace('-', '_', $fieldConfig['format']).'.php');
-	// display : default (text)
-	else include F::appPath('view/scaffold/input.default.php');
-
+	if ( !empty($fieldConfig['pre-help']) ) include F::appPath('view/scaffold/input.pre_help.php');
+	// determine path
+	$defaultPath = F::appPath('view/scaffold/input.default.php');
+	if ( !empty($fieldConfig['format']) and $fieldConfig['format'] == 'custom' ) $scriptPath = $fieldConfig['scriptPath'];
+	elseif ( !empty($fieldConfig['format']) ) $scriptPath = F::appPath('view/scaffold/input.'.str_replace('-', '_', $fieldConfig['format']).'.php');
+	else $scriptPath = $defaultPath;
+	// display : field
+	include is_file($scriptPath) ? $scriptPath : $defaultPath;
 	// display : help
-	if ( !empty($fieldConfig['help']) ) {
-		include F::appPath('view/scaffold/input.help.php');
-	}
-
+	if ( !empty($fieldConfig['help']) ) include F::appPath('view/scaffold/input.help.php');
 ?></div><!--/.form-group-->
