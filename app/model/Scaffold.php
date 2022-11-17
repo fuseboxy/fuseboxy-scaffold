@@ -554,6 +554,7 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- modified -->
 				<structure name="$config" scope="self">
+					<string name="retainParam" optional="yes" default="" format="query-string" />
 					<boolean name="allowNew" default="true" />
 					<boolean name="allowQuick" default="~allowNew~" />
 					<boolean name="allowEdit" default="true" />
@@ -593,11 +594,11 @@ class Scaffold {
 					<structure name="scriptPath">
 						<string name="edit|header|inline_edit|list|row|modal" value="~filePath~" />
 					</structure>
-					<structure_or_boolean name="pagination" default="false">
+					<structure name="pagination" default="false">
 						<number name="recordCount" />
 						<number name="recordPerPage" />
 						<number name="pageVisible" />
-					</structure_or_boolean>
+					</structure>
 				</structure>
 				<string name="sortField" scope="$_GET" optional="yes" comments="indicate which label in table header to show the arrow" />
 				<string name="sortRule" scope="$_GET" optional="yes" comments="indicate the direction of arrow shown at table header" />
@@ -608,15 +609,17 @@ class Scaffold {
 	public static function initConfig() {
 		$tableColumns = self::getTableColumns(self::$config['beanType']);
 		if ( $tableColumns === false ) return false;
-		// field config : fix & default
+		// retain param : default & fix
+		if ( self::initConfig__fixRetainParam() === false ) return false;
+		// field config : default & fix
 		self::$config['fieldConfig'] = self::$config['fieldConfig'] ?? array();
 		self::$config['fieldConfig'] = self::initConfig__fixFieldConfig(self::$config['fieldConfig'], $tableColumns);
 		if ( self::$config['fieldConfig'] === false ) return false;
-		// modal field : fix & default
+		// modal field : default & fix
 		self::$config['modalField'] = self::$config['modalField'] ?? array_keys(self::$config['fieldConfig']);
 		self::$config['modalField'] = self::initConfig__fixModalField(self::$config['modalField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['modalField'] === false ) return false;
-		// list field : fix & default
+		// list field : default & fix
 		self::$config['listField'] = self::$config['listField'] ?? array_keys(self::$config['fieldConfig']);
 		self::$config['listField'] = self::initConfig__fixListField(self::$config['listField'], [ 'enforceHasID' => true ]);
 		if ( self::$config['listField'] === false ) return false;
@@ -624,21 +627,21 @@ class Scaffold {
 		if ( self::initConfig__defaultPermission() === false ) return false;
 		// allow sort : fix
 		if ( self::initConfig__fixAllowSort() === false ) return false;
-		// edit mode : fix & default
+		// edit mode : default & fix
 		if ( self::initConfig__fixEditMode() === false ) return false;
 		// modal size : default
 		if ( empty(self::$config['modalSize']) ) self::$config['modalSize'] = 'lg';
 		// sticky header : default
 		self::$config['stickyHeader'] = self::$config['stickyHeader'] ?? false;
-		// list filter : fix & default
+		// list filter : default & fix
 		if ( self::initConfig__fixListFilter() === false ) return false;
-		// list order : fix & default
+		// list order : default & fix
 		if ( self::initConfig__fixListOrder() === false ) return false;
-		// script path : fix & default
+		// script path : default & fix
 		if ( self::initConfig__fixScriptPath() === false ) return false;
 		// write log : default
 		self::$config['writeLog'] = self::$config['writeLog'] ?? false;
-		// pagination : fix & default
+		// pagination : default & fix
 		if ( self::initConfig__fixPagination() === false ) return false;
 		// list order : add limit and offset to statement (when pagination)
 		if ( self::initConfig__fixListOrderWhenPagination() === false ) return false;
@@ -1078,7 +1081,7 @@ class Scaffold {
 			</in>
 			<out>
 				<!-- return value -->
-				<boolean name="~return~' />
+				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
 					<string name="listOrder" />
@@ -1170,7 +1173,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self">
-					<boolean name="pagination" optional="yes" />
+					<number_or_boolean name="pagination" optional="yes" />
 				</structure>
 			</in>
 			<out>
@@ -1178,25 +1181,83 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
-					<structure_or_boolean name="pagination" default="false">
+					<structure name="pagination" default="false">
 						<number name="recordCount" />
 						<number name="recordPerPage" />
 						<number name="pageVisible" />
-					</structure_or_boolean>
+					</structure>
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__fixPagination() {
-		// default no pagination
-		if ( !isset(self::$config['pagination']) ) self::$config['pagination'] = false;
+		// no pagination (by default)
+		if ( empty(self::$config['pagination']) ) {
+			self::$config['pagination'] = false;
 		// fix format
-		if ( !empty(self::$config['pagination']) ) {
-			self::$config['pagination'] = is_array(self::$config['pagination']) ? self::$config['pagination'] : array();
-			self::$config['pagination']['recordCount']   = self::getBeanCount();
-			self::$config['pagination']['pageVisible']   = isset(self::$config['pagination']['pageVisible']  ) ? self::$config['pagination']['pageVisible']   : 10;
-			self::$config['pagination']['recordPerPage'] = isset(self::$config['pagination']['recordPerPage']) ? self::$config['pagination']['recordPerPage'] : 20;
+		} else {
+			// record-per-page
+			if ( is_numeric(self::$config['pagination']) ) $recordPerPage = self::$config['pagination'];
+			elseif ( !empty(self::$config['pagination']['recordPerPage']) ) $recordPerPage = self::$config['pagination']['recordPerPage'];
+			else $recordPerPage = 20;
+			// page-visible
+			if ( !empty(self::$config['pagination']['pageVisible']) ) $pageVisile = self::$config['pagination']['pageVisible'];
+			else $pageVisible = 10;
+			// record-count
+			$recordCount = self::getBeanCount();
+			if ( $recordCount === false ) return false;
+			// put together
+			self::$config['pagination'] = array(
+				'recordCount'   => $recordCount,
+				'pageVisible'   => $pageVisible,
+				'recordPerPage' => $recordPerPage,
+			);
+		}
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			convert retain param into a query string (with &-prefixed)
+			===> easier to implement on xfa
+			===> also check for reserved word
+		</description>
+		<io>
+			<in>
+				<structure name="$config" scope="self">
+					<structure name="retainParam" optional="yes">
+						<string name="*" />
+					</structure>
+				</structure>
+			</in>
+			<out>
+				<!-- fixed config -->
+				<structure name="$config" scope="self">
+					<string name="retainParam" default="" example="&foo=1&bar=2" />
+				</structure>
+				<!-- return value -->
+				<string name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function initConfig__fixRetainParam() {
+		// determine default value
+		if ( empty(self::$config['retainParam']) ) self::$config['retainParam'] = '';
+		// convert from data to query-string
+		if ( is_array(self::$config['retainParam']) ) self::$config['retainParam'] = http_build_query(self::$config['retainParam']);
+		// prepend [&] to make it easier to implement to xfa
+		if ( !empty(self::$config['retainParam']) ) self::$config['retainParam'] = '&'.self::$config['retainParam'];
+		// check for reserved word
+		if ( strpos(self::$config['retainParam'], '&id=') !== false ) {
+			self::$error = '<strong>id</strong> is a reserved parameter and not allowed in [retainParam]';
+			return false;
 		}
 		// done!
 		return true;
@@ -1591,6 +1652,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
 					<string name="editMode" value="modal|inline-modal|basic" comments="for [formType] option" />
 					<boolean name="allowEdit" />
 					<structure name="scriptPath">
@@ -1611,6 +1673,8 @@ class Scaffold {
 					<string name="formType" default="modal" comments="modal|inline-modal|basic" />
 					<number name="labelColumn" default="2" comments="column width" />
 				</structure>
+				<!-- additional exit points (e.g. when custom button specified) -->
+				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1618,13 +1682,13 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[]) {
+	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[], $xfa=[]) {
 		// default option
 		$options['formType'] = $options['formType'] ?? self::$config['editMode'] ?? 'modal';
 		// exit point
-		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
-		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
-		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
 		// display
 		ob_start();
 		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
@@ -1678,6 +1742,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
 					<boolean name="allowEdit" />
 					<structure name="scriptPath">
 						<string name="inline_edit" />
@@ -1691,6 +1756,10 @@ class Scaffold {
 					<structure name="~fieldName~" />
 				</structure>
 				<object name="$bean" />
+				<!-- placeholder -->
+				<structure name="$options" optional="yes" />
+				<!-- additional exit points (e.g. when custom button specified) -->
+				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
 				<string name="~return~" />
@@ -1698,15 +1767,15 @@ class Scaffold {
 		</io>
 	</fusedoc>
 	*/
-	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean) {
+	public static function renderInlineForm($fieldLayout, $fieldConfigAll, $bean, $options=[], $xfa=[]) {
 		$fieldLayout = self::initConfig__fixListField($fieldLayout);
 		if ( $fieldLayout === false ) return false;
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
 		if ( $fieldConfigAll === false ) return false;
 		// exit point
-		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save';
-		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty';
-		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id;
+		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
+		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
+		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
 		// display
 		ob_start();
 		include self::$config['scriptPath']['inline_edit'] ?? F::appPath('view/scaffold/inline_edit.php');
@@ -1723,6 +1792,11 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="$config" scope="self" optional="yes">
+					<string name="retainParam" />
+				</structure>
+				<!-- parameters -->
 				<string name="$fieldName" />
 				<structure name="$fieldConfig" />
 				<object name="$bean" />
@@ -1741,8 +1815,8 @@ class Scaffold {
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
 		// exit point : ajax upload
 		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
-			$xfa['ajaxUpload'] = F::command('controller').'.upload_file';
-			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress';
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.( self::$config['retainParam'] ?? '' );
+			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress'.( self::$config['retainParam'] ?? '' );
 		}
 		// determine value to show in field
 		// ===> precedence: defined-value > one-to-many|many-to-many > bean-value > default-value > empty
@@ -1918,7 +1992,7 @@ class Scaffold {
 		// fix submitted multi-selection value
 		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			// remove empty item from submitted checkboxes
-			if ( !empty($cfg['format']) and in_array($cfg['format'], ['checkbox','one-to-many','many-to-many']) ) {
+			if ( !empty($cfg['format']) and in_array($cfg['format'], ['checkbox','one-to-many','many-to-many']) and isset($data[$fieldName]) ) {
 				$data[$fieldName] = array_filter($data[$fieldName], 'strlen');
 			}
 			// extract {one-to-many|many-to-many} from submitted data before saving
@@ -1936,7 +2010,7 @@ class Scaffold {
 				}
 				unset($data[$fieldName]);
 			// turn checkbox into pipe-delimited list
-			} elseif ( !empty($cfg['format']) and $cfg['format'] == 'checkbox' ) {
+			} elseif ( !empty($cfg['format']) and $cfg['format'] == 'checkbox' and isset($data[$fieldName]) ) {
 				$data[$fieldName] = implode('|', $data[$fieldName]);
 			}
 		}

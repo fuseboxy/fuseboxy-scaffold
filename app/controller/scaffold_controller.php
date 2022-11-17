@@ -6,22 +6,24 @@
 				<!-- essential config -->
 				<string name="beanType" />
 				<string name="layoutPath" />
+				<string_or_structure name="retainParam" optional="yes" comments="retain additional parameter (e.g. fuseaction=product.list&category=foo)" format="query-string or associated-array" />
 				<!-- below config are all optional -->
+				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
+				<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
+				<boolean name="stickyHeader" optional="yes" default="false" />
 				<boolean name="allowNew" optional="yes" default="true" />
-                <boolean name="allowQuick" optional="yes" default="true" />
+				<boolean name="allowQuick" optional="yes" default="true" />
 				<boolean name="allowEdit" optional="yes" default="true" />
 				<boolean name="allowToggle" optional="yes" default="true" comments="applicable only when there is [disabled] field" />
 				<boolean name="allowDelete" optional="yes" default="false" />
 				<boolean_or_structure name="allowSort" optional="yes" default="true">
 					<string name="~column~" comments="sort by column or sub-query" />
 				</boolean_or_structure>
-				<string name="editMode" optional="yes" comments="inline|modal|inline-modal|basic" />
-				<string name="modalSize" optional="yes" comments="max|xxl|xl|lg|md|sm|xs" />
-				<boolean name="stickyHeader" optional="yes" default="false" />
-				<array_or_string name="listFilter" optional="yes">
-					<string name="0" optional="yes" comments="sql statement" oncondition="when {listFilter} is array" />
-					<array  name="1" optional="yes" comments="sql parameter" oncondition="when {listFilter} is array" />
-				</array_or_string>
+				<string name="listFilter" optional="yes" comments="sql statement" />
+				<structure name="listFilter" optional="yes">
+					<string name="sql" comments="sql statement" />
+					<array  name="param" comments="parameters" />
+				</structure>
 				<string name="listOrder" optional="yes" default="order by {seq} (if any), then by {id}" />
 				<array name="listField" optional="yes" comments="determine fields to display in listing">
 					<string name="+" comments="when no key specified, value is column list" />
@@ -39,7 +41,7 @@
 						<string name="label" optional="yes" comments="display name at table/form header">
 						<string name="placeholder" optional="yes" default="display name in field" />
 						<string name="inline-label" optional="yes" default="display name at beginning of field" />
-						<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg|custom" default="text" />
+						<string name="format" optional="yes" comments="text|hidden|output|textarea|dropdown|checkbox|radio|date|time|datetime|file|image|one-to-many|many-to-many|wysiwyg|custom" default="text" />
 						<structure name="options" optional="yes" comments="show dropdown when specified">
 							<string name="~optionValue~" value="~optionText~" optional="yes" />
 							<structure name="~optGroup~" optional="yes">
@@ -124,24 +126,24 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $beanList === false);
 		// define exit point
 		if ( $scaffold['allowNew'] ) {
-			$xfa['new'] = "{$fusebox->controller}.new";
+			$xfa['new'] = "{$fusebox->controller}.new".$scaffold['retainParam'];
 		}
-        if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
-            $xfa['quick'] = "{$fusebox->controller}.quick";
-        }
+		if ( $scaffold['allowQuick'] and in_array($scaffold['editMode'], ['modal','basic']) ) {
+			$xfa['quick'] = "{$fusebox->controller}.quick".$scaffold['retainParam'];
+		}
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowDelete'] ) {
-			$xfa['delete'] = "{$fusebox->controller}.delete";
+			$xfa['delete'] = "{$fusebox->controller}.delete".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowToggle'] ) {
-			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
-			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
+			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0".$scaffold['retainParam'];
+			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1".$scaffold['retainParam'];
 		}
 		// retain url params when change sorting
 		if ( !empty($scaffold['allowSort']) ) {
-			$xfa['sort'] = $fusebox->controller;
+			$xfa['sort'] = $fusebox->controller.$scaffold['retainParam'];
 			foreach ( $_GET as $key => $val ) {
 				if ( $key != F::config('commandVariable') and $key != 'sortField' and $key != 'sortRule' ) {
 					// e.g. &search[sid]=999999
@@ -183,14 +185,14 @@ switch ( $fusebox->action ) :
 		// define exit point
 		// ===> refer to index
 		if ( $scaffold['allowEdit'] ) {
-			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time();
+			$xfa['edit'] = "{$fusebox->controller}.edit&nocache=".time().$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowDelete'] ) {
-			$xfa['delete'] = "{$fusebox->controller}.delete";
+			$xfa['delete'] = "{$fusebox->controller}.delete".$scaffold['retainParam'];
 		}
 		if ( $scaffold['allowToggle'] ) {
-			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0";
-			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1";
+			$xfa['enable'] = "{$fusebox->controller}.toggle&disabled=0".$scaffold['retainParam'];
+			$xfa['disable'] = "{$fusebox->controller}.toggle&disabled=1".$scaffold['retainParam'];
 		}
 		// display (when necessary)
 		if ( !empty($bean->id) ) {
@@ -216,18 +218,13 @@ switch ( $fusebox->action ) :
 		// get empty record (when necessary)
 		if ( !isset($bean) ) $bean = Scaffold::getBean();
 		F::error(Scaffold::error(), $bean === false);
-		// exit point
-		if ( $scaffold['allowEdit'] ) $xfa['submit'] = "{$fusebox->controller}.save";
-		$xfa['cancel'] = empty($bean->id) ? "{$fusebox->controller}.empty" : "{$fusebox->controller}.row&id={$bean->id}";
-		$xfa['ajaxUpload'] = "{$fusebox->controller}.upload_file";
-		$xfa['ajaxUploadProgress'] = "{$fusebox->controller}.upload_file_progress";
 		// display form
 		// ===> use [count] to display multiple forms
 		$layout['content'] = '';
 		for ( $i=0; $i<$arguments['count']; $i++ ) {
 			$method = ( F::is('*.quick') or $scaffold['editMode'] == 'inline' ) ? 'renderInlineForm' : 'renderForm';
 			$fieldLayout = ( $method == 'renderInlineForm' ) ? $scaffold['listField'] : $scaffold['modalField'];
-			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean);
+			$layout['content'] .= Scaffold::$method($fieldLayout, $scaffold['fieldConfig'], $bean, [], $xfa ?? []);
 		}
 		// show with layout (when necessary)
 		if ( F::ajaxRequest() or $scaffold['layoutPath'] === false ) {
@@ -252,8 +249,8 @@ switch ( $fusebox->action ) :
 		$toggleBean = Scaffold::toggleBean($arguments['id'], !$arguments['disabled']);
 		F::error(Scaffold::error(), $toggleBean === false);
 		// back to list
-		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}", F::ajaxRequest());
-		F::redirect($fusebox->controller);
+		F::redirect("{$fusebox->controller}.row&id={$arguments['id']}".$scaffold['retainParam'], F::ajaxRequest());
+		F::redirect($fusebox->controller.$scaffold['retainParam']);
 		break;
 
 
@@ -266,8 +263,8 @@ switch ( $fusebox->action ) :
 		$id = Scaffold::saveBean($arguments['data']);
 		F::error(Scaffold::error(), $id === false);
 		// finish
-		F::redirect("{$fusebox->controller}.row&id={$id}", F::ajaxRequest() and empty($arguments['noRedirect']));
-		F::redirect($fusebox->controller, empty($arguments['noRedirect']));
+		F::redirect("{$fusebox->controller}.row&id={$id}".$scaffold['retainParam'], F::ajaxRequest() and empty($arguments['noRedirect']));
+		F::redirect($fusebox->controller.$scaffold['retainParam'], empty($arguments['noRedirect']));
 		break;
 
 
@@ -280,7 +277,7 @@ switch ( $fusebox->action ) :
 		F::error(Scaffold::error(), $deleteBean === false);
 		// return to index page if not ajax
 		// ===> otherwise, simply show nothing (in order to hide row)
-		F::redirect($fusebox->controller, !F::ajaxRequest());
+		F::redirect($fusebox->controller.$scaffold['retainParam'], !F::ajaxRequest());
 		break;
 
 
