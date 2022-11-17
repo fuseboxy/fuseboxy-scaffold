@@ -2694,6 +2694,18 @@ class Scaffold {
 				return false;
 			}
 		}
+		// check field config : custom script path
+		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
+			if ( isset($cfg['format']) and $cfg['format'] == 'custom' ) {
+				if ( empty($cfg['scriptPath']) ) {
+					self::$error = "Script path for [{$fieldName}] is required";
+					return false;
+				} elseif ( !is_file($cfg['scriptPath']) ) {
+					self::$error = "Script for [{$fieldName}] not exists";
+					return false;
+				}
+			}
+		}
 		// done!
 		return true;
 	}
