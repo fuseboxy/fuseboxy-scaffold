@@ -55,10 +55,6 @@ Therefore, developer could feel free to keep/remove any of these at `app/view/gl
 
 formUrl2arguments (enabled)
 * app/config/fusebox_config.php
-aws sdk for php (not included)
-* https://docs.aws.amazon.com/aws-sdk-php/v3/download/aws.phar
-* (only needed when upload to S3)
-* lib/aws/3.x/
 redbeanphp (included)
 * lib/redbeanphp/5.x/
 simple-ajax-uploader (included)
