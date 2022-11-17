@@ -1,2 +1,2 @@
 <?php
-include __DIR__.'/input.file.php';
+include F::appPath('view/scaffold/input.file.php');

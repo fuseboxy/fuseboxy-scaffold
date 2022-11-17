@@ -1,2 +1,2 @@
 <?php
-include __DIR__.'/input.date.php';
+include F::appPath('view/scaffold/input.datetime.php');
