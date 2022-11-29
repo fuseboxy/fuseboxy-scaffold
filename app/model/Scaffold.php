@@ -1154,7 +1154,7 @@ class Scaffold {
 		// fix param : enforce ID field
 		if ( !empty($options['enforceHasID']) ) {
 			$hasID = false;
-			foreach ( $modalField as $fieldNameList => $fieldWidthList ) if ( in_array('id', explode('|', $fieldNameList)) ) $hasID = true;
+			foreach ( $modalField as $fieldNameList => $fieldWidthList ) if ( in_array('id', explode('|', str_replace(',', '|', $fieldNameList))) ) $hasID = true;
 			if ( !$hasID ) $modalField = array('id' => '') + $modalField;
 		}
 		// done!
