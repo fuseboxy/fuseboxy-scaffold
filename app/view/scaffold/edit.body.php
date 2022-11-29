@@ -62,7 +62,7 @@ foreach ( $fieldLayout as $fieldNameList => $fieldWidthList ) :
 					foreach ( $fieldNameList as $i => $fieldNameSubList ) :
 						$columnClass   = array('scaffold-col');
 						$columnClass[] = !empty($fieldWidthList[$i]) ? "col-{$fieldWidthList[$i]}" : 'col';
-						$columnClass[] = 'col-'.str_replace('.', '-', $fieldNameSubList);
+						$columnClass[] = 'col-'.str_replace(['.',','], '-', $fieldNameSubList);
 						?><div class="<?php echo implode(' ', $columnClass); ?>"><?php
 							$fieldNameSubList = explode(',', $fieldNameSubList);
 							// allow multiple fields stacked on same column
