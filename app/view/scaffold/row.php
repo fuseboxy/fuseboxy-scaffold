@@ -49,10 +49,12 @@ endif;
 						foreach ( $fieldNameList as $fieldIndex => $fieldName ) :
 							if ( !empty($fieldName) ) :
 								$fieldConfig = $scaffold['fieldConfig'][$fieldName];
+								$fieldValue = $fieldConfig['value'] ?? Scaffold::nestedArrayGet($fieldName, $bean);
 								// determine field format
 								$isManyToMany = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'many-to-many' );
 								$isOneToMany  = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'one-to-many' );
 								$isCheckbox   = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' );
+								$isTextArea   = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'textarea' );
 								$isWYSIWYG    = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'wysiwyg' );
 								$isOutput     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'output' );
 								$isHidden     = ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'hidden' );
@@ -63,32 +65,29 @@ endif;
 								$fieldClass = array('col-'.str_replace('.', '-', $fieldName));
 								if ( $fieldIndex > 0 ) $fieldClass[] = 'small text-muted';
 								?><div class="<?php echo implode(' ', $fieldClass); ?>"><?php
-									// output : show custom content
-									if ( $isOutput ) :
-										echo isset($fieldConfig['value']) ? $fieldConfig['value'] : '';
 									// image : show thumbnail
-									elseif ( $isImage and !empty($bean->{$fieldName}) ) :
+									if ( $isImage and !empty($fieldValue) ) :
 										?><a
-											href="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
-											title="<?php echo basename($bean->{$fieldName}); ?>"
+											href="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
+											title="<?php echo basename($fieldValue); ?>"
 											target="_blank"
 											data-fancybox
 										><img
-											src="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
-											alt="<?php echo basename($bean->{$fieldName}); ?>"
+											src="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
+											alt="<?php echo basename($fieldValue); ?>"
 											class="img-thumbnail mb-0 mt-1 <?php if ( !empty($bean->disabled) ) echo 'op-50'; ?>"
 											style="max-width: 100%; <?php if ( !empty($fieldConfig['style']) ) echo $fieldConfig['style']; ?>"
 										/></a><?php
 									// file : show link
-									elseif ( $isFile and !empty($bean->{$fieldName}) ) :
+									elseif ( $isFile and !empty($fieldValue) ) :
 										?><a
-											href="<?php echo dirname($bean->{$fieldName}).'/'.urlencode(basename($bean->{$fieldName})); ?>"
+											href="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
 											style="word-break: break-all;"
 											target="_blank"
-										><?php echo basename($bean->{$fieldName}); ?></a><?php
+										><?php echo basename($fieldValue); ?></a><?php
 									// checkbox : turn list into items
-									elseif ( $isCheckbox and !empty($bean->{$fieldName}) ) :
-										$arr = explode('|', $bean->{$fieldName});
+									elseif ( $isCheckbox and !empty($fieldValue) ) :
+										$arr = explode('|', $fieldValue);
 										foreach ( $arr as $val ) :
 											if ( !empty($val) ) :
 												$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
@@ -111,7 +110,7 @@ endif;
 									// dropdown : show single value (according to options)
 									elseif ( isset($fieldConfig['options']) ) :
 										$isObjectID = ( substr($fieldName, -3) == '_id' );
-										$val = $bean->{$fieldName};
+										$val = $fieldValue;
 										if ( !empty($val) ) :
 											$options = isset($fieldConfig['options']) ? scaffold_options_flatten($fieldConfig['options']) : array();
 											echo !empty($options[$val]) ? $options[$val] : ( $isObjectID ? "[{$fieldName}={$val}]" : $val );
@@ -119,16 +118,18 @@ endif;
 									// url : show link
 									elseif ( $isURL ) :
 										?><a
-											href="<?php echo $bean->{$fieldName}; ?>"
+											href="<?php echo $fieldValue; ?>"
 											style="word-break: break-all;"
 											target="_blank"
-										><?php echo $bean->{$fieldName}; ?></a><?php
-									// wysiwyg : show html
-									elseif ( $isWYSIWYG ) :
-										echo $bean->{$fieldName};
+										><?php echo $fieldValue; ?></a><?php
 									// default : show field value
+									elseif ( $isTextArea ) :
+										echo nl2br($fieldValue);
+									// wysiwyg : show html
+									// default : show field value
+									// output  : show custom content
 									elseif ( !$isHidden ) :
-										echo nl2br($bean->{$fieldName});
+										echo $fieldValue;
 									endif;
 								?></div><?php
 							endif; // if-fieldName
