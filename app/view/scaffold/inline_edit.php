@@ -24,32 +24,44 @@
 </fusedoc>
 */
 $recordID = empty($bean->id) ? Util::uuid() : $bean->id;
-?><form
-	id="<?php echo F::command('controller'); ?>-inline-edit-<?php echo $recordID; ?>"
-	class="<?php echo F::command('controller'); ?>-inline-edit scaffold-inline-edit form-horizontal"
-	<?php if ( isset($xfa['submit']) ) : ?>
-		method="post"
-		action="<?php echo F::url($xfa['submit']); ?>"
-		data-toggle="ajax-submit"
-		data-target="#<?php echo F::command('controller'); ?>-inline-edit-<?php echo $recordID; ?>"
-	<?php endif; ?>
->
-	<table class="table table-hover table-sm mb-0">
-		<tr><?php
-			foreach ( $fieldLayout as $fieldNameList => $columnWidth ) :
-				$fieldNameList = explode('|', $fieldNameList);
-				?><td class="col-<?php echo implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>"><?php
-					foreach ( $fieldNameList as $i => $fieldName ) :
-						?><div class="scaffold-col col-<?php echo str_replace('.', '-', $fieldName); ?>"><?php
-							if ( isset($fieldConfigAll[$fieldName]) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean);
-							else echo '<div class="form-control">'.F::alertOutput([ 'type' => 'warning small', 'message' => "Field [{$fieldName}] is undefined" ]).'</div>';
-						?></div><?php
-					endforeach;
-				?></td><?php
-			endforeach;
-			?><td class="col-button text-nowrap">
-				<div class="text-right"><?php include F::appPath('view/scaffold/inline_edit.button.php'); ?></div>
-			</td>
-		</tr>
-	</table>
-</form>
+$formID = F::command('controller').'-inline-edit-'.$recordID;
+
+
+// wrapper
+?><div id="<?php echo $formID; ?>"><?php
+	// main form
+	?><form
+		class="<?php echo F::command('controller'); ?>-inline-edit scaffold-inline-edit form-horizontal"
+		<?php if ( isset($xfa['submit']) ) : ?>
+			method="post"
+			action="<?php echo F::url($xfa['submit']); ?>"
+			data-toggle="ajax-submit"
+			data-target="#<?php echo $formID; ?>"
+		<?php endif; ?>
+	>
+		<table class="table table-hover table-sm mb-0">
+			<tr><?php
+				foreach ( $fieldLayout as $fieldNameList => $columnWidth ) :
+					$fieldNameList = explode('|', $fieldNameList);
+					?><td class="col-<?php echo implode('-', str_replace('.', '-', $fieldNameList)); ?>" width="<?php echo $columnWidth; ?>"><?php
+						foreach ( $fieldNameList as $i => $fieldName ) :
+							?><div class="scaffold-col col-<?php echo str_replace('.', '-', $fieldName); ?>"><?php
+								// when field is valid
+								// ===> display field accordingly
+								if ( isset($fieldConfigAll[$fieldName]) ) echo Scaffold::renderInput($fieldName, $fieldConfigAll[$fieldName], $bean, $formID);
+								// otherwise
+								// ===> show error message
+								else echo '<div class="form-control">'.F::alertOutput([ 'type' => 'warning small', 'message' => "Field [{$fieldName}] is undefined" ]).'</div>';
+							?></div><?php
+						endforeach;
+					?></td><?php
+				endforeach;
+				?><td class="col-button text-nowrap">
+					<div class="text-right"><?php include F::appPath('view/scaffold/inline_edit.button.php'); ?></div>
+				</td>
+			</tr>
+		</table>
+	</form><?php
+	// hidden ajax-upload form
+	include F::appPath('view/scaffold/ajax_upload.php');
+?></div>

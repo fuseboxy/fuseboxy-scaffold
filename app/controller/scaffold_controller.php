@@ -283,12 +283,16 @@ switch ( $fusebox->action ) :
 
 	// ajax file upload
 	case 'upload_file':
+var_dump($arguments);
+var_dump($_FILES);
+/*
 		$result = Scaffold::uploadFile($arguments);
 		$result = ( $result !== false ) ? $result : array(
 			'success' => false,
 			'msg' => Scaffold::error(),
 		);
 		echo json_encode($result);
+*/
 		break;
 	// ajax upload progress
 	case 'upload_file_progress':

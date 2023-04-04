@@ -2,17 +2,8 @@
 class Scaffold {
 
 
-	// properties : scaffold config
+	// scaffold config
 	public static $config;
-	// properties : library for corresponding methods
-	public static $libPath = array(
-		'uploadFile' => __DIR__.'/../../lib/simple-ajax-uploader/2.6.7/extras/Uploader.php',
-		'uploadFileProgress' => __DIR__.'/../../lib/simple-ajax-uploader/2.6.7/extras/uploadProgress.php',
-	);
-
-
-
-
 	// get (latest) error message
 	private static $error;
 	public static function error() { return self::$error; }
@@ -1685,10 +1676,12 @@ class Scaffold {
 	public static function renderForm($fieldLayout, $fieldConfigAll, $bean, $options=[], $xfa=[]) {
 		// default option
 		$options['formType'] = $options['formType'] ?? self::$config['editMode'] ?? 'modal';
-		// exit point
+		// exit point : form buttons
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
+		// exit point : ajax upload
+		$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.self::$config['retainParam'];
 		// display
 		ob_start();
 		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
@@ -1772,10 +1765,12 @@ class Scaffold {
 		if ( $fieldLayout === false ) return false;
 		$fieldConfigAll = self::initConfig__fixFieldConfig($fieldConfigAll);
 		if ( $fieldConfigAll === false ) return false;
-		// exit point
+		// exit point : form buttons
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
+		// exit point : ajax upload
+		$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.( self::$config['retainParam'] ?? '' );
 		// display
 		ob_start();
 		include self::$config['scriptPath']['inline_edit'] ?? F::appPath('view/scaffold/inline_edit.php');
@@ -1813,11 +1808,6 @@ class Scaffold {
 		// essential variable
 		$dataFieldName = self::fieldName2dataFieldName($fieldName);
 		if ( $dataFieldName === false ) return F::alertOutput([ 'type' => 'warning', 'message' => self::error() ]);
-		// exit point : ajax upload
-		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['file','image']) ) {
-			$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.( self::$config['retainParam'] ?? '' );
-			$xfa['ajaxUploadProgress'] = F::command('controller').'.upload_file_progress'.( self::$config['retainParam'] ?? '' );
-		}
 		// determine value to show in field
 		// ===> precedence: defined-value > one-to-many|many-to-many > bean-value > default-value > empty
 		if ( isset($fieldConfig['value']) ) {
@@ -2263,15 +2253,184 @@ class Scaffold {
 
 
 
-	// ajax upload file
+	/**
+	<fusedoc>
+		<description>
+			ajax upload file
+		</description>
+		<io>
+			<in>
+				<structure name="file" scope="$_FILES">
+					<string name="name" example="my_doc.txt" />
+					<string name="type" example="application/msword" />
+					<string name="tmp_name" example="c:\tmp\php9394.tmp" />
+					<number name="error" example="0" />
+					<number name="size" example="65535" />
+				</structure>
+			</in>
+			<out>
+				<!-- file uploaded -->
+				<file path="~uploadDir~/~beanType~/~fieldName~/~uniqueFileName~" />
+				<!-- return value -->
+				<structure name="~return~">
+					<boolean name="success" />
+					<string name="msg" />
+					<string name="baseUrl" />
+					<string name="fileUrl" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
 	public static function uploadFile($arguments) {
-		// load library
-		$lib = self::$libPath['uploadFile'];
-		if ( !file_exists($lib) ) {
-			self::$error = "Could not load [SimpleAjaxUploader] library (path={$lib})";
-			return false;
-		}
-		require_once $lib;
+/*
+		var elementID = $(this).attr('id');
+		// apply ajax-upload to this single field
+		$('#'+elementID).each(function(){
+			// elements
+			var $fieldContainer = $(this);
+			var $field = $fieldContainer.find('input[type=text]');
+			var $uploadBtn = $fieldContainer.find('.btn-upload');
+			var $removeBtn = $fieldContainer.find('.btn-remove');
+			var $undoBtn = $fieldContainer.find('.btn-undo');
+			var $progress = $fieldContainer.find('.progress-row');
+			var $previewImg = $fieldContainer.find('.img-thumbnail');
+			var $errMsg = $fieldContainer.find('.form-text');
+			// use jquery for show & hide
+			$fieldContainer.find('.d-none').removeClass('d-none').hide();
+			// click button to clear selected image
+			$removeBtn.on('click', function(evt){
+				evt.preventDefault();
+				$field.val('');
+				$previewImg.parent().hide();
+				$undoBtn.show();
+				$removeBtn.hide();
+			}).removeClass('text-white').addClass('bg-white');
+			// click button to restore to original image
+			$undoBtn.on('click', function(evt){
+				evt.preventDefault();
+				$field.val( $undoBtn.attr('data-original-image') );
+				$previewImg.parent().show().attr('href', $undoBtn.attr('data-original-image'));
+				$previewImg.attr('src', $undoBtn.attr('data-original-image'));
+				$undoBtn.hide();
+				$removeBtn.show();
+			}).removeClass('text-white').addClass('bg-white');
+			// validation
+			if ( !$fieldContainer.attr('data-upload-url') ) {
+				alert('attribute [data-upload-url] is required for file upload');
+				return false;
+			// add behavior to upload button
+			// ===> it will enable the upload button automatically
+			} else {
+				// param from controller
+				var _uploadUrl   = $fieldContainer.attr('data-upload-url');
+				var _progressUrl = $fieldContainer.is('[data-progress-url]') ? $fieldContainer.attr('data-progress-url') : false;
+				var _maxSize     = $fieldContainer.is('[data-file-size]') ? (parseFloat($fieldContainer.attr('data-file-size-numeric'))/1024) : false;
+				var _allowedExt  = $fieldContainer.is('[data-file-type]') ? $fieldContainer.attr('data-file-type').split(',') : false;
+				// init ajax uploader
+				var uploader = new ss.SimpleUpload({
+					//----- essential config -----
+					button: $uploadBtn.removeClass('text-white').addClass('bg-white'),
+					name: $fieldContainer.attr('id'),
+					url: _uploadUrl,
+					//----- optional config -----
+					progressUrl: _progressUrl,
+					multiple: false,
+					maxUploads: 1,
+					debug: true,
+					// number of KB (false for default)
+					// ===> javascript use KB for validation
+					// ===> server-side use byte for validation
+					maxSize: _maxSize,
+					// server-upload will block file upload other than below items
+					allowedExtensions: _allowedExt,
+					// control what file to show when choosing files
+					//accept: 'image/*',
+					hoverClass: 'btn-hover',
+					focusClass: 'active',
+					responseType: 'json',
+					// validate allowed extension
+					onExtError: function(filename, extension) {
+						var msg = filename + ' is not in a permitted file type. ('+$fieldContainer.attr('data-file-type').toUpperCase()+' only)';
+						$errMsg.show().html(msg);
+					},
+					// validate file size
+					onSizeError: function(filename, fileSize) {
+						var msg = filename + ' is too big. ('+$fieldContainer.attr('data-file-size')+' max file size)';
+						$errMsg.show().html(msg);
+					},
+					// show progress bar
+					onSubmit: function(filename, extension, uploadBtn, fileSize) {
+						// send original filename as additional data
+						uploader._opts.data['originalName'] = encodeURI(filename);
+						// clear image & show progress
+						$errMsg.hide().html('');
+						$previewImg.parent().hide();
+						$progress.show();
+						// hook progress
+						this.setProgressBar( $progress.find('.progress-bar') );
+						this.setProgressContainer( $progress.find('.progress') );
+					},
+					// start upload
+					startXHR: function() {
+						// Adds click event listener that will cancel the upload
+						// The second argument is whether the button should be removed after the upload
+						// true = yes, remove abort button after upload
+						// false/default = do not remove
+						var $abortBtn = $progress.find('.btn-abort');
+						this.setAbortBtn($abortBtn, false);
+					},
+					// show upload preview (and show remove button)
+					// ===> hide alert, hide progress bar
+					onComplete: function(filename, response, uploadBtn, fileSize) {
+						// upload succeed!
+						if ( response.success ) {
+							// update file path
+							$field.val(response.fileUrl).trigger('change');
+							// refresh preview image
+							$previewImg.parent().show().attr('href', response.fileUrl);
+							$previewImg.attr('src', response.fileUrl);
+							// toggle buttons
+							if ( $undoBtn.attr('data-original-image').length ) {
+								$undoBtn.show();
+								$removeBtn.hide();
+							} else {
+								$undoBtn.attr('data-original-image', response.fileUrl);
+								$removeBtn.show();
+							}
+						// upload failed...
+						} else {
+							// simply show message
+							$errMsg.html( response.msg ? response.msg : response ).show();
+						}
+						// hide progress bar
+						$progress.hide();
+					},					// any error
+					onError: function(filename, errorType, status, statusText, response, uploadBtn, fileSize) {
+						// show error in modal when not valid response
+						var $errModal = $('#ss-error-modal');
+						if ( !$errModal.length ) {
+							$errModal = $(`
+								<div id="ss-error-modal" class="modal fade" role="dialog">
+									<div class="modal-dialog">
+										<div class="modal-content bg-danger">
+											<div class="modal-body"></div>
+										</div>
+									</div>
+								</div>
+							`);
+							$errModal.appendTo('body');
+						}
+						$errModal.find('.modal-body').html(response).end().modal('show');
+					}
+				}); // new-simple-upload
+			} // if-data-upload-url
+			// mark complete
+			$(this).addClass('uploader-ready');
+		}); // each-element-id
+*/
+
+
 		// validation
 		$err = array();
 		if ( empty($arguments['uploaderID']) ) {
