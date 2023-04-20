@@ -29,9 +29,7 @@ class Scaffold {
 	public static function createFolder($newFolder) {
 		$protocol = self::parseConnectionString(null, 'protocol');
 		if ( $protocol === false ) return false;
-		// done!
-		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::createFolder__FTP($newFolder);
-		return self::createFolder__LocalServer($newFolder);
+		return in_array($protocol, ['ftp','ftps']) ? self::createFolder__FTP($newFolder) : self::createFolder__LocalServer($newFolder);
 	}
 
 
@@ -56,7 +54,7 @@ class Scaffold {
 				// create folder
 				$mkdirResult = ftp_mkdir($ftpConn, $dirStack);
 				if ( $mkdirResult === false ) {
-					self::$error = "Error occurred while creating folder at FTP server (folder={$dirStack})";
+					self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error occurred while creating folder at FTP server (folder='.$dirStack.')';
 					return false;
 				}
 				// change folder permission
@@ -158,7 +156,7 @@ class Scaffold {
 	public static function fieldConfig($fieldName) {
 		// validation
 		if ( empty(self::$config['fieldConfig'][$fieldName]) ) {
-			self::$error = "Field config for [{$fieldName}] not found";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Field config not found (fieldName='.$fieldName.')';
 			return false;
 		}
 		// done!
@@ -348,13 +346,13 @@ class Scaffold {
 		// create connection
 		$conn = ftp_connect($cs['hostname']);
 		if ( $conn == false ) {
-			self::$error = "Cannot connect to FTP server ({$cs['hostname']})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Cannot connect to FTP server ('.$cs['hostname'].')';
 			return false;
 		}
 		// login to server
 		$loginResult = ftp_login($conn, $cs['username'], $cs['password']);
 		if ( $loginResult === false ) {
-			self::$error = "Error occurred while logging in FTP server";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error logging in FTP server';
 			return false;
 		}
 		// done!
@@ -389,9 +387,7 @@ class Scaffold {
 	public static function getFileList($dir) {
 		$protocol = self::parseConnectionString(null, 'protocol');
 		if ( $protocol === false ) return false;
-		// done!
-		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::getFileList__FTP($dir);
-		return self::getFileList__LocalServer($dir);
+		return in_array($protocol, ['ftp','ftps']) ? self::getFileList__FTP($dir) : self::getFileList__LocalServer($dir);
 	}
 
 
@@ -1370,7 +1366,7 @@ class Scaffold {
 		// key not found...
 		} else {
 			$keyList = implode(',', array_keys($result));
-			self::$error = "Key [{$key}] is invalid (valid={$keyList})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Key ['.$key.'] is invalid (valid='.$keyList.')';
 			return false;
 		}
 	}
@@ -1434,21 +1430,21 @@ class Scaffold {
 		$folder = isset($conn[1]) ? $conn[1] : '';
 		// validate protocol
 		if ( empty($protocol) ) {
-			self::$error = "[Protocol] is missing from connection string ({$connString})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Protocol is missing from connection string ('.$connString.')';
 			return false;
-		} elseif ( !in_array($protocol, array('ftp','ftps')) ) {
-			self::$error = "[Protocol] is invalid ({$protocol})";
+		} elseif ( !in_array($protocol, ['ftp','ftps']) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Protocol is invalid ('.$protocol.')';
 			return false;
 		// validate credential
 		} elseif ( empty($username) ) {
-			self::$error = "[Username] is missing from connection string ({$connString})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Username is missing from connection string ('.$connString.')';
 			return false;
 		} elseif ( empty($password) ) {
-			self::$error = "[Password] is missing from connection string ({$connString})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Password is missing from connection string ('.$connString.')';
 			return false;
 		// validate hostname
 		} elseif ( empty($hostname) ) {
-			self::$error = "[Hostname] is missing from connection string ({$connString})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Hostname is missing from connection string ('.$connString.')';
 			return false;
 		}
 		// add trailing slash to folder (when necessary)
@@ -1522,7 +1518,7 @@ class Scaffold {
 				// ===> avoid remove file which ajax-upload by user but not save record yet
 				// ===> (do not check lifespan when unit-test)
 				$isOrphan = !in_array($file['name'], $nonOrphanFiles);
-				$isExpired = ( $file['mtime'] < strtotime(date("-1 day")) or Framework::$mode == Framework::FUSEBOX_UNIT_TEST );
+				$isExpired = ( $file['mtime'] < strtotime(date("-1 day")) );
 				$isDeleted = ( $file['ext'] == 'DELETED' );
 				// archive expired file by appending {.DELETED} extension
 				// ===> avoid accidentally removing any precious data
@@ -1559,9 +1555,7 @@ class Scaffold {
 	public static function renameFile($source, $destination) {
 		$protocol = self::parseConnectionString(null, 'protocol');
 		if ( $protocol === false ) return false;
-		// done!
-		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::renameFile__FTP($source, $destination);
-		return self::renameFile__LocalServer($source, $destination);
+		return in_array($protocol, ['ftp','ftps']) ? self::renameFile__FTP($source, $destination) : self::renameFile__LocalServer($source, $destination);
 	}
 
 
@@ -1595,7 +1589,8 @@ class Scaffold {
 		// get file list
 		$renameResult = ftp_rename($ftpConn, $cs['folder'].$source, $cs['folder'].$destination);
 		if ( $renameResult === false ) {
-			self::$error = "Error occurred while renaming expired file on FTP server (source={$source}, destination={$destination}, folder={$cs['folder']})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error renaming expired file on FTP server (source='.$source.', destination='.$destination.', folder='.$cs['folder'].')';
+			return false;
 		}
 		// disconnect...
 		ftp_close($ftpConn);
@@ -1624,7 +1619,7 @@ class Scaffold {
 	*/
 	public static function renameFile__LocalServer($source, $destination) {
 		if ( !rename($filePath, "{$filePath}.DELETED") ) {
-			self::$error = "Error occurred while renaming expired file (source={$source}, destination={$destination})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error renaming expired file (source='.$source.', destination='.$destination.')';
 			return false;
 		}
 		return true;
@@ -1668,6 +1663,12 @@ class Scaffold {
 				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
+				<!-- exit points -->
+				<structure name="$xfa" comments="pass to {edit.php}">
+					<string name="submit" optional="yes" oncondition="when {allowEdit}" />
+					<string name="cancel" />
+				</structure>
+				<!-- output -->
 				<string name="~return~" />
 			</out>
 		</io>
@@ -1680,8 +1681,6 @@ class Scaffold {
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
-		// exit point : ajax upload
-		$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.self::$config['retainParam'];
 		// display
 		ob_start();
 		$formBody = self::renderFormBody($fieldLayout, $fieldConfigAll, $bean, $options);
@@ -1755,6 +1754,12 @@ class Scaffold {
 				<structure name="$xfa" optional="yes" />
 			</in>
 			<out>
+				<!-- exit points -->
+				<structure name="$xfa" comments="pass to {edit.php}">
+					<string name="submit" optional="yes" oncondition="when {allowEdit}" />
+					<string name="cancel" />
+				</structure>
+				<!-- output -->
 				<string name="~return~" />
 			</out>
 		</io>
@@ -1769,8 +1774,6 @@ class Scaffold {
 		if ( !empty(self::$config['allowEdit']) ) $xfa['submit'] = F::command('controller').'.save'.self::$config['retainParam'];
 		if ( empty($bean->id) ) $xfa['cancel'] = F::command('controller').'.empty'.self::$config['retainParam'];
 		else $xfa['cancel'] = F::command('controller').'.row&id='.$bean->id.self::$config['retainParam'];
-		// exit point : ajax upload
-		$xfa['ajaxUpload'] = F::command('controller').'.upload_file'.( self::$config['retainParam'] ?? '' );
 		// display
 		ob_start();
 		include self::$config['scriptPath']['inline_edit'] ?? F::appPath('view/scaffold/inline_edit.php');
@@ -1797,7 +1800,13 @@ class Scaffold {
 				<object name="$bean" />
 			</in>
 			<out>
-				<string name="~return~" comments="output" />
+				<!-- exit point -->
+				<structure name="$xfa" comments="pass to {input.php}">
+					<string name="ajaxUpload" optional="yes" oncondition="when field format is {image|file}" />
+					<string name="cancel" />
+				</structure>
+				<!-- output -->
+				<string name="~return~" />
 			</out>
 		</io>
 	</fusedoc>
@@ -1837,6 +1846,10 @@ class Scaffold {
 		if ( isset($fieldConfig['format']) and $fieldConfig['format'] == 'checkbox' and !is_array($fieldValue) ) {
 			$fieldValue = explode('|', $fieldValue);
 		}
+		// exit point
+		if ( isset($fieldConfig['format']) and in_array($fieldConfig['format'], ['image','file']) ) {
+			$xfa['ajaxUpload'] = F::command('controller').'.upload_file&fieldName='.$fieldName.( self::$config['retainParam'] ?? '' );
+		}
 		// done!
 		ob_start();
 		include F::appPath('view/scaffold/input.php');
@@ -1873,13 +1886,13 @@ class Scaffold {
 		} elseif ( preg_match('/^([0-9]+)(h)$/i', $dimension, $matches) ) {
 			$target['height'] = $matches[1];
 		} else {
-			self::$error = "Invalid file resize dimension ({$dimension})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Invalid file resize dimension ('.$dimension.')';
 			return false;
 		}
 		// get image size of original file
 		$size = getimagesize($filePath);
 		if ( $size === false ) {
-			self::$error = 'Unable to get image size';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Unable to get image size';
 			return false;
 		}
 		$original['width'] = $size[0];
@@ -1900,10 +1913,10 @@ class Scaffold {
 		}
 		// validate calculated dimension
 		if ( $target['width'] == 0 ) {
-			self::$error = "Target [width] cannot be zero ({$dimension})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Target [width] cannot be zero ('.$dimension.')';
 			return false;
 		} elseif ( $target['height'] == 0 ) {
-			self::$error = "Target [height] cannot be zero ({$dimension})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Target [height] cannot be zero ('.$dimension.')';
 			return false;
 		}
 		// load original image
@@ -1916,18 +1929,18 @@ class Scaffold {
 		} elseif ( $imageType == IMAGETYPE_PNG ) {
 			$srcImage = imagecreatefrompng($filePath);
 		} else {
-			self::$error = "Resizing of [{$mimeType}] is not supported";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Resizing of [{$mimeType}] is not supported';
 			return false;
 		}
 		// create resized new image
 		$newImage = imagecreatetruecolor($target['width'], $target['height']);
 		if ( $newImage === false ) {
-			self::$error = "Unable to create new image";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Unable to create new image';
 			return false;
 		}
 		$resizeResult = imagecopyresampled($newImage, $srcImage, 0, 0, 0, 0, $target['width'], $target['height'], $original['width'], $original['height']);
 		if ( $resizeResult === false ) {
-			self::$error = "Unable to resize image";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Unable to resize image';
 			return false;
 		}
 		// override original image with new image
@@ -1941,7 +1954,7 @@ class Scaffold {
 			$saveResult = imagepng($newImage, $filePath);
 		}
 		if ( $saveResult === false ) {
-			self::$error = "Unable to save resized image";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Unable to save resized image';
 			return false;
 		}
 		// allow read & execute to all
@@ -2041,173 +2054,6 @@ class Scaffold {
 	/**
 	<fusedoc>
 		<description>
-			proceed file upload according to different protocol
-		</description>
-		<io>
-			<in>
-				<object name="&$handler" comments="simple-ajax-uploader handler" />
-				<string name="$uploadDir" comments="target directory" />
-				<string name="$resize" optional="yes" example="800x600|1024w|100h" />
-			</in>
-			<out>
-				<string name="~return~" comments="filename" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	// 
-	public static function startUpload(&$handler, $uploadDir, $resize=null) {
-		$protocol = self::parseConnectionString(null, 'protocol');
-		if ( $protocol === false ) return false;
-		// skip when unit-test
-		if ( Framework::$mode == Framework::FUSEBOX_UNIT_TEST ) {
-			return $handler->getNewFileName();
-		}
-		// fix parameter (remove leading slash & append trailing slash)
-		if ( substr($uploadDir, 0, 1) == '/' ) $uploadDir = substr($uploadDir, 1);
-		if ( substr($uploadDir, -1) != '/' ) $uploadDir .= '/';
-		// upload to temp directory first
-		$uploadResult = self::startUpload__TempDir($handler);
-		if ( $uploadResult === false ) return false;
-		// resize uploaded file (when necessary)
-		if ( !empty($resize) ) {
-			$resizeResult = self::resizeImage($uploadResult['filePath'], $resize);
-			if ( $resizeResult === false ) return false;
-		}
-		// done!
-		if ( $protocol == 'ftp' or $protocol == 'ftps' ) return self::startUpload__FTP($uploadResult, $uploadDir);
-		return self::startUpload__LocalServer($uploadResult, $uploadDir);
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			proceed to upload to remote FTP server
-			===> append upload directory with folder in connection string (if any)
-		</description>
-		<io>
-			<in>
-				<structure name="$tempUpload">
-					<string name="directory" />
-					<string name="fileName" />
-					<path name="filePath" />
-				</structure>
-				<string name="$uploadDir" />
-			</in>
-			<out>
-				<string name="~return~" comments="filename" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function startUpload__FTP($tempUpload, $uploadDir) {
-		$cs = self::parseConnectionString();
-		if ( $cs === false ) return false;
-		// connect to server
-		$ftpConn = self::getConnection__FTP();
-		if ( $ftpConn === false ) return false;
-		// upload to target directory at remote server
-		$destination = $cs['folder'].$uploadDir.$tempUpload['fileName'];
-		$source = $tempUpload['filePath'];
-		$uploadResult = ftp_put($ftpConn, $destination, $source, FTP_BINARY);
-		if ( $uploadResult === false ) {
-			self::$error = "Error occurred while uploading file to FTP server";
-			return false;
-		}
-		// disconnect...
-		ftp_close($ftpConn);
-		// done!
-		return $tempUpload['fileName'];
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			move uploaded file from temp directory to correct local directory
-		</description>
-		<io>
-			<in>
-				<structure name="$tempUpload">
-					<string name="directory" />
-					<string name="fileName" />
-					<path name="filePath" />
-				</structure>
-				<string name="$uploadDir" />
-			</in>
-			<out>
-				<string name="~return~" comments="filename" />
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function startUpload__LocalServer($tempUpload, $uploadDir) {
-		$source = $tempUpload['filePath'];
-		$destination  = F::config('uploadDir');
-		$destination .= ( substr($destination, -1) == '/' ) ? '' : '/';
-		$destination .= $uploadDir . $tempUpload['fileName'];
-		// move temp file to target directory in local server
-		$moveResult = rename($source, $destination);
-		if ( $moveResult === false ) {
-			self::$error = "Error occurred while moving temp file in local server";
-			return false;
-		}
-		// done!
-		return $tempUpload['fileName'];
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
-			upload to temp directory at local server
-		</description>
-		<io>
-			<in>
-				<object name="&$handler" comments="simple-ajax-uploader handler" />
-			</in>
-			<out>
-				<structure name="~return~" comments="info of file uploaded to temp dir">
-					<string name="directory" comments="with trailing slash" />
-					<string name="fileName" />
-					<path name="filePath" />
-				</structure>
-			</out>
-		</io>
-	</fusedoc>
-	*/
-	public static function startUpload__TempDir(&$handler) {
-		// upload to system temp directory
-		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
-		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
-		$handler->uploadDir = $tmpUploadDir;
-		$uploadResult = $handler->handleUpload();
-		// validate upload result
-		if ( !$uploadResult ) {
-			self::$error = '[startUpload__TempDir] '.$handler->getErrorMsg();
-			return false;
-		}
-		// done!
-		return array(
-			'directory' => $handler->uploadDir,
-			'fileName'  => $handler->getFileName(),
-			'filePath'  => $handler->uploadDir.$handler->getFileName(),
-		);
-	}
-
-
-
-
-	/**
-	<fusedoc>
-		<description>
 			enable or disable specific record
 		</description>
 		<io>
@@ -2231,7 +2077,7 @@ class Scaffold {
 		$saveResult = ORM::save($bean);
 		// check result
 		if ( $saveResult === false ) {
-			self::$error = "Error occurred while toggling record (id={$id}, active={$active})";
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error toggling record (id='.$id.', active='.$active.')';
 			return false;
 		}
 		// write log (when necessary)
@@ -2260,6 +2106,24 @@ class Scaffold {
 		</description>
 		<io>
 			<in>
+				<!-- config -->
+				<structure name="config" scope="$fusebox">
+					<string name="uploadDir" />
+				</structure>
+				<structure name="$config" scope="self">
+					<structure name="~fieldName~">
+						<string name="beanType" />
+						<string name="format" comments="image|file" />
+						<list name="filetype" optional="yes" delim="," example="jpg,jpeg,png" />
+						<string name="filesize" optional="yes" example="2MB|500KB" />
+						<string name="resize" optional="yes" example="800x600|1024w|100h" />
+					</structure>
+				</structure>
+				<!-- parameter -->
+				<structure name="$arguments">
+					<string name="fieldName" />
+				</structure>
+				<!-- tmp file uploaded -->
 				<structure name="file" scope="$_FILES">
 					<string name="name" example="my_doc.txt" />
 					<string name="type" example="application/msword" />
@@ -2274,7 +2138,7 @@ class Scaffold {
 				<!-- return value -->
 				<structure name="~return~">
 					<boolean name="success" />
-					<string name="msg" />
+					<string name="message" />
 					<string name="baseUrl" />
 					<string name="fileUrl" />
 				</structure>
@@ -2283,216 +2147,194 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function uploadFile($arguments) {
-/*
-		var elementID = $(this).attr('id');
-		// apply ajax-upload to this single field
-		$('#'+elementID).each(function(){
-			// elements
-			var $fieldContainer = $(this);
-			var $field = $fieldContainer.find('input[type=text]');
-			var $uploadBtn = $fieldContainer.find('.btn-upload');
-			var $removeBtn = $fieldContainer.find('.btn-remove');
-			var $undoBtn = $fieldContainer.find('.btn-undo');
-			var $progress = $fieldContainer.find('.progress-row');
-			var $previewImg = $fieldContainer.find('.img-thumbnail');
-			var $errMsg = $fieldContainer.find('.form-text');
-			// use jquery for show & hide
-			$fieldContainer.find('.d-none').removeClass('d-none').hide();
-			// click button to clear selected image
-			$removeBtn.on('click', function(evt){
-				evt.preventDefault();
-				$field.val('');
-				$previewImg.parent().hide();
-				$undoBtn.show();
-				$removeBtn.hide();
-			}).removeClass('text-white').addClass('bg-white');
-			// click button to restore to original image
-			$undoBtn.on('click', function(evt){
-				evt.preventDefault();
-				$field.val( $undoBtn.attr('data-original-image') );
-				$previewImg.parent().show().attr('href', $undoBtn.attr('data-original-image'));
-				$previewImg.attr('src', $undoBtn.attr('data-original-image'));
-				$undoBtn.hide();
-				$removeBtn.show();
-			}).removeClass('text-white').addClass('bg-white');
-			// validation
-			if ( !$fieldContainer.attr('data-upload-url') ) {
-				alert('attribute [data-upload-url] is required for file upload');
-				return false;
-			// add behavior to upload button
-			// ===> it will enable the upload button automatically
-			} else {
-				// param from controller
-				var _uploadUrl   = $fieldContainer.attr('data-upload-url');
-				var _progressUrl = $fieldContainer.is('[data-progress-url]') ? $fieldContainer.attr('data-progress-url') : false;
-				var _maxSize     = $fieldContainer.is('[data-file-size]') ? (parseFloat($fieldContainer.attr('data-file-size-numeric'))/1024) : false;
-				var _allowedExt  = $fieldContainer.is('[data-file-type]') ? $fieldContainer.attr('data-file-type').split(',') : false;
-				// init ajax uploader
-				var uploader = new ss.SimpleUpload({
-					//----- essential config -----
-					button: $uploadBtn.removeClass('text-white').addClass('bg-white'),
-					name: $fieldContainer.attr('id'),
-					url: _uploadUrl,
-					//----- optional config -----
-					progressUrl: _progressUrl,
-					multiple: false,
-					maxUploads: 1,
-					debug: true,
-					// number of KB (false for default)
-					// ===> javascript use KB for validation
-					// ===> server-side use byte for validation
-					maxSize: _maxSize,
-					// server-upload will block file upload other than below items
-					allowedExtensions: _allowedExt,
-					// control what file to show when choosing files
-					//accept: 'image/*',
-					hoverClass: 'btn-hover',
-					focusClass: 'active',
-					responseType: 'json',
-					// validate allowed extension
-					onExtError: function(filename, extension) {
-						var msg = filename + ' is not in a permitted file type. ('+$fieldContainer.attr('data-file-type').toUpperCase()+' only)';
-						$errMsg.show().html(msg);
-					},
-					// validate file size
-					onSizeError: function(filename, fileSize) {
-						var msg = filename + ' is too big. ('+$fieldContainer.attr('data-file-size')+' max file size)';
-						$errMsg.show().html(msg);
-					},
-					// show progress bar
-					onSubmit: function(filename, extension, uploadBtn, fileSize) {
-						// send original filename as additional data
-						uploader._opts.data['originalName'] = encodeURI(filename);
-						// clear image & show progress
-						$errMsg.hide().html('');
-						$previewImg.parent().hide();
-						$progress.show();
-						// hook progress
-						this.setProgressBar( $progress.find('.progress-bar') );
-						this.setProgressContainer( $progress.find('.progress') );
-					},
-					// start upload
-					startXHR: function() {
-						// Adds click event listener that will cancel the upload
-						// The second argument is whether the button should be removed after the upload
-						// true = yes, remove abort button after upload
-						// false/default = do not remove
-						var $abortBtn = $progress.find('.btn-abort');
-						this.setAbortBtn($abortBtn, false);
-					},
-					// show upload preview (and show remove button)
-					// ===> hide alert, hide progress bar
-					onComplete: function(filename, response, uploadBtn, fileSize) {
-						// upload succeed!
-						if ( response.success ) {
-							// update file path
-							$field.val(response.fileUrl).trigger('change');
-							// refresh preview image
-							$previewImg.parent().show().attr('href', response.fileUrl);
-							$previewImg.attr('src', response.fileUrl);
-							// toggle buttons
-							if ( $undoBtn.attr('data-original-image').length ) {
-								$undoBtn.show();
-								$removeBtn.hide();
-							} else {
-								$undoBtn.attr('data-original-image', response.fileUrl);
-								$removeBtn.show();
-							}
-						// upload failed...
-						} else {
-							// simply show message
-							$errMsg.html( response.msg ? response.msg : response ).show();
-						}
-						// hide progress bar
-						$progress.hide();
-					},					// any error
-					onError: function(filename, errorType, status, statusText, response, uploadBtn, fileSize) {
-						// show error in modal when not valid response
-						var $errModal = $('#ss-error-modal');
-						if ( !$errModal.length ) {
-							$errModal = $(`
-								<div id="ss-error-modal" class="modal fade" role="dialog">
-									<div class="modal-dialog">
-										<div class="modal-content bg-danger">
-											<div class="modal-body"></div>
-										</div>
-									</div>
-								</div>
-							`);
-							$errModal.appendTo('body');
-						}
-						$errModal.find('.modal-body').html(response).end().modal('show');
-					}
-				}); // new-simple-upload
-			} // if-data-upload-url
-			// mark complete
-			$(this).addClass('uploader-ready');
-		}); // each-element-id
-*/
-
-
+		$fieldName = $arguments['fieldName'] ?? '';
 		// validation
-		$err = array();
-		if ( empty($arguments['uploaderID']) ) {
-			$err[] = 'Argument [uploaderID] is required';
-		}
-		if ( empty($arguments['originalName']) ) {
-			$err[] = 'Argument [originalName] is required';
-		}
-		if ( empty($arguments['fieldName']) ) {
-			$err[] = 'Argument [fieldName] is required';
-		} elseif ( !isset(self::$config['fieldConfig'][$arguments['fieldName']]) ) {
-			$err[] = "Field config for [{$arguments['fieldName']}] is required";
-		} elseif ( !in_array(self::$config['fieldConfig'][$arguments['fieldName']]['format'], ['file','image']) ) {
-			$err[] = "Field [{$arguments['fieldName']}] must be [format=file|image]";
-		}
-		// validation error (if any)
-		if ( !empty($err) ) {
-			self::$error = implode("\n", $err);
+		if ( empty($fieldName) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Argument [fieldName] is required';
+			return false;
+		} elseif ( !isset(self::$config['fieldConfig'][$fieldName]) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Field config for ['.$fieldName.'] is required';
+			return false;
+		} elseif ( !in_array(self::$config['fieldConfig'][$fieldName]['format'], ['file','image']) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Field ['.$fieldName.'] must be [format=image|file]';
+			return false;
+		// validate temp file uploaded
+		} elseif ( empty($_FILES) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] No file uploaded. The file might exceed the {post_max_size} of PHP settings';
+			return false;
+		} elseif ( empty($_FILES['file']['size']) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Empty file size. The file might exceed the {upload_max_filesize} of PHP settings';
 			return false;
 		}
-		// get connection info
-		$cs = self::parseConnectionString();
-		if ( $cs === false ) return false;
+		// validate file type (only allow image & doc by default)
+		$fileExt = strtolower(pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION));
+		$allowed = array_map('strtolower', explode(',', self::$config['fieldConfig'][$fieldName]['filetype']));
+		if ( !in_array($fileExt, $allowed) ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Only '.strtoupper(implode(', ', $allowed)).' are allowed';
+			return false;
+		}
+		// validate file size
+		$fileSize = $_FILES['file']['size'];
+		$fileSizeLimit = self::fileSizeNumeric(self::$config['fieldConfig'][$fieldName]['filesize']);
+		if ( $fileSizeLimit === false ) return false;
+		if ( $fileSize > $fileSizeLimit ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] File is too big (max='.self::$config['fieldConfig'][$fieldName]['filesize'].', now='.$fileSize.')';
+			return false;
+		}
 		// fix config
-		$uploadDir = self::$config['beanType'].'/'.$arguments['fieldName'].'/';
+		$uploadDir = self::$config['beanType'].'/'.$fieldName.'/';
 		$uploadBaseUrl  = str_replace('\\', '/', F::config('uploadUrl'));
 		$uploadBaseUrl .= ( substr($uploadBaseUrl, -1) == '/' ) ? '' : '/';
-		$uploadBaseUrl .= self::$config['beanType'].'/'.$arguments['fieldName'].'/';
+		$uploadBaseUrl .= self::$config['beanType'].'/'.$fieldName.'/';
 		// create folder (when necessary)
 		$createFolderResult = self::createFolder($uploadDir);
 		if ( $createFolderResult === false ) return false;
 		// remove uploaded file which parent record was deleted
-		$removeExpiredFile = self::removeExpiredFile($arguments['fieldName'], $uploadDir);
+		$removeExpiredFile = self::removeExpiredFile($fieldName, $uploadDir);
 		if ( $removeExpiredFile === false ) return false;
-		// init object (specify [uploaderID] to know which DOM to update)
-		$uploader = new FileUpload($arguments['uploaderID']);
-		// config : array of permitted file extensions (only allow image & doc by default)
-		$uploader->allowedExtensions = explode(',', self::$config['fieldConfig'][$arguments['fieldName']]['filetype']);
-		// config : max file upload size in bytes (default 10MB in library)
-		// ===> scaffold-controller turns human-readable-filesize into numeric
-		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['filesize']) ) {
-			$uploader->sizeLimit = self::fileSizeNumeric( self::$config['fieldConfig'][$arguments['fieldName']]['filesize'] );
+		// assign unique name to avoid overwrite any existing file
+		$uniqueFileName = pathinfo(urldecode($_FILES['file']['name']), PATHINFO_FILENAME).'_'.Util::uuid().'.'.pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+		// move uploaded file to system temp directory first
+		$tmpUploadResult = self::uploadFile__TempDir();
+		if ( $tmpUploadResult === false ) return false;
+		// resize uploaded file (when necessary)
+		if ( !empty(self::$config['fieldConfig'][$fieldName]['resize']) ) {
+			$resizeResult = self::resizeImage($tmpUploadResult['filePath'], self::$config['fieldConfig'][$fieldName]['resize']);
+			if ( $resizeResult === false ) return false;
 		}
-		// config : assign unique name to avoid overwrite
-		$arguments['originalName'] = urldecode($arguments['originalName']);
-		$uniqueName = pathinfo($arguments['originalName'], PATHINFO_FILENAME).'_'.Util::uuid().'.'.pathinfo($arguments['originalName'], PATHINFO_EXTENSION);
-		$uploader->newFileName = $uniqueName;
-		// check resize config (when necessary)
-		if ( !empty(self::$config['fieldConfig'][$arguments['fieldName']]['resize']) ) {
-			$resize = self::$config['fieldConfig'][$arguments['fieldName']]['resize'];
-		} else {
-			$resize = null;
-		}
-		// start upload
-		$uploadFileName = self::startUpload($uploader, $uploadDir, $resize);
-		if ( $uploadFileName === false ) return false;
+		// get connection info
+		$cs = self::parseConnectionString();
+		if ( $cs === false ) return false;
+		// proceed to upload to final destination
+		$protocol = self::parseConnectionString(null, 'protocol');
+		if ( $protocol === false ) return false;
+		$subMethod = in_array($protocol, ['ftp','ftps']) ? 'uploadFile__FTP' : 'uploadFile__LocalServer';
+		$uploadResult = self::{$subMethod}($tmpUploadResult['filePath'], $uploadDir.$uniqueFileName);
+		if ( $uploadResult === false ) return false;
 		// success!
 		return array(
 			'success' => true,
-			'msg'     => 'File uploaded successfully',
 			'baseUrl' => $uploadBaseUrl,
-			'fileUrl' => $uploadBaseUrl.$uploadFileName,
+			'fileUrl' => $uploadBaseUrl.$uniqueFileName,
+			'message' => 'File uploaded successfully',
+		);
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			proceed to upload to remote FTP server
+		</description>
+		<io>
+			<in>
+				<string name="$source" comments="temp file in local server" />
+				<string name="$destination" comments="remote file path with connection string & sub-folder & file name" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function uploadFile__FTP($source, $destination) {
+		// adjust destination
+		$cs = self::parseConnectionString();
+		if ( $cs === false ) return false;
+		$destination = $cs['folder'].$destination;
+		// connect to server
+		$ftpConn = self::getConnection__FTP();
+		if ( $ftpConn === false ) return false;
+		// upload to target directory at remote server
+		$uploadResult = ftp_put($ftpConn, $destination, $source, FTP_BINARY);
+		if ( $uploadResult === false ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error uploading file to FTP server';
+			return false;
+		}
+		// disconnect...
+		ftp_close($ftpConn);
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			move uploaded file from temp directory to correct local directory
+		</description>
+		<io>
+			<in>
+				<string name="$source" comments="temp file in local server" />
+				<string name="$destination" comments="file path with sub-folder & file name" />
+			</in>
+			<out>
+				<boolean name="~return~" />
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function uploadFile__LocalServer($source, $destination) {
+		// adjust destination
+		$destination = rtrim(F::config('uploadDir').'/').'/'.$destination;
+		// move temp file to target directory in local server
+		$moveResult = rename($source, $destination);
+		if ( $moveResult === false ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error moving file in local server';
+			return false;
+		}
+		// done!
+		return true;
+	}
+
+
+
+
+	/**
+	<fusedoc>
+		<description>
+			upload to temp directory at local server
+		</description>
+		<io>
+			<in>
+				<structure name="file" scope="$_FILES">
+					<string name="name" example="my_doc.txt" />
+					<string name="type" example="application/msword" />
+					<string name="tmp_name" example="c:\tmp\php9394.tmp" />
+					<number name="error" example="0" />
+					<number name="size" example="65535" />
+				</structure>
+			</in>
+			<out>
+				<structure name="~return~" comments="info of file uploaded to temp dir">
+					<string name="directory" comments="with trailing slash" />
+					<string name="fileName" />
+					<path name="filePath" />
+				</structure>
+			</out>
+		</io>
+	</fusedoc>
+	*/
+	public static function uploadFile__TempDir() {
+		$tmpUploadDir  = str_replace('\\', '/', sys_get_temp_dir());
+		$tmpUploadDir .= ( substr($tmpUploadDir, -1) == '/' ) ? '' : '/';
+		// upload to system temp directory
+		$fileName = Util::uuid().'_'.$_FILES['file']['name'];
+		$filePath = $tmpUploadDir.'/'.$fileName;
+		$moved = move_uploaded_file($_FILES['file']['tmp_name'], $filePath);
+		if ( $moved === false ) {
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Error moving uploaded file - '.( error_get_last()['message'] ?? '(unknown reason)' );
+			return false;
+		}
+		// done!
+		return array(
+			'directory' => $tmpUploadDir,
+			'fileName'  => $fileName,
+			'filePath'  => $filePath,
 		);
 	}
 
@@ -2540,33 +2382,33 @@ class Scaffold {
 		}
 		// check bean type
 		if ( empty(self::$config['beanType']) ) {
-			self::$error = 'Scaffold config [beanType] is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Scaffold config [beanType] is required';
 			return false;
 		} elseif ( strpos(self::$config['beanType'], '_') !== false ) {
-			self::$error = 'Scaffold config [beanType] cannot contain underscore';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Scaffold config [beanType] cannot contain underscore';
 			return false;
 		// check layout path
 		} elseif ( !isset(self::$config['layoutPath']) ) {
-			self::$error = 'Scaffold config [layoutPath] is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Scaffold config [layoutPath] is required';
 			return false;
 		// check edit mode
 		} elseif ( !empty(self::$config['editMode']) and !in_array(self::$config['editMode'], ['inline','modal','inline-modal','basic']) ) {
-			self::$error = 'Scaffold config [editMode] is invalid ('.self::$config['editMode'].')';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Scaffold config [editMode] is invalid ('.self::$config['editMode'].')';
 			return false;
 		// check uploader directory (when has file field)
 		} elseif ( empty(F::config('uploadDir')) and $hasFileField ) {
-			self::$error = 'Fusebox config [uploadDir] is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Fusebox config [uploadDir] is required';
 			return false;
 		} elseif ( empty(F::config('uploadUrl')) and $hasFileField ) {
-			self::$error = 'Fusebox config [uploadUrl] is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Fusebox config [uploadUrl] is required';
 			return false;
 		// check util component (for uuid)
 		} elseif ( !class_exists('Util') ) {
-			self::$error = 'Util component is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Util component is required';
 			return false;
 		// check log component
 		} elseif ( !empty(self::$config['writeLog']) and !class_exists('Log') ) {
-			self::$error = 'Log component is required';
+			self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Log component is required';
 			return false;
 		}
 		// check field config : any missing @ listField
@@ -2574,7 +2416,7 @@ class Scaffold {
 			$fieldNameList = explode('|', $fieldNameList);
 			foreach ( $fieldNameList as $fieldName ) {
 				if ( !empty($fieldName) and !isset(self::$config['fieldConfig'][$fieldName]) ) {
-					self::$error = "Field config for [{$fieldName}] is required";
+					self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Field config for ['.$fieldName.'] is required';
 					return false;
 				}
 			} // foreach-fieldName
@@ -2585,7 +2427,7 @@ class Scaffold {
 				$fieldNameList = explode('|', str_replace(',', '|', $fieldNameList));
 				foreach ( $fieldNameList as $fieldName ) {
 					if ( !empty($fieldName) and !isset(self::$config['fieldConfig'][$fieldName]) ) {
-						self::$error = "Field config for [{$fieldName}] is required";
+						self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Field config for ['.$fieldName.'] is required';
 						return false;
 					}
 				} // foreach-fieldName
@@ -2594,10 +2436,10 @@ class Scaffold {
 		// check field config : options
 		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			if ( isset($cfg['format']) and in_array($cfg['format'], ['checkbox','radio']) and !isset($cfg['options']) ) {
-				self::$error = "Options for [{$fieldName}] is required";
+				self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Options for ['.$fieldName.'] is required';
 				return false;
 			} elseif ( isset($cfg['options']) and $cfg['options'] !== false and !is_array($cfg['options']) ) {
-				self::$error = "Options for [{$fieldName}] must be array";
+				self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Options for ['.$fieldName.'] must be array';
 				return false;
 			}
 		}
@@ -2605,10 +2447,10 @@ class Scaffold {
 		foreach ( self::$config['fieldConfig'] as $fieldName => $cfg ) {
 			if ( isset($cfg['format']) and $cfg['format'] == 'custom' ) {
 				if ( empty($cfg['scriptPath']) ) {
-					self::$error = "Script path for [{$fieldName}] is required";
+					self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Script path for ['.$fieldName.'] is required';
 					return false;
 				} elseif ( !is_file($cfg['scriptPath']) ) {
-					self::$error = "Script for [{$fieldName}] not exists";
+					self::$error = '['.__CLASS__.'::'.__FUNCTION__.'] Script for ['.$fieldName.'] not exists';
 					return false;
 				}
 			}

@@ -283,20 +283,21 @@ switch ( $fusebox->action ) :
 
 	// ajax file upload
 	case 'upload_file':
-var_dump($arguments);
-var_dump($_FILES);
-/*
-		$result = Scaffold::uploadFile($arguments);
-		$result = ( $result !== false ) ? $result : array(
-			'success' => false,
-			'msg' => Scaffold::error(),
-		);
-		echo json_encode($result);
-*/
-		break;
-	// ajax upload progress
-	case 'upload_file_progress':
-		require Scaffold::$libPath['uploadFileProgress'];
+		F::error('Argument [fieldName] is required', empty($arguments['fieldName']));
+		$uploadResult = Scaffold::uploadFile($arguments);
+		F::error(Scaffold::error(), $uploadResult === false);
+		F::error($uploadResult['message'], empty($uploadResult['success']));
+		// prepare essential variables
+		$fieldName = $arguments['fieldName'];
+		$fieldValue = $uploadResult['fileUrl'];
+		$dataFieldName = Scaffold::fieldName2dataFieldName($fieldName);
+		F::error(Scaffold::error(), $dataFieldName === false);
+		$fieldConfig = Scaffold::fieldConfig($fieldName);
+		F::error(Scaffold::error(), $fieldConfig === false);
+		// exit point
+		$xfa['ajaxUpload'] = F::command('controller').'.upload_file&fieldName='.$fieldName.( $scaffold['retainParam'] ?? '' );
+		// display field
+		include F::appPath('view/scaffold/input.'.( $fieldConfig['format'] ?? 'file' ).'.php');
 		break;
 
 

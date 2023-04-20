@@ -2,7 +2,9 @@
 <fusedoc>
 	<io>
 		<in>
-			<string name="$formID" />
+			<structure name="$xfa">
+				<string name="ajaxUpload" />
+			</structure>
 			<string name="$fieldName" />
 			<string name="$dataFieldName" />
 			<string name="$fieldValue" />
@@ -30,9 +32,9 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 		// buttons
 		if ( empty($fieldConfig['readonly']) and empty($fieldConfig['disabled']) ) :
 			?><div class="input-group-prepend">
-				<button type="button" class="input-group-text text-white btn-upload">Choose</button>
-				<button type="button" class="input-group-text bg-white btn-remove <?php if ( empty($fieldValue) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
-				<button type="button" class="input-group-text bg-white btn-undo d-none" data-original-image="<?php echo $fieldValue; ?>"><i class="fa fa-undo small px-1"></i></button>
+				<button id="choose-<?php echo $uniqid; ?>" type="button" class="input-group-text btn bg-light btn-choose disabled">Choose</button>
+				<button id="remove-<?php echo $uniqid; ?>" type="button" class="input-group-text btn bg-light btn-remove <?php if ( empty($fieldValue) ) echo 'd-none'; ?>"><i class="fa fa-times small px-1"></i></button>
+				<button id="undo-<?php echo $uniqid; ?>"   type="button" class="input-group-text btn bg-light btn-undo d-none" data-original-image="<?php echo $fieldValue; ?>"><i class="fa fa-undo small px-1"></i></button>
 			</div><?php
 		endif;
 		// file path
@@ -42,13 +44,18 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 			name="<?php echo $dataFieldName; ?>"
 			value="<?php echo $fieldValue; ?>"
 			placeholder="<?php if ( !empty($fieldConfig['placeholder']) ) echo $fieldConfig['placeholder']; ?>"
-			readonly
 			<?php if ( !empty($fieldConfig['required']) ) echo 'required'; ?>
 			<?php if ( !empty($fieldConfig['disabled']) ) echo 'disabled'; ?>
+			readonly
+			data-toggle="ajax-upload"
+			data-target="#<?php echo $uniqid; ?>"
+			data-form-action="<?php echo F::url($xfa['ajaxUpload']); ?>"
+			data-choose-button="#choose-<?php echo $uniqid; ?>"
+			data-remove-button="#remove-<?php echo $uniqid; ?>"
+			data-undo-button="#undo-<?php echo $uniqid; ?>"
+			data-preview="#preview-<?php echo $uniqid; ?>"
 		 />
 	</div><!--/.input-group--><?php
-	// (client-side) error message
-	?><div class="form-text text-danger small px-1 mt-1 d-none"></div><?php
 	// preview image
 	if ( $fieldConfig['format'] == 'image' ) :
 		?><a
@@ -59,6 +66,7 @@ $uniqid = F::command('controller').'-input-'.$fieldConfig['format'].'-'.str_repl
 			target="_blank"
 			data-fancybox
 		><img
+			id="preview-<?php echo $uniqid; ?>"
 			src="<?php echo dirname($fieldValue).'/'.urlencode(basename($fieldValue)); ?>"
 			alt="<?php echo basename($fieldValue); ?>"
 			class="img-thumbnail mt-1"
