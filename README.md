@@ -246,8 +246,6 @@ include F::appPath('controller/scaffold_controller.php');
 
 
 
-<<<<<<< HEAD
-
 ## Third-party Components
 The global layout module includes CDN of following JS and CSS libraries to provide a faster development environment:
 * jQuery (1.9 or above)
@@ -297,10 +295,10 @@ Therefore, developer could feel free to keep/remove any of these at `app/view/gl
 
 formUrl2arguments (enabled)
 * app/config/fusebox_config.php
-redbeanphp (included)
-* lib/redbeanphp/5.x/
-simple-ajax-uploader (included)
-* lib/simple-ajax-uploader/2.x/
+fuseboxy-orm
+* (composer dependencies)
+fuseboxy-log
+* (composer dependencies)
 bootstrap-extend (cdn)
 * https://cdn.statically.io/bb/henrygotmojo/bootstrap-extend/4.0.3/bootstrap.extend.css
 * https://cdn.statically.io/bb/henrygotmojo/bootstrap-extend/4.0.3/bootstrap.extend.js
