@@ -99,7 +99,8 @@ Low-code CRUD UI Builder
 		<string name="inline_edit" optional="yes" />
 	</structure>
 	<!-- advanced settings for pagination -->
-	<boolean name="pagination" optional="yes" comments="simply set true to enable pagination with default settings" />
+	<boolean name="pagination" optional="yes" comments="simply set true to enable pagination (and use default value on all pagination settings)" />
+	<number name="pagination" optional="yes" comments="specific record-per-page (and use default value on other pagination settings)" />
 	<structure name="pagination" optional="yes" comments="further specify pagination settings">
 		<number name="recordPerPage" optional="yes" default="50" />
 		<number name="pageVisible" optional="yes" default="10" />
