@@ -1063,6 +1063,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self">
+					<boolean name="allowShowAll" />
 					<string name="listOrder" />
 				</structure>
 				<!-- url variable -->
@@ -1080,8 +1081,11 @@ class Scaffold {
 	</fusedoc>
 	*/
 	public static function initConfig__fixListOrderWhenPagination() {
+		$isShowAll = !empty($_GET['showAll']);
+		$allowShowAll = self::$config['allowShowAll'];
+		$hasPagination = !empty(self::$config['pagination']);
 		// param fix : list order
-		if ( !empty(self::$config['pagination']) and empty($_GET['showAll']) ) {
+		if ( $hasPagination and ( !$allowShowAll or !$isShowAll ) ) {
 			$offset = ( !empty($_GET['page']) and $_GET['page'] > 0 ) ? ( ($_GET['page']-1) * self::$config['pagination']['recordPerPage'] ) : 0;
 			$limit = self::$config['pagination']['recordPerPage'];
 			self::$config['listOrder'] .= " LIMIT {$limit} OFFSET {$offset}";
