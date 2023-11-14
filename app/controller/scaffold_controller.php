@@ -19,6 +19,7 @@
 				<boolean_or_structure name="allowSort" optional="yes" default="true">
 					<string name="~column~" comments="sort by column or sub-query" />
 				</boolean_or_structure>
+				<boolean name="allowShowAll" optional="yes" default="true" comments="for pagination" />
 				<string name="listFilter" optional="yes" comments="sql statement" />
 				<structure name="listFilter" optional="yes">
 					<string name="sql" comments="sql statement" />

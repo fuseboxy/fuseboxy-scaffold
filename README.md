@@ -42,6 +42,7 @@ Low-code CRUD UI Builder
 	<boolean_or_structure name="allowSort" optional="yes" default="true">
 		<string name="~column~" comments="sort by column or sub-query" />
 	</boolean_or_structure>
+	<boolean name="allowShowAll" optional="yes" default="true" comments="for pagination" />
 	<string name="listFilter" optional="yes" comments="sql statement" />
 	<structure name="listFilter" optional="yes">
 		<string name="sql" comments="sql statement" />
@@ -64,7 +65,7 @@ Low-code CRUD UI Builder
 			<string name="label" optional="yes" comments="display name at table/form header">
 			<string name="placeholder" optional="yes" default="display name in field" />
 			<string name="inline-label" optional="yes" default="display name at beginning of field" />
-			<string name="format" optional="yes" comments="text|hidden|output|textarea|checkbox|radio|file|image|one-to-many|many-to-many|wysiwyg|url" default="text" />
+			<string name="format" optional="yes" comments="text|hidden|output|textarea|dropdown|checkbox|radio|date|time|datetime|file|image|one-to-many|many-to-many|wysiwyg|custom" default="text" />
 			<structure name="options" optional="yes" comments="show dropdown when specified">
 				<string name="~optionValue~" value="~optionText~" optional="yes" />
 				<structure name="~optGroup~" optional="yes">
@@ -88,6 +89,8 @@ Low-code CRUD UI Builder
 			<list name="filetype" optional="yes" delim="," example="pdf,doc,docx" />
 			<!-- for [format=image] only -->
 			<string name="resize" optional="yes" example="800x600|1024w|100h" />
+			<!-- for [format=custom] only -->
+			<string name="scriptPath" optional="yes" example="/server/path/to/custom/input.php" />
 		</structure>
 	</structure>
 	<!-- advanced settings for UI customization -->
@@ -99,8 +102,7 @@ Low-code CRUD UI Builder
 		<string name="inline_edit" optional="yes" />
 	</structure>
 	<!-- advanced settings for pagination -->
-	<boolean name="pagination" optional="yes" comments="simply set true to enable pagination (and use default value on all pagination settings)" />
-	<number name="pagination" optional="yes" comments="specific record-per-page (and use default value on other pagination settings)" />
+	<boolean name="pagination" optional="yes" comments="simply set true to enable pagination with default settings" />
 	<structure name="pagination" optional="yes" comments="further specify pagination settings">
 		<number name="recordPerPage" optional="yes" default="50" />
 		<number name="pageVisible" optional="yes" default="10" />

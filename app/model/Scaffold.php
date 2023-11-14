@@ -651,24 +651,26 @@ class Scaffold {
 				<boolean name="~return~" />
 				<!-- fixed config -->
 				<structure name="$config" scope="self">
-					<boolean name="allowNew"    default="true" />
-					<boolean name="allowQuick"  default="~allowNew~" />
-					<boolean name="allowEdit"   default="true" />
-					<boolean name="allowSort"   default="true" />
-					<boolean name="allowToggle" default="true" />
-					<boolean name="allowDelete" default="false" />
+					<boolean name="allowNew"     default="true" />
+					<boolean name="allowQuick"   default="~allowNew~" />
+					<boolean name="allowEdit"    default="true" />
+					<boolean name="allowSort"    default="true" />
+					<boolean name="allowToggle"  default="true" />
+					<boolean name="allowDelete"  default="false" />
+					<boolean name="allowShowAll" default="true" />
 				</structure>
 			</out>
 		</io>
 	</fusedoc>
 	*/
 	public static function initConfig__defaultPermission() {
-		if ( !isset(self::$config['allowNew'])    ) self::$config['allowNew']    = true;
-		if ( !isset(self::$config['allowQuick'])  ) self::$config['allowQuick']  = self::$config['allowNew'];
-		if ( !isset(self::$config['allowEdit'])   ) self::$config['allowEdit']   = true;
-		if ( !isset(self::$config['allowSort'])   ) self::$config['allowSort']   = true;
-		if ( !isset(self::$config['allowToggle']) ) self::$config['allowToggle'] = true;
-		if ( !isset(self::$config['allowDelete']) ) self::$config['allowDelete'] = false;
+		self::$config['allowNew']     = self::$config['allowNew']     ?? true;
+		self::$config['allowQuick']   = self::$config['allowQuick']   ?? self::$config['allowNew'];
+		self::$config['allowEdit']    = self::$config['allowEdit']    ?? true;
+		self::$config['allowSort']    = self::$config['allowSort']    ?? true;
+		self::$config['allowToggle']  = self::$config['allowToggle']  ?? true;
+		self::$config['allowDelete']  = self::$config['allowDelete']  ?? false;
+		self::$config['allowShowAll'] = self::$config['allowShowAll'] ?? true;
 		// done!
 		return true;
 	}
@@ -1055,7 +1057,7 @@ class Scaffold {
 	<fusedoc>
 		<description>
 			adjust [listOrder] statement when pagination
-			// ===> add limit and offset to statement
+			===> add limit and offset to statement
 		</description>
 		<io>
 			<in>
@@ -1160,6 +1162,7 @@ class Scaffold {
 			<in>
 				<!-- config -->
 				<structure name="$config" scope="self">
+					<boolean name="allowShowAll" />
 					<number_or_boolean name="pagination" optional="yes" />
 				</structure>
 			</in>
@@ -1172,6 +1175,7 @@ class Scaffold {
 						<number name="recordCount" />
 						<number name="recordPerPage" />
 						<number name="pageVisible" />
+						<boolean name="allowShowAll" />
 					</structure>
 				</structure>
 			</out>
@@ -1199,6 +1203,7 @@ class Scaffold {
 				'recordCount'   => $recordCount,
 				'pageVisible'   => $pageVisible,
 				'recordPerPage' => $recordPerPage,
+				'allowShowAll'  => self::$config['pagination']['allowShowAll'],
 			);
 		}
 		// done!
