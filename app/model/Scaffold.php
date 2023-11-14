@@ -1203,7 +1203,7 @@ class Scaffold {
 				'recordCount'   => $recordCount,
 				'pageVisible'   => $pageVisible,
 				'recordPerPage' => $recordPerPage,
-				'allowShowAll'  => self::$config['pagination']['allowShowAll'],
+				'allowShowAll'  => self::$config['allowShowAll'],
 			);
 		}
 		// done!
