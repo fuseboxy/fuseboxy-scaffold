@@ -7,6 +7,17 @@ Low-code CRUD UI Builder
 --------------------------------------------------
 
 
+## Dependencies
+
+Fuseboxy Core 1.x
+Fuseboxy Layout 1.x
+(Bootstrap 4.x)
+(jQuery 1.x)
+
+
+--------------------------------------------------
+
+
 ## Installation
 
 #### By Composer
