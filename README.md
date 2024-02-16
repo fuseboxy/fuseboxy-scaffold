@@ -1,5 +1,5 @@
-Fuseboxy Scaffold (v2.x)
-========================
+Fuseboxy Scaffold (1.x)
+=======================
 
 Low-code CRUD UI Builder
 
@@ -252,11 +252,11 @@ include F::appPath('controller/scaffold_controller.php');
 ## Third-party Components
 The global layout module includes CDN of following JS and CSS libraries to provide a faster development environment:
 * jQuery (1.9 or above)
-* Bootstrap (5.x)
+* Bootstrap (4.x)
 
 Please be noted that the Fuseboxy framework core does **NOT** depend on any one of these.
 
-Therefore, developer could feel free to keep/remove any of these at `app/view/global/layout.basic.php` whenever applicable.
+Therefore, developer could feel free to keep or remove any of these at `app/view/global/layout.html.php` whenever applicable.
 
 
 
